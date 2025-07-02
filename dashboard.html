@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAU Inventory Management System - Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>PAU Inventory</h1>
+                    <span>Management System</span>
+                </div>
+                <div class="user-info">
+                    <span id="welcomeMessage">Welcome, Admin!</span>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <div class="dashboard-welcome">
+                <h2>Dashboard</h2>
+                <p>Welcome to the PAU Inventory Management System. You have successfully logged in!</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-info">
+                        <h3>Total Items</h3>
+                        <p class="stat-number">0</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-info">
+                        <h3>Categories</h3>
+                        <p class="stat-number">0</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-info">
+                        <h3>Low Stock</h3>
+                        <p class="stat-number">0</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <h3>Total Value</h3>
+                        <p class="stat-number">$0</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="alert('Add Item feature coming soon!')">
+                        <span class="btn-icon">➕</span>
+                        Add Item
+                    </button>
+                    <button class="action-btn" onclick="alert('View Inventory feature coming soon!')">
+                        <span class="btn-icon">📋</span>
+                        View Inventory
+                    </button>
+                    <button class="action-btn" onclick="alert('Generate Report feature coming soon!')">
+                        <span class="btn-icon">📊</span>
+                        Generate Report
+                    </button>
+                    <button class="action-btn" onclick="alert('Settings feature coming soon!')">
+                        <span class="btn-icon">⚙️</span>
+                        Settings
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAU Inventory - Test Guide</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: #f8f9fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-step {
+            background: #e7f3ff;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin: 10px 0;
+        }
+        .credentials {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .feature-list {
+            background: #f8fff9;
+            padding: 15px;
+            border-left: 4px solid #28a745;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #ffe7e7;
+            padding: 15px;
+            border-left: 4px solid #dc3545;
+            margin: 10px 0;
+        }
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏭 PAU Inventory Management System</h1>
+        <p>Complete Testing Guide for All Modules</p>
+    </div>
+
+    <div class="test-section">
+        <h2>🚀 Quick Start</h2>
+        <div class="test-step">
+            <strong>Step 1:</strong> Open <code>index.html</code> in your web browser
+        </div>
+        <div class="test-step">
+            <strong>Step 2:</strong> Use the login credentials below to test different roles
+        </div>
+        <div class="test-step">
+            <strong>Step 3:</strong> Navigate through the modules to test functionality
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧭 Navigation Features</h2>
+        
+        <div class="feature-list">
+            <h4>✨ New Navigation Feature:</h4>
+            <ul>
+                <li><strong>Clickable Logo:</strong> Click "PAU Inventory" in the top-left corner to return to dashboard</li>
+                <li><strong>Dashboard Navigation:</strong> Works from all modules and pages</li>
+                <li><strong>Role-Based Routing:</strong> Automatically returns to the appropriate dashboard (Supervisor/Staff)</li>
+                <li><strong>Visual Feedback:</strong> Hover effects indicate the logo is clickable</li>
+                <li><strong>Consistent Experience:</strong> Available across all pages in the system</li>
+            </ul>
+        </div>
+
+        <div class="test-step">
+            <strong>Navigation Testing:</strong> Click the "PAU Inventory" logo from any module page to return to your dashboard
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔐 Login Credentials</h2>
+        
+        <h3>Supervisor Accounts (Full Access)</h3>
+        <div class="credentials">
+            <strong>Admin Account:</strong><br>
+            Username: <code>admin</code><br>
+            Password: <code>admin</code>
+        </div>
+        <div class="credentials">
+            <strong>Supervisor Account:</strong><br>
+            Username: <code>supervisor</code><br>
+            Password: <code>supervisor</code>
+        </div>
+
+        <h3>Staff Accounts (Limited Access)</h3>
+        <div class="credentials">
+            <strong>Staff Account 1:</strong><br>
+            Username: <code>staff1</code><br>
+            Password: <code>staff123</code>
+        </div>
+        <div class="credentials">
+            <strong>Staff Account 2:</strong><br>
+            Username: <code>john</code><br>
+            Password: <code>john123</code>
+        </div>
+        <div class="credentials">
+            <strong>Staff Account 3:</strong><br>
+            Username: <code>mary</code><br>
+            Password: <code>mary123</code>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>👥 User Management Module Testing (Supervisor Only)</h2>
+        
+        <div class="warning">
+            <strong>⚠️ Important:</strong> Only Supervisors can access the User Management module. Staff users will see an access denied message.
+        </div>
+
+        <h3>Access Testing</h3>
+        <div class="test-step">
+            <strong>1. Login as Supervisor:</strong> Use admin/admin or supervisor/supervisor
+        </div>
+        <div class="test-step">
+            <strong>2. Navigate to User Management:</strong> Click "User Management" from the supervisor dashboard
+        </div>
+        <div class="test-step">
+            <strong>3. Verify Dashboard:</strong> Should see user statistics and management interface
+        </div>
+
+        <h3>Core Functionality Testing</h3>
+        <div class="feature-list">
+            <h4>✅ Features to Test:</h4>
+            <ul>
+                <li><strong>View Users:</strong> See all system users in a table format</li>
+                <li><strong>Add User:</strong> Click "Add User" to create new accounts</li>
+                <li><strong>Edit User:</strong> Click edit button (✏️) to modify user details</li>
+                <li><strong>Activate/Deactivate:</strong> Toggle user status with play/pause buttons</li>
+                <li><strong>Delete User:</strong> Remove users with delete button (🗑️)</li>
+                <li><strong>Search Users:</strong> Use search box to find specific users</li>
+                <li><strong>Filter Users:</strong> Filter by role (Supervisor/Staff) or status</li>
+                <li><strong>Bulk Actions:</strong> Select multiple users for bulk operations</li>
+                <li><strong>Export Users:</strong> Download user data as CSV</li>
+                <li><strong>Audit Log:</strong> View audit trail of all user management actions</li>
+            </ul>
+        </div>
+
+        <h3>Validation Testing</h3>
+        <div class="test-step">
+            <strong>Email Validation:</strong> Try creating users with invalid emails (should fail)
+        </div>
+        <div class="test-step">
+            <strong>Duplicate Email:</strong> Try creating users with existing emails (should fail)
+        </div>
+        <div class="test-step">
+            <strong>Required Fields:</strong> Try submitting forms with empty fields (should fail)
+        </div>
+        <div class="test-step">
+            <strong>Self-Protection:</strong> Try deleting/deactivating your own account (should fail)
+        </div>
+
+        <h3>Expected User Management Data</h3>
+        <div class="credentials">
+            <strong>Default Users in System:</strong><br>
+            • System Administrator (admin@pau.edu) - Supervisor<br>
+            • John Doe (john.doe@pau.edu) - Staff<br>
+            <em>Additional users can be created through the interface</em>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Other Modules Testing</h2>
+        
+        <div class="feature-list">
+            <h4>📋 Inventory Management</h4>
+            <ul>
+                <li>Add, edit, delete inventory items</li>
+                <li>Search and filter products</li>
+                <li>Check stock level warnings</li>
+                <li>Role-based price visibility</li>
+            </ul>
+        </div>
+
+        <div class="feature-list">
+            <h4>🥄 Ingredient Management</h4>
+            <ul>
+                <li>Manage cooking ingredients</li>
+                <li>Track expiry dates</li>
+                <li>Supplier management</li>
+                <li>Export ingredient data</li>
+            </ul>
+        </div>
+
+        <div class="feature-list">
+            <h4>🏭 Production Tracking</h4>
+            <ul>
+                <li>Log inbound/outbound production</li>
+                <li>Batch tracking</li>
+                <li>Real-time inventory updates</li>
+                <li>Production statistics</li>
+            </ul>
+        </div>
+
+        <div class="feature-list">
+            <h4>🗑️ Wastage Logging</h4>
+            <ul>
+                <li>Log factory and outlet wastage</li>
+                <li>Automatic inventory deduction</li>
+                <li>Wastage analytics</li>
+                <li>Historical reporting</li>
+            </ul>
+        </div>
+
+        <div class="feature-list">
+            <h4>📊 Sales Overview (Supervisor Only)</h4>
+            <ul>
+                <li>Sales analytics and trends</li>
+                <li>Demand forecasting</li>
+                <li>Top product analysis</li>
+                <li>Export sales reports</li>
+            </ul>
+        </div>
+
+        <div class="feature-list">
+            <h4>📈 Report Generation (Supervisor Only)</h4>
+            <ul>
+                <li>Comprehensive reporting</li>
+                <li>Export in multiple formats</li>
+                <li>Audit-ready reports</li>
+                <li>Custom date ranges</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 Technical Notes</h2>
+        
+        <div class="warning">
+            <strong>Browser Storage:</strong> The application uses localStorage to persist data. Clearing browser data will reset the application.
+        </div>
+        
+        <div class="test-step">
+            <strong>Browser Compatibility:</strong> Best tested in Chrome, Firefox, Safari, or Edge
+        </div>
+        
+        <div class="test-step">
+            <strong>Responsive Design:</strong> Test on different screen sizes and mobile devices
+        </div>
+        
+        <div class="test-step">
+            <strong>Data Persistence:</strong> All data is stored locally in browser storage
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 Testing Checklist</h2>
+        
+        <div class="feature-list">
+            <h4>✅ Complete Testing Checklist:</h4>
+            <ul>
+                <li>☐ Login with different user roles</li>
+                <li>☐ Test role-based dashboard access</li>
+                <li>☐ Verify User Management (Supervisor only)</li>
+                <li>☐ Test all CRUD operations in each module</li>
+                <li>☐ Verify search and filter functionality</li>
+                <li>☐ Test export features</li>
+                <li>☐ Check data validation and error handling</li>
+                <li>☐ Verify audit trails and logging</li>
+                <li>☐ Test responsive design on mobile</li>
+                <li>☐ Verify logout and session management</li>
+            </ul>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px;">
+        <a href="index.html" class="btn">🚀 Start Testing the Application</a>
+    </div>
+</body>
+</html>

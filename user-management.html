@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAU Inventory - User Management</title>
+    <link rel="stylesheet" href="user-management.css">
+</head>
+<body>
+    <div class="user-management-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo" onclick="goBackToDashboard()" style="cursor: pointer;" title="Return to Dashboard">
+                    <h1>PAU Inventory</h1>
+                    <span>User Management</span>
+                </div>
+                <div class="user-info">
+                    <span class="role-badge supervisor" id="userRoleBadge">Supervisor</span>
+                    <span id="welcomeMessage">Welcome, Supervisor!</span>
+                    <button onclick="goBackToDashboard()" class="back-btn">Back to Dashboard</button>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- User Management Dashboard -->
+            <section class="dashboard-section">
+                <h2>👥 User Management Dashboard</h2>
+                <div class="user-stats">
+                    <div class="stat-card total">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <h3>Total Users</h3>
+                            <p class="stat-number" id="totalUsers">0</p>
+                            <span class="stat-label">system accounts</span>
+                        </div>
+                    </div>
+                    <div class="stat-card active">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <h3>Active Users</h3>
+                            <p class="stat-number" id="activeUsers">0</p>
+                            <span class="stat-label">can log in</span>
+                        </div>
+                    </div>
+                    <div class="stat-card inactive">
+                        <div class="stat-icon">❌</div>
+                        <div class="stat-info">
+                            <h3>Inactive Users</h3>
+                            <p class="stat-number" id="inactiveUsers">0</p>
+                            <span class="stat-label">deactivated</span>
+                        </div>
+                    </div>
+                    <div class="stat-card supervisors">
+                        <div class="stat-icon">👑</div>
+                        <div class="stat-info">
+                            <h3>Supervisors</h3>
+                            <p class="stat-number" id="supervisorCount">0</p>
+                            <span class="stat-label">admin access</span>
+                        </div>
+                    </div>
+                    <div class="stat-card staff">
+                        <div class="stat-icon">👤</div>
+                        <div class="stat-info">
+                            <h3>Staff Members</h3>
+                            <p class="stat-number" id="staffCount">0</p>
+                            <span class="stat-label">standard access</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="actions-section">
+                <div class="section-header">
+                    <h2>⚡ Quick Actions</h2>
+                </div>
+                <div class="action-buttons">
+                    <button onclick="showCreateUserModal()" class="action-btn create">
+                        <span class="btn-icon">➕</span>
+                        <span>Create New User</span>
+                    </button>
+                    <button onclick="showBulkActions()" class="action-btn bulk">
+                        <span class="btn-icon">📋</span>
+                        <span>Bulk Actions</span>
+                    </button>
+                    <button onclick="exportUserList()" class="action-btn export">
+                        <span class="btn-icon">📊</span>
+                        <span>Export User List</span>
+                    </button>
+                    <button onclick="showAuditLog()" class="action-btn audit">
+                        <span class="btn-icon">🔍</span>
+                        <span>View Audit Log</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- User Search and Filters -->
+            <section class="search-section">
+                <div class="section-header">
+                    <h2>🔍 User Search & Filters</h2>
+                </div>
+                <div class="search-controls">
+                    <div class="search-group">
+                        <input type="text" id="userSearch" placeholder="Search by username, email, or full name..." class="search-input">
+                        <button onclick="searchUsers()" class="search-btn">🔍 Search</button>
+                        <button onclick="clearSearch()" class="clear-btn">✕ Clear</button>
+                    </div>
+                    <div class="filter-group">
+                        <select id="roleFilter" onchange="filterUsers()">
+                            <option value="">All Roles</option>
+                            <option value="supervisor">Supervisors</option>
+                            <option value="staff">Staff</option>
+                        </select>
+                        <select id="statusFilter" onchange="filterUsers()">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                        <select id="sortBy" onchange="sortUsers()">
+                            <option value="username">Sort by Username</option>
+                            <option value="email">Sort by Email</option>
+                            <option value="role">Sort by Role</option>
+                            <option value="status">Sort by Status</option>
+                            <option value="created">Sort by Created Date</option>
+                            <option value="lastLogin">Sort by Last Login</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User List Table -->
+            <section class="user-list-section">
+                <div class="section-header">
+                    <h2>📋 User Account List</h2>
+                    <div class="list-actions">
+                        <button onclick="refreshUserList()" class="refresh-btn">🔄 Refresh</button>
+                        <span class="user-count">Showing <span id="displayedCount">0</span> of <span id="totalCount">0</span> users</span>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="user-table" id="userTable">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                </th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Full Name</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <!-- Dynamic user rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination" id="pagination">
+                    <!-- Dynamic pagination will be inserted here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Create/Edit User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Create New User Account</h3>
+                <button onclick="closeUserModal()" class="close-btn">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="userId" name="userId">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="username">Username *</label>
+                            <input type="text" id="username" name="username" required 
+                                   placeholder="Enter unique username">
+                            <small class="field-help">Must be unique across the system</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required 
+                                   placeholder="user@example.com">
+                            <small class="field-help">Used as unique identifier</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name *</label>
+                            <input type="text" id="firstName" name="firstName" required 
+                                   placeholder="First name">
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" name="lastName" required 
+                                   placeholder="Last name">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userRole">Role *</label>
+                            <select id="userRole" name="userRole" required onchange="updateRoleHelp()">
+                                <option value="">Select Role...</option>
+                                <option value="supervisor">Supervisor</option>
+                                <option value="staff">Staff</option>
+                            </select>
+                            <small class="field-help" id="roleHelp">Choose appropriate access level</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="userStatus">Account Status *</label>
+                            <select id="userStatus" name="userStatus" required>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                            <small class="field-help">Active users can log in to the system</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row" id="passwordSection">
+                        <div class="form-group">
+                            <label for="password">Password *</label>
+                            <input type="password" id="password" name="password" 
+                                   placeholder="Enter secure password">
+                            <small class="field-help">Minimum 6 characters required</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password *</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" 
+                                   placeholder="Confirm password">
+                            <small class="field-help">Must match the password above</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <select id="department" name="department">
+                            <option value="">Select Department...</option>
+                            <option value="production">Production</option>
+                            <option value="sales">Sales</option>
+                            <option value="inventory">Inventory</option>
+                            <option value="management">Management</option>
+                            <option value="quality_control">Quality Control</option>
+                        </select>
+                        <small class="field-help">Optional organizational grouping</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" name="notes" rows="3" 
+                                  placeholder="Optional notes about this user account..."></textarea>
+                        <small class="field-help">Internal notes (not visible to the user)</small>
+                    </div>
+
+                    <div class="permissions-section" id="permissionsSection">
+                        <h4>🔐 Role Permissions</h4>
+                        <div class="permissions-grid" id="permissionsGrid">
+                            <!-- Dynamic permissions will be shown here -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="closeUserModal()" class="cancel-btn">Cancel</button>
+                <button type="button" onclick="saveUser()" class="save-btn" id="saveUserBtn">Create User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Actions Modal -->
+    <div id="bulkModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📋 Bulk Actions</h3>
+                <button onclick="closeBulkModal()" class="close-btn">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="bulk-info">
+                    <p>Selected Users: <span id="selectedCount">0</span></p>
+                    <div id="selectedUsersList" class="selected-users">
+                        <!-- Selected users will be listed here -->
+                    </div>
+                </div>
+                <div class="bulk-actions">
+                    <h4>Available Actions:</h4>
+                    <div class="bulk-action-buttons">
+                        <button onclick="bulkActivate()" class="bulk-btn activate">
+                            <span class="btn-icon">✅</span>
+                            <span>Activate Selected</span>
+                        </button>
+                        <button onclick="bulkDeactivate()" class="bulk-btn deactivate">
+                            <span class="btn-icon">❌</span>
+                            <span>Deactivate Selected</span>
+                        </button>
+                        <button onclick="bulkChangeRole()" class="bulk-btn role">
+                            <span class="btn-icon">👤</span>
+                            <span>Change Role</span>
+                        </button>
+                        <button onclick="bulkDelete()" class="bulk-btn delete">
+                            <span class="btn-icon">🗑️</span>
+                            <span>Delete Selected</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeBulkModal()" class="cancel-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Log Modal -->
+    <div id="auditModal" class="modal">
+        <div class="modal-content audit-modal">
+            <div class="modal-header">
+                <h3>🔍 User Management Audit Log</h3>
+                <button onclick="closeAuditModal()" class="close-btn">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="audit-filters">
+                    <select id="auditFilter">
+                        <option value="">All Actions</option>
+                        <option value="create">User Created</option>
+                        <option value="update">User Updated</option>
+                        <option value="activate">User Activated</option>
+                        <option value="deactivate">User Deactivated</option>
+                        <option value="delete">User Deleted</option>
+                        <option value="login">User Login</option>
+                    </select>
+                    <input type="date" id="auditFromDate" placeholder="From Date">
+                    <input type="date" id="auditToDate" placeholder="To Date">
+                    <button onclick="filterAuditLog()" class="filter-btn">Filter</button>
+                </div>
+                <div class="audit-log" id="auditLogContent">
+                    <!-- Audit log entries will be displayed here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="exportAuditLog()" class="export-btn">Export Log</button>
+                <button onclick="closeAuditModal()" class="cancel-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content confirmation-modal">
+            <div class="modal-header">
+                <h3 id="confirmTitle">Confirm Action</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure you want to perform this action?</p>
+                <div class="confirm-details" id="confirmDetails">
+                    <!-- Additional details will be shown here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeConfirmModal()" class="cancel-btn">Cancel</button>
+                <button onclick="executeConfirmedAction()" class="confirm-btn" id="confirmActionBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>Processing...</h3>
+            <p id="loadingText">Please wait while we process your request</p>
+        </div>
+    </div>
+
+    <script src="user-management.js"></script>
+</body>
+</html>

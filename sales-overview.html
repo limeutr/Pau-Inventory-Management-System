@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAU Inventory - Sales Overview</title>
+    <link rel="stylesheet" href="sales-overview.css">
+</head>
+<body>
+    <div class="sales-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo" onclick="goBackToDashboard()" style="cursor: pointer;" title="Return to Dashboard">
+                    <h1>PAU Inventory</h1>
+                    <span>Sales Overview</span>
+                </div>
+                <div class="user-info">
+                    <span class="role-badge supervisor" id="userRoleBadge">Supervisor</span>
+                    <span id="welcomeMessage">Welcome, Supervisor!</span>
+                    <button onclick="goBackToDashboard()" class="back-btn">Back to Dashboard</button>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Sales Dashboard -->
+            <section class="dashboard-section">
+                <h2>📊 Sales Dashboard</h2>
+                <div class="dashboard-stats">
+                    <div class="stat-card revenue">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <h3>Total Revenue</h3>
+                            <p class="stat-number" id="totalRevenue">$0.00</p>
+                            <span class="stat-change positive" id="revenueChange">+0.0%</span>
+                            <span class="stat-period">vs last period</span>
+                        </div>
+                    </div>
+                    <div class="stat-card sales">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-info">
+                            <h3>Total Sales</h3>
+                            <p class="stat-number" id="totalSales">0</p>
+                            <span class="stat-change positive" id="salesChange">+0.0%</span>
+                            <span class="stat-period">units sold</span>
+                        </div>
+                    </div>
+                    <div class="stat-card average">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <h3>Average Order Value</h3>
+                            <p class="stat-number" id="averageOrderValue">$0.00</p>
+                            <span class="stat-change neutral" id="aovChange">+0.0%</span>
+                            <span class="stat-period">per transaction</span>
+                        </div>
+                    </div>
+                    <div class="stat-card outlets">
+                        <div class="stat-icon">🏪</div>
+                        <div class="stat-info">
+                            <h3>Active Outlets</h3>
+                            <p class="stat-number" id="activeOutlets">4</p>
+                            <span class="stat-change neutral">100%</span>
+                            <span class="stat-period">operational</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Time Period Selector -->
+            <section class="period-selector-section">
+                <div class="period-controls">
+                    <h3>📅 Analysis Period</h3>
+                    <div class="period-buttons">
+                        <button class="period-btn active" onclick="setPeriod('today')">Today</button>
+                        <button class="period-btn" onclick="setPeriod('week')">This Week</button>
+                        <button class="period-btn" onclick="setPeriod('month')">This Month</button>
+                        <button class="period-btn" onclick="setPeriod('quarter')">This Quarter</button>
+                        <button class="period-btn" onclick="setPeriod('year')">This Year</button>
+                    </div>
+                    <div class="custom-period">
+                        <label for="customFrom">Custom Range:</label>
+                        <input type="date" id="customFrom" name="customFrom">
+                        <span>to</span>
+                        <input type="date" id="customTo" name="customTo">
+                        <button onclick="setCustomPeriod()" class="apply-btn">Apply</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sales Trends Chart -->
+            <section class="trends-section">
+                <div class="section-header">
+                    <h2>📈 Sales Trends</h2>
+                    <div class="chart-controls">
+                        <select id="trendMetric" onchange="updateTrendsChart()">
+                            <option value="revenue">Revenue</option>
+                            <option value="units">Units Sold</option>
+                            <option value="transactions">Transactions</option>
+                        </select>
+                        <select id="trendGrouping" onchange="updateTrendsChart()">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendsChart" width="800" height="400"></canvas>
+                    <div class="chart-placeholder" id="trendsPlaceholder">
+                        <div class="chart-info">
+                            <h3>Sales Trends Visualization</h3>
+                            <p>Interactive chart showing sales performance over time</p>
+                            <div class="trend-preview" id="trendPreview">
+                                <!-- Dynamic trend data will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Top Selling Products -->
+            <section class="top-products-section">
+                <div class="section-header">
+                    <h2>🏆 Top Selling Products</h2>
+                    <div class="filter-controls">
+                        <select id="productMetric" onchange="updateTopProducts()">
+                            <option value="units">By Units Sold</option>
+                            <option value="revenue">By Revenue</option>
+                            <option value="frequency">By Frequency</option>
+                        </select>
+                        <select id="productLimit" onchange="updateTopProducts()">
+                            <option value="10">Top 10</option>
+                            <option value="20">Top 20</option>
+                            <option value="50">Top 50</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="products-grid" id="topProductsGrid">
+                    <!-- Dynamic top products will be displayed here -->
+                </div>
+            </section>
+
+            <!-- Outlet Performance -->
+            <section class="outlet-performance-section">
+                <h2>🏪 Outlet Performance Analysis</h2>
+                <div class="outlet-cards" id="outletCards">
+                    <!-- Dynamic outlet performance cards will be displayed here -->
+                </div>
+            </section>
+
+            <!-- Demand Forecasting -->
+            <section class="forecasting-section">
+                <div class="section-header">
+                    <h2>🔮 Demand Forecasting</h2>
+                    <div class="forecast-controls">
+                        <select id="forecastProduct" onchange="updateForecast()">
+                            <option value="">Select Product...</option>
+                            <!-- Dynamic product options will be populated -->
+                        </select>
+                        <select id="forecastPeriod" onchange="updateForecast()">
+                            <option value="7">Next 7 Days</option>
+                            <option value="14">Next 14 Days</option>
+                            <option value="30">Next 30 Days</option>
+                            <option value="90">Next 90 Days</option>
+                        </select>
+                        <button onclick="generateForecast()" class="forecast-btn">Generate Forecast</button>
+                    </div>
+                </div>
+                <div class="forecast-container" id="forecastContainer">
+                    <div class="forecast-placeholder">
+                        <div class="forecast-info">
+                            <h3>📊 Demand Prediction</h3>
+                            <p>Select a product to view demand forecasting based on historical sales data</p>
+                            <div class="forecast-features">
+                                <div class="feature">
+                                    <span class="feature-icon">📈</span>
+                                    <span>Trend Analysis</span>
+                                </div>
+                                <div class="feature">
+                                    <span class="feature-icon">📊</span>
+                                    <span>Seasonal Patterns</span>
+                                </div>
+                                <div class="feature">
+                                    <span class="feature-icon">⚡</span>
+                                    <span>Real-time Updates</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sales Analytics -->
+            <section class="analytics-section">
+                <h2>📊 Advanced Analytics</h2>
+                <div class="analytics-grid">
+                    <!-- Category Performance -->
+                    <div class="analytics-card">
+                        <h3>📦 Category Performance</h3>
+                        <div class="category-chart" id="categoryChart">
+                            <!-- Dynamic category performance chart -->
+                        </div>
+                    </div>
+
+                    <!-- Hourly Sales Pattern -->
+                    <div class="analytics-card">
+                        <h3>⏰ Hourly Sales Pattern</h3>
+                        <div class="hourly-chart" id="hourlyChart">
+                            <!-- Dynamic hourly sales pattern -->
+                        </div>
+                    </div>
+
+                    <!-- Customer Behavior -->
+                    <div class="analytics-card">
+                        <h3>👥 Customer Insights</h3>
+                        <div class="customer-insights" id="customerInsights">
+                            <div class="insight-item">
+                                <span class="insight-label">Peak Hours:</span>
+                                <span class="insight-value" id="peakHours">10:00 AM - 2:00 PM</span>
+                            </div>
+                            <div class="insight-item">
+                                <span class="insight-label">Avg. Transaction Size:</span>
+                                <span class="insight-value" id="avgTransactionSize">3.2 items</span>
+                            </div>
+                            <div class="insight-item">
+                                <span class="insight-label">Repeat Customer Rate:</span>
+                                <span class="insight-value" id="repeatCustomerRate">67%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seasonal Trends -->
+                    <div class="analytics-card">
+                        <h3>🌟 Seasonal Trends</h3>
+                        <div class="seasonal-trends" id="seasonalTrends">
+                            <!-- Dynamic seasonal analysis -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="quick-actions-section">
+                <h2>⚡ Quick Actions</h2>
+                <div class="action-buttons">
+                    <button onclick="exportSalesReport()" class="action-btn export">
+                        <span class="btn-icon">📊</span>
+                        <span>Export Sales Report</span>
+                    </button>
+                    <button onclick="generateInventoryAlert()" class="action-btn alert">
+                        <span class="btn-icon">⚠️</span>
+                        <span>Generate Stock Alerts</span>
+                    </button>
+                    <button onclick="scheduleReport()" class="action-btn schedule">
+                        <span class="btn-icon">📅</span>
+                        <span>Schedule Report</span>
+                    </button>
+                    <button onclick="openReportGeneration()" class="action-btn report">
+                        <span class="btn-icon">📋</span>
+                        <span>Advanced Reports</span>
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Forecast Modal -->
+    <div id="forecastModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔮 Demand Forecast Results</h3>
+                <button onclick="closeForecastModal()" class="close-btn">✕</button>
+            </div>
+            <div class="modal-body" id="forecastModalBody">
+                <!-- Dynamic forecast results -->
+            </div>
+            <div class="modal-footer">
+                <button onclick="exportForecast()" class="export-forecast-btn">📊 Export Forecast</button>
+                <button onclick="closeForecastModal()" class="close-modal-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>Analyzing Sales Data...</h3>
+            <p id="loadingText">Processing sales trends and patterns</p>
+        </div>
+    </div>
+
+    <script src="sales-overview.js"></script>
+</body>
+</html>

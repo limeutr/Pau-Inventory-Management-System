@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAU Inventory - Staff Dashboard</title>
+    <link rel="stylesheet" href="staff-dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo" onclick="goToDashboard()" style="cursor: pointer;" title="Go to Dashboard">
+                    <h1>PAU Inventory</h1>
+                    <span>Staff Dashboard</span>
+                </div>
+                <div class="user-info">
+                    <span class="role-badge staff">Staff</span>
+                    <span id="welcomeMessage">Welcome, Staff!</span>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <!-- Daily Tasks Section -->
+            <section class="tasks-section">
+                <h2>📋 Today's Production Tasks</h2>
+                <div class="task-list">
+                    <div class="task-item priority-high">
+                        <div class="task-status">
+                            <input type="checkbox" id="task1" class="task-checkbox">
+                            <label for="task1"></label>
+                        </div>
+                        <div class="task-info">
+                            <h3>Prepare 50 Classic Bread Loaves</h3>
+                            <p>Priority: High | Due: 10:00 AM</p>
+                            <div class="task-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 30%"></div>
+                                </div>
+                                <span>15/50 completed</span>
+                            </div>
+                        </div>
+                        <span class="task-time">2h 30m</span>
+                    </div>
+                    
+                    <div class="task-item priority-medium">
+                        <div class="task-status">
+                            <input type="checkbox" id="task2" class="task-checkbox">
+                            <label for="task2"></label>
+                        </div>
+                        <div class="task-info">
+                            <h3>Bake 30 Chocolate Croissants</h3>
+                            <p>Priority: Medium | Due: 2:00 PM</p>
+                            <div class="task-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span>0/30 completed</span>
+                            </div>
+                        </div>
+                        <span class="task-time">1h 45m</span>
+                    </div>
+                    
+                    <div class="task-item priority-low completed">
+                        <div class="task-status">
+                            <input type="checkbox" id="task3" class="task-checkbox" checked>
+                            <label for="task3"></label>
+                        </div>
+                        <div class="task-info">
+                            <h3>Clean and Sanitize Equipment</h3>
+                            <p>Priority: Low | Due: 8:00 AM</p>
+                            <div class="task-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 100%"></div>
+                                </div>
+                                <span>Completed ✓</span>
+                            </div>
+                        </div>
+                        <span class="task-time">30m</span>
+                    </div>
+                    
+                    <div class="task-item priority-medium">
+                        <div class="task-status">
+                            <input type="checkbox" id="task4" class="task-checkbox">
+                            <label for="task4"></label>
+                        </div>
+                        <div class="task-info">
+                            <h3>Prepare Muffin Batter (Blueberry)</h3>
+                            <p>Priority: Medium | Due: 4:00 PM</p>
+                            <div class="task-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span>0/24 completed</span>
+                            </div>
+                        </div>
+                        <span class="task-time">1h 15m</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stock Levels Section -->
+            <section class="stock-section">
+                <h2>📦 Current Stock Levels</h2>
+                <div class="stock-grid">
+                    <div class="stock-card adequate">
+                        <div class="stock-icon">🌾</div>
+                        <div class="stock-info">
+                            <h3>Flour (All Purpose)</h3>
+                            <div class="stock-level">
+                                <span class="current">15 kg</span>
+                                <span class="minimum">Min: 50 kg</span>
+                            </div>
+                            <div class="stock-status low">Low Stock</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stock-card adequate">
+                        <div class="stock-icon">🍯</div>
+                        <div class="stock-info">
+                            <h3>Sugar</h3>
+                            <div class="stock-level">
+                                <span class="current">22 kg</span>
+                                <span class="minimum">Min: 20 kg</span>
+                            </div>
+                            <div class="stock-status warning">Moderate</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stock-card good">
+                        <div class="stock-icon">🥚</div>
+                        <div class="stock-info">
+                            <h3>Eggs</h3>
+                            <div class="stock-level">
+                                <span class="current">144 pcs</span>
+                                <span class="minimum">Min: 50 pcs</span>
+                            </div>
+                            <div class="stock-status good">Good</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stock-card adequate">
+                        <div class="stock-icon">🧈</div>
+                        <div class="stock-info">
+                            <h3>Butter</h3>
+                            <div class="stock-level">
+                                <span class="current">8 kg</span>
+                                <span class="minimum">Min: 5 kg</span>
+                            </div>
+                            <div class="stock-status good">Good</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stock-card critical">
+                        <div class="stock-icon">🥛</div>
+                        <div class="stock-info">
+                            <h3>Milk (Fresh)</h3>
+                            <div class="stock-level">
+                                <span class="current">12 L</span>
+                                <span class="minimum">Min: 10 L</span>
+                            </div>
+                            <div class="stock-status expired">Expires in 2 days</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stock-card good">
+                        <div class="stock-icon">🫐</div>
+                        <div class="stock-info">
+                            <h3>Blueberries</h3>
+                            <div class="stock-level">
+                                <span class="current">3 kg</span>
+                                <span class="minimum">Min: 2 kg</span>
+                            </div>
+                            <div class="stock-status good">Good</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pending Actions Section -->
+            <section class="alerts-section">
+                <h2>⚠️ Pending Actions & Alerts</h2>
+                <div class="alert-list">
+                    <div class="alert-item urgent">
+                        <div class="alert-icon">🔴</div>
+                        <div class="alert-content">
+                            <h3>Urgent: Flour Stock Critical</h3>
+                            <p>Only 15 kg remaining. Contact supervisor to arrange immediate reorder.</p>
+                            <div class="alert-actions">
+                                <button class="alert-btn primary">Notify Supervisor</button>
+                                <button class="alert-btn secondary">View Details</button>
+                            </div>
+                        </div>
+                        <span class="alert-time">Just now</span>
+                    </div>
+                    
+                    <div class="alert-item warning">
+                        <div class="alert-icon">⏰</div>
+                        <div class="alert-content">
+                            <h3>Expiry Notice: Fresh Milk</h3>
+                            <p>12 L of fresh milk expires in 2 days. Prioritize usage in production.</p>
+                            <div class="alert-actions">
+                                <button class="alert-btn primary">Mark as Noted</button>
+                                <button class="alert-btn secondary">Add to Tasks</button>
+                            </div>
+                        </div>
+                        <span class="alert-time">2 hours ago</span>
+                    </div>
+                    
+                    <div class="alert-item info">
+                        <div class="alert-icon">ℹ️</div>
+                        <div class="alert-content">
+                            <h3>Equipment Maintenance Reminder</h3>
+                            <p>Oven #2 scheduled for maintenance next Monday. Plan production accordingly.</p>
+                            <div class="alert-actions">
+                                <button class="alert-btn primary">Acknowledge</button>
+                            </div>
+                        </div>
+                        <span class="alert-time">Yesterday</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions Section -->
+            <section class="quick-actions">
+                <h2>🚀 Quick Actions</h2>
+                <div class="action-grid">
+                    <button class="action-btn" onclick="reportStockUsage()">
+                        <span class="action-icon">📝</span>
+                        <div class="action-info">
+                            <strong>Production Tracking</strong>
+                            <p>Record inbound/outbound production</p>
+                        </div>
+                    </button>
+                    
+                    <button class="action-btn" onclick="manageIngredients()">
+                        <span class="action-icon">🥄</span>
+                        <div class="action-info">
+                            <strong>Manage Ingredients</strong>
+                            <p>Track ingredients and suppliers</p>
+                        </div>
+                    </button>
+                    
+                    <button class="action-btn" onclick="logWastage()">
+                        <span class="action-icon">🗑️</span>
+                        <div class="action-info">
+                            <strong>Log Wastage</strong>
+                            <p>Report discarded items</p>
+                        </div>
+                    </button>
+                    
+                    <button class="action-btn" onclick="requestSupplies()">
+                        <span class="action-icon">📦</span>
+                        <div class="action-info">
+                            <strong>Request Supplies</strong>
+                            <p>Submit supply requests</p>
+                        </div>
+                    </button>
+                    
+                    <button class="action-btn" onclick="viewRecipes()">
+                        <span class="action-icon">📖</span>
+                        <div class="action-info">
+                            <strong>View Inventory</strong>
+                            <p>Check current stock levels</p>
+                        </div>
+                    </button>
+                    
+                    <button class="action-btn" onclick="reportIssue()">
+                        <span class="action-icon">🔧</span>
+                        <div class="action-info">
+                            <strong>Report Issue</strong>
+                            <p>Equipment or safety concerns</p>
+                        </div>
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="staff-dashboard.js"></script>
+</body>
+</html>
