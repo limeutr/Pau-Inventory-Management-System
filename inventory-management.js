@@ -92,10 +92,13 @@ function showStaffAccessNotice() {
 }
 
 function goBackToDashboard() {
-    if (currentUser.role === 'supervisor') {
+    const userRole = sessionStorage.getItem('userRole');
+    if (userRole === 'supervisor' || userRole === 'admin') {
         window.location.href = 'supervisor-dashboard.html';
-    } else {
+    } else if (userRole === 'staff') {
         window.location.href = 'staff-dashboard.html';
+    } else {
+        window.location.href = 'index.html';
     }
 }
 

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAU Inventory - Sales & Analytics</title>
+    <link rel="stylesheet" href="sales-analytics.css">
+</head>
+<body>
+    <div class="analytics-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo" onclick="goBackToDashboard()" style="cursor: pointer;" title="Return to Dashboard">
+                    <h1>PAU Inventory</h1>
+                    <span>Sales & Analytics</span>
+                </div>
+                <div class="user-info">
+                    <span class="role-badge" id="userRoleBadge">Supervisor</span>
+                    <span id="welcomeMessage">Welcome, Admin!</span>
+                    <button onclick="goBackToDashboard()" class="back-btn">Back to Dashboard</button>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Controls Section -->
+            <section class="controls-section">
+                <div class="controls-header">
+                    <h2>📊 Sales & Analytics Dashboard</h2>
+                    <div class="controls-actions">
+                        <select id="dateRange" class="date-range-select" onchange="updateAnalytics()">
+                            <option value="7">Last 7 days</option>
+                            <option value="30">Last 30 days</option>
+                            <option value="90" selected>Last 3 months</option>
+                            <option value="365">Last year</option>
+                        </select>
+                        <button onclick="exportAnalytics()" class="export-btn">📤 Export</button>
+                        <button onclick="printReport()" class="print-btn">🖨️ Print</button>
+                        <button onclick="refreshData()" class="refresh-btn">🔄 Refresh</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Key Metrics Section -->
+            <section class="metrics-section">
+                <div class="metrics-grid">
+                    <div class="metric-card revenue">
+                        <div class="metric-icon">💰</div>
+                        <div class="metric-info">
+                            <h3>Total Revenue</h3>
+                            <p class="metric-value" id="totalRevenue">$125,450</p>
+                            <span class="metric-change positive" id="revenueChange">+12.5%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card units">
+                        <div class="metric-icon">📦</div>
+                        <div class="metric-info">
+                            <h3>Units Sold</h3>
+                            <p class="metric-value" id="unitsSold">8,432</p>
+                            <span class="metric-change positive" id="unitsChange">+8.7%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card orders">
+                        <div class="metric-icon">📋</div>
+                        <div class="metric-info">
+                            <h3>Total Orders</h3>
+                            <p class="metric-value" id="totalOrders">1,254</p>
+                            <span class="metric-change positive" id="ordersChange">+15.2%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card avg-order">
+                        <div class="metric-icon">💵</div>
+                        <div class="metric-info">
+                            <h3>Avg Order Value</h3>
+                            <p class="metric-value" id="avgOrderValue">$100.04</p>
+                            <span class="metric-change negative" id="avgOrderChange">-2.1%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="charts-grid">
+                    <!-- Monthly Sales Trend Chart -->
+                    <div class="chart-card main-chart">
+                        <div class="chart-header">
+                            <h3>📈 Monthly Sales Trend</h3>
+                            <div class="chart-controls">
+                                <button class="chart-btn active" onclick="showSalesChart('revenue')">Revenue</button>
+                                <button class="chart-btn" onclick="showSalesChart('units')">Units</button>
+                                <button class="chart-btn" onclick="showSalesChart('orders')">Orders</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="salesTrendChart" width="800" height="400"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Product Performance Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>🥇 Top Products</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="productChart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Sales by Location Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>📍 Sales by Location</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="locationChart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Detailed Analytics Section -->
+            <section class="analytics-section">
+                <div class="analytics-grid">
+                    <!-- Monthly Breakdown Table -->
+                    <div class="analytics-card">
+                        <div class="analytics-header">
+                            <h3>📅 Monthly Breakdown</h3>
+                            <button onclick="exportMonthlyData()" class="mini-export-btn">Export</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="analytics-table">
+                                <thead>
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>Revenue</th>
+                                        <th>Units</th>
+                                        <th>Orders</th>
+                                        <th>Avg Order</th>
+                                        <th>Growth</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="monthlyTableBody">
+                                    <!-- Data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Product Performance Analysis -->
+                    <div class="analytics-card">
+                        <div class="analytics-header">
+                            <h3>🏆 Product Performance</h3>
+                            <button onclick="exportProductData()" class="mini-export-btn">Export</button>
+                        </div>
+                        <div class="product-list" id="productPerformanceList">
+                            <!-- Product performance items will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Sales Insights -->
+                    <div class="analytics-card insights">
+                        <div class="analytics-header">
+                            <h3>💡 Key Insights</h3>
+                        </div>
+                        <div class="insights-list" id="salesInsights">
+                            <!-- Insights will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Forecasting Section -->
+            <section class="forecast-section">
+                <div class="forecast-card">
+                    <div class="forecast-header">
+                        <h3>🔮 Sales Forecast</h3>
+                        <div class="forecast-controls">
+                            <select id="forecastPeriod" onchange="updateForecast()">
+                                <option value="30">Next 30 days</option>
+                                <option value="90" selected>Next 3 months</option>
+                                <option value="180">Next 6 months</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="forecast-content">
+                        <div class="forecast-chart">
+                            <canvas id="forecastChart" width="1000" height="300"></canvas>
+                        </div>
+                        <div class="forecast-summary">
+                            <div class="forecast-metric">
+                                <h4>Projected Revenue</h4>
+                                <p id="projectedRevenue">$387,500</p>
+                                <span class="confidence">85% confidence</span>
+                            </div>
+                            <div class="forecast-metric">
+                                <h4>Expected Growth</h4>
+                                <p id="expectedGrowth">+18.5%</p>
+                                <span class="confidence">vs last period</span>
+                            </div>
+                            <div class="forecast-metric">
+                                <h4>Peak Sales Day</h4>
+                                <p id="peakSalesDay">Saturday</p>
+                                <span class="confidence">historically</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading analytics data...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="sales-analytics.js"></script>
+</body>
+</html>

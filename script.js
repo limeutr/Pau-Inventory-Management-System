@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // User credentials with roles
     const USERS = {
-        'admin': { password: 'admin', role: 'supervisor' },
+        'admin': { password: 'admin', role: 'admin' },
         'supervisor': { password: 'supervisor', role: 'supervisor' },
         'staff1': { password: 'staff123', role: 'staff' },
         'staff2': { password: 'staff123', role: 'staff' },
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function redirectBasedOnRole(role) {
-        if (role === 'supervisor') {
+        if (role === 'supervisor' || role === 'admin') {
             window.location.href = 'supervisor-dashboard.html';
         } else if (role === 'staff') {
             window.location.href = 'staff-dashboard.html';

@@ -14,6 +14,7 @@ A comprehensive web-based inventory management system with role-based access con
 - **Sales Overview**: Advanced sales analytics, trends analysis, and demand forecasting (Supervisor-only)
 - **Report Generation**: Comprehensive reporting with export capabilities and audit trails (Supervisor-only)
 - **User Management**: Complete user lifecycle management with role assignment and audit trails (Supervisor-only)
+- **Staff Management**: Comprehensive staff management with scheduling, department tracking, and performance monitoring
 - **Business Rules Enforcement**: Stock level validation, expiry date monitoring, and data integrity
 - **Visual Status Indicators**: Color-coded alerts for low stock, expired, and expiring items
 - **Modern UI**: Clean, responsive design with role-specific color schemes
@@ -83,6 +84,9 @@ PIMS.1/
 ├── user-management.html          # User management interface (Supervisor-only)
 ├── user-management.css           # User management styles
 ├── user-management.js            # User management functionality
+├── staff-management.html         # Staff management interface
+├── staff-management.css          # Staff management styles
+├── staff-management.js           # Staff management functionality
 ├── report-generation.html        # Report generation interface (Supervisor-only)
 ├── report-generation.css         # Report generation styles
 ├── report-generation.js          # Report generation functionality
@@ -473,7 +477,166 @@ A comprehensive sales analytics and demand forecasting system that enables super
 - **Export Functionality**: Direct CSV export from forecast modal
 - **Professional Presentation**: Executive-ready forecast formatting
 
-## 👥 **User Management Module**
+## �‍💼 **Staff Management Module**
+
+The Staff Management module provides comprehensive workforce management capabilities for tracking staff members, managing schedules, and monitoring department assignments across the organization.
+
+### **Core Features**
+
+#### **Staff Database Management**
+- **Complete CRUD Operations**: Add, view, edit, and delete staff records
+- **Unique Staff Identification**: Auto-generated staff IDs (STF001, STF002, etc.)
+- **Department Organization**: Categorized by departments (Production, Quality Control, Packaging, Maintenance, Administration)
+- **Position Tracking**: Detailed job positions and responsibilities
+- **Shift Management**: Comprehensive shift scheduling (Morning, Afternoon, Night shifts)
+
+#### **Staff Information Management**
+- **Personal Details**: Full name, contact information, and hire date tracking
+- **Employment Status**: Active, On Leave, and Inactive status management
+- **Salary Management**: Confidential salary information for authorized personnel
+- **Contact Information**: Phone numbers and email addresses for communication
+- **Department Assignment**: Clear department and position assignments
+
+#### **Schedule Management**
+- **Weekly Scheduling**: Detailed weekly schedule management for each staff member
+- **Flexible Time Slots**: Customizable start and end times for each day
+- **Shift Pattern Tracking**: Monitor shift patterns and working hours
+- **Schedule Validation**: Ensure proper coverage and shift assignments
+- **Schedule History**: Track changes and maintain scheduling records
+
+### **Statistics & Analytics**
+
+#### **Staff Overview Dashboard**
+- **Total Staff Count**: Complete headcount across all departments
+- **Active Staff Tracking**: Real-time count of currently active staff members
+- **Scheduled Staff**: Number of staff with assigned schedules
+- **Factory Staff**: Count of production-related staff members
+- **Visual KPIs**: Color-coded statistics cards for quick overview
+
+#### **Department Analytics**
+- **Department Distribution**: Staff allocation across different departments
+- **Production Department**: Manufacturing and production staff tracking
+- **Quality Control**: QC inspectors and quality assurance personnel
+- **Packaging Department**: Packaging and finishing staff members
+- **Maintenance Team**: Equipment and facility maintenance staff
+- **Administration**: HR, finance, and administrative personnel
+
+### **Advanced Search & Filtering**
+
+#### **Multi-Criteria Search**
+- **Name Search**: Find staff by full name or partial name matches
+- **ID Search**: Direct lookup using staff ID numbers
+- **Position Search**: Search by job title or position keywords
+- **Real-time Filtering**: Instant results as search terms are entered
+
+#### **Department & Status Filters**
+- **Department Filter**: Filter staff by specific departments
+- **Status Filter**: View staff by employment status (Active, On Leave, Inactive)
+- **Combined Filtering**: Use multiple filters simultaneously for precise results
+- **Clear Filters**: Quick reset to view all staff members
+
+### **Schedule Management System**
+
+#### **Weekly Schedule Interface**
+- **Day-by-Day Scheduling**: Individual scheduling for each day of the week
+- **Time Slot Management**: Flexible start and end time assignments
+- **Schedule Templates**: Common shift patterns for quick assignment
+- **Schedule Validation**: Prevent scheduling conflicts and ensure coverage
+
+#### **Shift Management**
+- **Morning Shift**: 6:00 AM - 2:00 PM coverage
+- **Afternoon Shift**: 2:00 PM - 10:00 PM coverage
+- **Night Shift**: 10:00 PM - 6:00 AM coverage
+- **Custom Shifts**: Flexible scheduling for special requirements
+- **Shift Handover**: Smooth transition between shift changes
+
+### **Business Rules & Validation**
+
+#### **Data Integrity**
+- **Required Fields**: Name, department, position, shift, and status are mandatory
+- **Unique Staff IDs**: Auto-generated unique identifiers for each staff member
+- **Email Validation**: Proper email format enforcement for communication
+- **Phone Validation**: Contact number format validation
+- **Date Validation**: Proper date formats for hire dates and scheduling
+
+#### **Employment Status Management**
+- **Status Transitions**: Proper workflow for status changes
+- **Leave Management**: Track and manage staff leave periods
+- **Reactivation Process**: Procedures for reactivating inactive staff
+- **Termination Handling**: Proper procedures for staff termination
+
+### **Export & Reporting**
+
+#### **Staff Data Export**
+- **CSV Export**: Complete staff database export in CSV format
+- **Filtered Exports**: Export only currently filtered/searched staff
+- **Comprehensive Data**: Include all staff information, schedules, and contact details
+- **Professional Formatting**: Ready for external analysis and HR systems
+
+#### **Report Generation**
+- **Staff Reports**: Detailed reports on staff demographics and distribution
+- **Schedule Reports**: Weekly and monthly schedule summaries
+- **Department Reports**: Department-wise staff allocation and analysis
+- **Status Reports**: Employment status tracking and reporting
+
+### **User Interface Features**
+
+#### **Modern Staff Table**
+- **Comprehensive Display**: All key staff information in organized table format
+- **Status Indicators**: Color-coded badges for employment status
+- **Action Buttons**: Edit, schedule, and delete actions for each staff member
+- **Responsive Design**: Mobile-friendly table layout with horizontal scrolling
+- **Sorting Options**: Click-to-sort functionality for different columns
+
+#### **Modal Forms**
+- **Staff Creation/Editing**: Clean form interface for staff data entry
+- **Schedule Management**: Dedicated modal for weekly schedule assignment
+- **Form Validation**: Real-time validation feedback with error messages
+- **Confirmation Dialogs**: Secure confirmation for destructive actions
+
+### **Security & Access Control**
+
+#### **Role-Based Access**
+- **Supervisor Access**: Full CRUD operations for all staff management functions
+- **Manager Access**: Department-specific staff management capabilities
+- **HR Access**: Specialized access for human resources functions
+- **Data Protection**: Sensitive information (salary) restricted to authorized personnel
+
+#### **Audit Trail**
+- **Change Tracking**: Log all staff information changes
+- **Schedule History**: Track schedule modifications and assignments
+- **Access Logging**: Monitor who accessed and modified staff information
+- **Compliance Support**: Maintain records for HR compliance requirements
+
+### **Integration Capabilities**
+
+#### **System Integration**
+- **Dashboard Integration**: Direct access from supervisor and manager dashboards
+- **Production Integration**: Link staff assignments to production tracking
+- **Scheduling Integration**: Coordinate with production scheduling systems
+- **Payroll Integration**: Export data for payroll processing systems
+
+#### **Notification System**
+- **Schedule Notifications**: Alerts for schedule changes and updates
+- **Status Notifications**: Updates on staff status changes
+- **Success Messages**: Confirmation for completed actions
+- **Error Handling**: Clear error messages for troubleshooting
+
+### **Performance Features**
+
+#### **Pagination System**
+- **Efficient Data Loading**: Load staff data in manageable chunks
+- **Navigation Controls**: Easy navigation between data pages
+- **Page Size Options**: Configurable number of items per page
+- **Search Persistence**: Maintain search results across page navigation
+
+#### **Responsive Design**
+- **Mobile Optimization**: Fully functional on mobile devices
+- **Tablet Support**: Optimized layout for tablet viewing
+- **Desktop Experience**: Full-featured desktop interface
+- **Cross-browser Compatibility**: Works across different web browsers
+
+## �👥 **User Management Module**
 
 The User Management module provides comprehensive user lifecycle management capabilities exclusively available to Supervisors for managing system access, user roles, and maintaining audit trails.
 

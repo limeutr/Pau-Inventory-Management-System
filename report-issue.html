@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAU Inventory - Report Issue</title>
+    <link rel="stylesheet" href="report-issue.css">
+</head>
+<body>
+    <div class="report-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo" onclick="goBackToDashboard()" style="cursor: pointer;" title="Return to Dashboard">
+                    <h1>PAU Inventory</h1>
+                    <span>Report Issue</span>
+                </div>
+                <div class="user-info">
+                    <span class="role-badge" id="userRoleBadge">User</span>
+                    <span id="welcomeMessage">Welcome, User!</span>
+                    <button onclick="goBackToDashboard()" class="back-btn">Back to Dashboard</button>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Controls Section -->
+            <section class="controls-section">
+                <div class="controls-header">
+                    <h2>🔧 Issue Reporting System</h2>
+                    <div class="controls-actions">
+                        <button onclick="openNewIssueModal()" class="add-btn">
+                            <span class="btn-icon">🚨</span>
+                            Report New Issue
+                        </button>
+                        <button onclick="viewMyIssues()" class="view-btn">
+                            <span class="btn-icon">👤</span>
+                            My Reports
+                        </button>
+                        <button onclick="viewAllIssues()" class="admin-btn" id="viewAllBtn" style="display: none;">
+                            <span class="btn-icon">📋</span>
+                            All Issues
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="search-filter-section">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search issues..." onkeyup="searchIssues()">
+                        <button onclick="searchIssues()" class="search-btn">🔍</button>
+                    </div>
+                    <div class="filter-controls">
+                        <select id="statusFilter" onchange="filterIssues()">
+                            <option value="">All Status</option>
+                            <option value="open">Open</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                        <select id="priorityFilter" onchange="filterIssues()">
+                            <option value="">All Priority</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                        <select id="typeFilter" onchange="filterIssues()">
+                            <option value="">All Types</option>
+                            <option value="equipment">Equipment</option>
+                            <option value="safety">Safety</option>
+                            <option value="system">System</option>
+                            <option value="operational">Operational</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <input type="date" id="dateFilter" onchange="filterIssues()">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Report Section -->
+            <section class="quick-report-section">
+                <h3>🚨 Quick Report</h3>
+                <div class="quick-report-grid">
+                    <button onclick="quickReport('equipment', 'high')" class="quick-btn equipment">
+                        <span class="quick-icon">⚙️</span>
+                        <div class="quick-info">
+                            <strong>Equipment Failure</strong>
+                            <p>Report broken or malfunctioning equipment</p>
+                        </div>
+                    </button>
+                    
+                    <button onclick="quickReport('safety', 'critical')" class="quick-btn safety">
+                        <span class="quick-icon">⚠️</span>
+                        <div class="quick-info">
+                            <strong>Safety Concern</strong>
+                            <p>Report safety hazards or incidents</p>
+                        </div>
+                    </button>
+                    
+                    <button onclick="quickReport('system', 'medium')" class="quick-btn system">
+                        <span class="quick-icon">💻</span>
+                        <div class="quick-info">
+                            <strong>System Issue</strong>
+                            <p>Report software or network problems</p>
+                        </div>
+                    </button>
+                    
+                    <button onclick="quickReport('operational', 'medium')" class="quick-btn operational">
+                        <span class="quick-icon">📋</span>
+                        <div class="quick-info">
+                            <strong>Operational Issue</strong>
+                            <p>Report process or workflow problems</p>
+                        </div>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Statistics Section -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card open">
+                        <div class="stat-icon">🔓</div>
+                        <div class="stat-info">
+                            <h3>Open Issues</h3>
+                            <p class="stat-number" id="openCount">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card in-progress">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-info">
+                            <h3>In Progress</h3>
+                            <p class="stat-number" id="inProgressCount">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card resolved">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <h3>Resolved</h3>
+                            <p class="stat-number" id="resolvedCount">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card critical">
+                        <div class="stat-icon">🚨</div>
+                        <div class="stat-info">
+                            <h3>Critical</h3>
+                            <p class="stat-number" id="criticalCount">0</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Issues Table Section -->
+            <section class="table-section">
+                <div class="table-container">
+                    <table class="issues-table">
+                        <thead>
+                            <tr>
+                                <th>Issue ID</th>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Reported By</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="issuesTableBody">
+                            <!-- Issues will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- New Issue Modal -->
+    <div id="issueModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Report New Issue</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="issueForm">
+                <div class="form-group">
+                    <label for="issueTitle">Issue Title *</label>
+                    <input type="text" id="issueTitle" name="issueTitle" required placeholder="Brief description of the issue">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="issueType">Issue Type *</label>
+                        <select id="issueType" name="issueType" required>
+                            <option value="">Select Type</option>
+                            <option value="equipment">Equipment</option>
+                            <option value="safety">Safety</option>
+                            <option value="system">System</option>
+                            <option value="operational">Operational</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Priority *</label>
+                        <select id="priority" name="priority" required>
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="location">Location *</label>
+                        <select id="location" name="location" required>
+                            <option value="">Select Location</option>
+                            <option value="factory">Factory</option>
+                            <option value="outlet">Outlet</option>
+                            <option value="warehouse">Warehouse</option>
+                            <option value="office">Office</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="equipment">Equipment/Asset</label>
+                        <input type="text" id="equipment" name="equipment" placeholder="Specific equipment or asset (if applicable)">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="description">Detailed Description *</label>
+                    <textarea id="description" name="description" rows="4" placeholder="Provide detailed description of the issue, including what happened, when it occurred, and any relevant circumstances..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="stepsToReproduce">Steps to Reproduce (if applicable)</label>
+                    <textarea id="stepsToReproduce" name="stepsToReproduce" rows="3" placeholder="List the steps that led to this issue..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="impact">Impact Assessment</label>
+                    <textarea id="impact" name="impact" rows="2" placeholder="Describe how this issue affects operations, safety, or productivity..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="urgency">Urgency</label>
+                        <select id="urgency" name="urgency">
+                            <option value="low">Low - Can wait</option>
+                            <option value="medium" selected>Medium - Should be addressed soon</option>
+                            <option value="high">High - Needs immediate attention</option>
+                            <option value="critical">Critical - Urgent, affecting operations</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <select id="department" name="department">
+                            <option value="production">Production</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="it">IT</option>
+                            <option value="management">Management</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal()" class="cancel-btn">Cancel</button>
+                    <button type="submit" class="submit-btn">Submit Issue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Issue Details Modal -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Issue Details</h3>
+                <span class="close" onclick="closeViewModal()">&times;</span>
+            </div>
+            <div id="issueDetails" class="issue-details">
+                <!-- Details will be populated here -->
+            </div>
+            <div class="modal-actions">
+                <button onclick="closeViewModal()" class="cancel-btn">Close</button>
+                <div id="adminActions" style="display: none;">
+                    <button onclick="updateIssueStatus('in_progress')" class="progress-btn">Mark In Progress</button>
+                    <button onclick="updateIssueStatus('resolved')" class="resolve-btn">Mark Resolved</button>
+                    <button onclick="updateIssueStatus('closed')" class="close-btn">Close Issue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content confirm-modal">
+            <div class="modal-header">
+                <h3>Confirm Action</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage"></p>
+            </div>
+            <div class="modal-actions">
+                <button onclick="closeConfirmModal()" class="cancel-btn">Cancel</button>
+                <button id="confirmBtn" class="confirm-btn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="report-issue.js"></script>
+</body>
+</html>

@@ -118,7 +118,10 @@
 
                 <!-- Sales Analytics -->
                 <section class="analytics-section">
-                    <h2>Sales & Analytics</h2>
+                    <div class="section-header">
+                        <h2>Sales & Analytics</h2>
+                        <button onclick="openSalesAnalytics()" class="view-details-btn">📊 View Detailed Analytics</button>
+                    </div>
                     <div class="analytics-grid">
                         <div class="chart-container">
                             <h3>Monthly Sales Trend</h3>
@@ -202,6 +205,14 @@
                             </div>
                         </button>
                         
+                        <button class="tool-btn" onclick="openSupplyRequest()">
+                            <span class="tool-icon">📝</span>
+                            <div class="tool-info">
+                                <strong>Supply Request</strong>
+                                <p>Request supplies and manage supply orders</p>
+                            </div>
+                        </button>
+                        
                         <button class="tool-btn" onclick="openWastageLogging()">
                             <span class="tool-icon">🗑️</span>
                             <div class="tool-info">
@@ -223,6 +234,14 @@
                             <div class="tool-info">
                                 <strong>Sales Overview</strong>
                                 <p>Analyze sales trends and generate demand forecasts</p>
+                            </div>
+                        </button>
+                        
+                        <button class="tool-btn" onclick="openReportIssue()">
+                            <span class="tool-icon">🔧</span>
+                            <div class="tool-info">
+                                <strong>Report Issue</strong>
+                                <p>Report and manage equipment or operational issues</p>
                             </div>
                         </button>
                         

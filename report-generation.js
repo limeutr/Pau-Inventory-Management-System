@@ -78,6 +78,9 @@ function initializeReportModule() {
     // Load existing report history
     loadReportHistory();
     
+    // Update statistics
+    updateStatistics();
+    
     // Start real-time clock
     updateCurrentTime();
     setInterval(updateCurrentTime, 1000);
@@ -89,20 +92,29 @@ function initializeReportModule() {
 }
 
 function checkAuthenticationAndPermissions() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+    const userRole = sessionStorage.getItem('userRole');
+    const username = sessionStorage.getItem('username');
     
-    if (!currentUser.username) {
+    if (!isLoggedIn || isLoggedIn !== 'true') {
         alert('Please log in to access the report generation system.');
         window.location.href = 'index.html';
         return;
     }
     
-    // Only supervisors can access report generation
-    if (currentUser.role !== 'supervisor') {
-        alert('Access denied. Only supervisors can generate reports.');
-        window.location.href = currentUser.role === 'staff' ? 'staff-dashboard.html' : 'index.html';
+    // Allow both admin and supervisor roles to access report generation
+    if (userRole !== 'supervisor' && userRole !== 'admin') {
+        alert('Access denied. Only supervisors and administrators can generate reports.');
+        window.location.href = userRole === 'staff' ? 'staff-dashboard.html' : 'index.html';
         return;
     }
+    
+    // Create currentUser object for compatibility
+    const currentUser = {
+        username: username,
+        role: userRole,
+        isLoggedIn: true
+    };
     
     reportState.currentUser = currentUser;
     
@@ -116,31 +128,20 @@ function initializeUI() {
     const today = new Date();
     const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
     
-    document.getElementById('dateTo').value = today.toISOString().split('T')[0];
-    document.getElementById('dateFrom').value = thirtyDaysAgo.toISOString().split('T')[0];
+    if (document.getElementById('dateTo')) {
+        document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+    }
+    if (document.getElementById('dateFrom')) {
+        document.getElementById('dateFrom').value = thirtyDaysAgo.toISOString().split('T')[0];
+    }
     
     // Update dashboard statistics
-    updateDashboardStats();
+    updateStatistics();
 }
 
 function updateDashboardStats() {
-    const reports = JSON.parse(localStorage.getItem('generatedReports') || '[]');
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    
-    // Count reports generated this month
-    const thisMonthReports = reports.filter(report => {
-        const reportDate = new Date(report.generatedAt);
-        return reportDate.getMonth() === currentMonth && reportDate.getFullYear() === currentYear;
-    });
-    
-    document.getElementById('totalReports').textContent = thisMonthReports.length;
-    
-    // Last report date
-    if (reports.length > 0) {
-        const lastReport = reports[reports.length - 1];
-        document.getElementById('lastReportDate').textContent = new Date(lastReport.generatedAt).toLocaleDateString();
-    }
+    // This function is now an alias for updateStatistics for backward compatibility
+    updateStatistics();
 }
 
 function updateCurrentTime() {
@@ -161,7 +162,9 @@ function setupEventListeners() {
     // Logout functionality
     document.getElementById('logoutBtn').addEventListener('click', function() {
         if (confirm('Are you sure you want to logout?')) {
-            localStorage.removeItem('currentUser');
+            sessionStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('userRole');
+            sessionStorage.removeItem('username');
             window.location.href = 'index.html';
         }
     });
@@ -169,6 +172,11 @@ function setupEventListeners() {
     // Date validation
     document.getElementById('dateFrom').addEventListener('change', validateDateRange);
     document.getElementById('dateTo').addEventListener('change', validateDateRange);
+    
+    // Quick report modal
+    document.getElementById('openQuickReportBtn').addEventListener('click', showQuickReportModal);
+    document.getElementById('closeQuickReportBtn').addEventListener('click', closeQuickReportModal);
+    document.getElementById('generateQuickReportBtn').addEventListener('click', generateQuickReport);
 }
 
 function validateDateRange() {
@@ -1160,6 +1168,77 @@ function downloadReport(reportData) {
     // For demo purposes, we'll just log the action
 }
 
+// Main Report Generation Function (called from UI)
+function generateReport(quickConfig = null) {
+    if (quickConfig) {
+        // Handle quick report generation
+        const mockEvent = { preventDefault: () => {} };
+        reportState.selectedReportType = quickConfig.type;
+        reportState.reportConfiguration = quickConfig;
+        handleReportGeneration(mockEvent);
+    } else {
+        // Handle standard report generation
+        const form = document.getElementById('reportConfigForm');
+        if (form) {
+            form.dispatchEvent(new Event('submit'));
+        } else {
+            showNotification('Please configure your report settings first', 'error');
+        }
+    }
+}
+
+// Notification System
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-icon">${getNotificationIcon(type)}</span>
+            <span class="notification-message">${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+
+function getNotificationIcon(type) {
+    switch (type) {
+        case 'success': return '✅';
+        case 'error': return '❌';
+        case 'warning': return '⚠️';
+        default: return 'ℹ️';
+    }
+}
+
+// Statistics Update Functions
+function updateStatistics() {
+    const reports = JSON.parse(localStorage.getItem('generatedReports') || '[]');
+    const templates = JSON.parse(localStorage.getItem('reportTemplates') || '[]');
+    const today = new Date().toDateString();
+    
+    // Update total reports
+    document.getElementById('totalReports').textContent = reports.length;
+    
+    // Update today's reports
+    const todayReports = reports.filter(report => 
+        new Date(report.generatedAt).toDateString() === today
+    );
+    document.getElementById('reportsToday').textContent = todayReports.length;
+    
+    // Update scheduled reports (mock data for now)
+    document.getElementById('scheduledReports').textContent = '0';
+    
+    // Update templates count
+    document.getElementById('totalTemplates').textContent = templates.length;
+}
+
 // Report history management
 function saveReportToHistory(config, data) {
     const reports = JSON.parse(localStorage.getItem('generatedReports') || '[]');
@@ -1260,14 +1339,105 @@ function clearReportHistory() {
     }
 }
 
-// Navigation functions
-function goBackToDashboard() {
-    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    if (user.role === 'supervisor') {
-        window.location.href = 'supervisor-dashboard.html';
-    } else {
-        window.location.href = 'staff-dashboard.html';
+// Quick Report Modal Functions
+function showQuickReportModal() {
+    document.getElementById('quickReportModal').style.display = 'flex';
+}
+
+function closeQuickReportModal() {
+    document.getElementById('quickReportModal').style.display = 'none';
+}
+
+function generateQuickReport() {
+    const reportType = document.getElementById('quickReportType').value;
+    const format = document.getElementById('quickReportFormat').value;
+    const emailReport = document.getElementById('quickReportEmail').checked;
+    
+    if (!reportType) {
+        showNotification('Please select a report type', 'error');
+        return;
     }
+    
+    // Set up quick report configuration
+    const quickReportConfig = {
+        type: reportType,
+        format: format,
+        emailAfterGeneration: emailReport,
+        dateRange: 'today',
+        quickGeneration: true
+    };
+    
+    closeQuickReportModal();
+    generateReport(quickReportConfig);
+}
+
+// Search and Filter Functions
+function searchReports() {
+    const searchTerm = document.getElementById('searchReports').value.toLowerCase();
+    const reportRows = document.querySelectorAll('#recentReportsBody tr');
+    
+    reportRows.forEach(row => {
+        const reportName = row.cells[0].textContent.toLowerCase();
+        const category = row.cells[1].textContent.toLowerCase();
+        const shouldShow = reportName.includes(searchTerm) || category.includes(searchTerm);
+        row.style.display = shouldShow ? '' : 'none';
+    });
+}
+
+function filterReports() {
+    const categoryFilter = document.getElementById('filterCategory').value;
+    const statusFilter = document.getElementById('filterStatus').value;
+    const reportRows = document.querySelectorAll('#recentReportsBody tr');
+    
+    reportRows.forEach(row => {
+        const category = row.cells[1].textContent.toLowerCase();
+        const status = row.cells[4].textContent.toLowerCase();
+        
+        const categoryMatch = !categoryFilter || category.includes(categoryFilter);
+        const statusMatch = !statusFilter || status.includes(statusFilter);
+        
+        row.style.display = (categoryMatch && statusMatch) ? '' : 'none';
+    });
+}
+
+function refreshReports() {
+    showNotification('Refreshing reports...', 'info');
+    loadRecentReports();
+    updateStatistics();
+}
+
+function importTemplate() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.json';
+    fileInput.onchange = function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const template = JSON.parse(e.target.result);
+                    // Validate template structure
+                    if (template.name && template.configuration) {
+                        // Add template to local storage
+                        const templates = JSON.parse(localStorage.getItem('reportTemplates') || '[]');
+                        templates.push(template);
+                        localStorage.setItem('reportTemplates', JSON.stringify(templates));
+                        
+                        showNotification('Template imported successfully', 'success');
+                        loadReportTemplates();
+                        updateStatistics();
+                    } else {
+                        showNotification('Invalid template file format', 'error');
+                    }
+                } catch (error) {
+                    showNotification('Error reading template file', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+    };
+    fileInput.click();
 }
 
 // CSS for dynamic content (inject into page)
@@ -1472,3 +1642,15 @@ const dynamicStyles = `
 document.head.insertAdjacentHTML('beforeend', dynamicStyles);
 
 console.log('PAU Inventory Report Generation module loaded successfully');
+
+// Navigation Functions
+function goBackToDashboard() {
+    const userRole = sessionStorage.getItem('userRole');
+    if (userRole === 'admin') {
+        window.location.href = 'supervisor-dashboard.html'; // Admin uses supervisor dashboard
+    } else if (userRole === 'supervisor') {
+        window.location.href = 'supervisor-dashboard.html';
+    } else {
+        window.location.href = 'staff-dashboard.html';
+    }
+}

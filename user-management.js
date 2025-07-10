@@ -771,10 +771,13 @@ function getNotificationIcon(type) {
 
 // Navigation functions
 function goBackToDashboard() {
-    if (currentUser && currentUser.role === USER_ROLES.SUPERVISOR) {
+    const userRole = sessionStorage.getItem('userRole');
+    if (userRole === 'supervisor' || userRole === 'admin') {
         window.location.href = 'supervisor-dashboard.html';
-    } else {
+    } else if (userRole === 'staff') {
         window.location.href = 'staff-dashboard.html';
+    } else {
+        window.location.href = 'index.html';
     }
 }
 

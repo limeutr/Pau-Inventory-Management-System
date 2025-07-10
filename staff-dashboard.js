@@ -272,11 +272,8 @@ function logWastage() {
 }
 
 function requestSupplies() {
-    const supplies = prompt('Enter supply request:\n\nFormat: Item - Quantity Needed - Priority\nExample: Flour - 50kg - Urgent');
-    
-    if (supplies) {
-        alert(`📦 Supply request submitted!\n\nRequest: ${supplies}\n\nYour request has been forwarded to the supervisor for approval and ordering.`);
-    }
+    // Redirect to supply request page
+    window.location.href = 'supply-request.html';
 }
 
 function viewRecipes() {
@@ -285,19 +282,8 @@ function viewRecipes() {
 }
 
 function reportIssue() {
-    const issueTypes = [
-        'Equipment malfunction',
-        'Safety concern',
-        'Quality issue',
-        'Supply shortage',
-        'Other'
-    ];
-    
-    const issue = prompt(`🔧 Report an Issue\n\nSelect issue type:\n${issueTypes.map((type, index) => `${index + 1}. ${type}`).join('\n')}\n\nEnter the number and describe the issue:`);
-    
-    if (issue) {
-        alert(`🚨 Issue reported!\n\nYour report: ${issue}\n\nThe issue has been logged and relevant personnel have been notified. Someone will address this shortly.`);
-    }
+    // Redirect to report issue page
+    window.location.href = 'report-issue.html';
 }
 
 // Add CSS animations for toasts and interactions

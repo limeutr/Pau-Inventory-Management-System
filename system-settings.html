@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAU Inventory - System Settings</title>
+    <link rel="stylesheet" href="system-settings.css">
+</head>
+<body>
+    <div class="settings-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo" onclick="goBackToDashboard()" style="cursor: pointer;" title="Return to Dashboard">
+                    <h1>PAU Inventory</h1>
+                    <span>System Settings</span>
+                </div>
+                <div class="user-info">
+                    <span class="role-badge" id="userRoleBadge">Admin</span>
+                    <span id="welcomeMessage">Welcome, Admin!</span>
+                    <button onclick="goBackToDashboard()" class="back-btn">Back to Dashboard</button>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Controls Section -->
+            <section class="controls-section">
+                <div class="controls-header">
+                    <h2>⚙️ System Settings</h2>
+                    <div class="controls-actions">
+                        <div class="search-box">
+                            <input type="text" id="searchSettings" placeholder="Search settings..." class="search-input">
+                            <button onclick="searchSettings()" class="search-btn">🔍</button>
+                        </div>
+                        <select id="filterCategory" class="filter-select" onchange="filterSettings()">
+                            <option value="">All Categories</option>
+                            <option value="general">General</option>
+                            <option value="security">Security</option>
+                            <option value="database">Database</option>
+                            <option value="notifications">Notifications</option>
+                            <option value="backup">Backup</option>
+                        </select>
+                        <button onclick="exportSettings()" class="export-btn">📤 Export</button>
+                        <button onclick="importSettings()" class="import-btn">📥 Import</button>
+                        <button onclick="resetToDefaults()" class="reset-btn">🔄 Reset</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Statistics Cards -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card total">
+                        <div class="stat-icon">⚙️</div>
+                        <div class="stat-info">
+                            <h3>Total Settings</h3>
+                            <p class="stat-number" id="totalSettings">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card modified">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-info">
+                            <h3>Modified</h3>
+                            <p class="stat-number" id="modifiedSettings">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card active">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <h3>Active Users</h3>
+                            <p class="stat-number" id="activeUsers">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card backups">
+                        <div class="stat-icon">💾</div>
+                        <div class="stat-info">
+                            <h3>Backups</h3>
+                            <p class="stat-number" id="totalBackups">0</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Categories -->
+            <section class="categories-section">
+                <div class="category-tabs">
+                    <button class="tab-btn active" onclick="showCategory('general')">🏢 General</button>
+                    <button class="tab-btn" onclick="showCategory('security')">🔒 Security</button>
+                    <button class="tab-btn" onclick="showCategory('database')">🗄️ Database</button>
+                    <button class="tab-btn" onclick="showCategory('notifications')">🔔 Notifications</button>
+                    <button class="tab-btn" onclick="showCategory('backup')">💾 Backup</button>
+                    <button class="tab-btn" onclick="showCategory('advanced')">⚡ Advanced</button>
+                </div>
+
+                <!-- General Settings -->
+                <div id="generalSettings" class="settings-category active">
+                    <div class="category-header">
+                        <h3>🏢 General Settings</h3>
+                        <p>Configure basic system information and preferences</p>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>System Information</h4>
+                                <span class="setting-status">Active</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="systemName">System Name:</label>
+                                    <input type="text" id="systemName" value="PAU Inventory Management System" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="organizationName">Organization:</label>
+                                    <input type="text" id="organizationName" value="PAU University" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="systemVersion">Version:</label>
+                                    <input type="text" id="systemVersion" value="1.0.0" class="form-input" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>Display Settings</h4>
+                                <span class="setting-status">Active</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="timezone">Time Zone:</label>
+                                    <select id="timezone" class="form-select">
+                                        <option value="UTC">UTC</option>
+                                        <option value="PST">Pacific Standard Time</option>
+                                        <option value="EST">Eastern Standard Time</option>
+                                        <option value="CST">Central Standard Time</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dateFormat">Date Format:</label>
+                                    <select id="dateFormat" class="form-select">
+                                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="currency">Currency:</label>
+                                    <select id="currency" class="form-select">
+                                        <option value="USD">USD ($)</option>
+                                        <option value="EUR">EUR (€)</option>
+                                        <option value="GBP">GBP (£)</option>
+                                        <option value="JPY">JPY (¥)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>Business Settings</h4>
+                                <span class="setting-status">Active</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="businessHours">Business Hours:</label>
+                                    <div class="time-range">
+                                        <input type="time" id="businessStart" value="08:00" class="form-input">
+                                        <span>to</span>
+                                        <input type="time" id="businessEnd" value="17:00" class="form-input">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lowStockThreshold">Low Stock Threshold (%):</label>
+                                    <input type="number" id="lowStockThreshold" value="20" min="0" max="100" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="autoReorder">Auto-Reorder:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="autoReorder">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div id="securitySettings" class="settings-category">
+                    <div class="category-header">
+                        <h3>🔒 Security Settings</h3>
+                        <p>Configure security policies and access controls</p>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>Password Policy</h4>
+                                <span class="setting-status">Active</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="minPasswordLength">Minimum Password Length:</label>
+                                    <input type="number" id="minPasswordLength" value="8" min="4" max="20" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="requireUppercase">Require Uppercase:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="requireUppercase" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="requireNumbers">Require Numbers:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="requireNumbers" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="requireSpecialChars">Require Special Characters:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="requireSpecialChars">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>Session Management</h4>
+                                <span class="setting-status">Active</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="sessionTimeout">Session Timeout (minutes):</label>
+                                    <input type="number" id="sessionTimeout" value="30" min="5" max="480" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="maxLoginAttempts">Max Login Attempts:</label>
+                                    <input type="number" id="maxLoginAttempts" value="5" min="1" max="10" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="lockoutDuration">Lockout Duration (minutes):</label>
+                                    <input type="number" id="lockoutDuration" value="15" min="1" max="60" class="form-input">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>Access Control</h4>
+                                <span class="setting-status">Active</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="enableAuditLog">Enable Audit Logging:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="enableAuditLog" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="enableTwoFactor">Enable Two-Factor Authentication:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="enableTwoFactor">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="restrictIPAccess">Restrict IP Access:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="restrictIPAccess">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Settings -->
+                <div id="databaseSettings" class="settings-category">
+                    <div class="category-header">
+                        <h3>🗄️ Database Settings</h3>
+                        <p>Configure database connections and maintenance</p>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>Database Connection</h4>
+                                <span class="setting-status connected">Connected</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="dbHost">Database Host:</label>
+                                    <input type="text" id="dbHost" value="localhost" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="dbPort">Port:</label>
+                                    <input type="number" id="dbPort" value="5432" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="dbName">Database Name:</label>
+                                    <input type="text" id="dbName" value="pau_inventory" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <button onclick="testConnection()" class="test-btn">Test Connection</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>Maintenance</h4>
+                                <span class="setting-status">Active</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="autoVacuum">Auto Vacuum:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="autoVacuum" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="logRetention">Log Retention (days):</label>
+                                    <input type="number" id="logRetention" value="30" min="1" max="365" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <button onclick="optimizeDatabase()" class="optimize-btn">Optimize Database</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications Settings -->
+                <div id="notificationsSettings" class="settings-category">
+                    <div class="category-header">
+                        <h3>🔔 Notification Settings</h3>
+                        <p>Configure system notifications and alerts</p>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>Email Notifications</h4>
+                                <span class="setting-status">Active</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="smtpServer">SMTP Server:</label>
+                                    <input type="text" id="smtpServer" value="smtp.gmail.com" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="smtpPort">SMTP Port:</label>
+                                    <input type="number" id="smtpPort" value="587" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="emailFrom">From Email:</label>
+                                    <input type="email" id="emailFrom" value="noreply@pau.edu" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <button onclick="testEmail()" class="test-btn">Send Test Email</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>Alert Settings</h4>
+                                <span class="setting-status">Active</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="lowStockAlerts">Low Stock Alerts:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="lowStockAlerts" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="expiryAlerts">Expiry Alerts:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="expiryAlerts" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="systemAlerts">System Alerts:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="systemAlerts" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backup Settings -->
+                <div id="backupSettings" class="settings-category">
+                    <div class="category-header">
+                        <h3>💾 Backup Settings</h3>
+                        <p>Configure automatic backups and data protection</p>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>Automatic Backup</h4>
+                                <span class="setting-status">Active</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="enableBackup">Enable Automatic Backup:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="enableBackup" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="backupFrequency">Backup Frequency:</label>
+                                    <select id="backupFrequency" class="form-select">
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly">Monthly</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="backupTime">Backup Time:</label>
+                                    <input type="time" id="backupTime" value="02:00" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="backupRetention">Retention Period (days):</label>
+                                    <input type="number" id="backupRetention" value="30" min="1" max="365" class="form-input">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>Manual Backup</h4>
+                                <span class="setting-status">Ready</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label>Last Backup:</label>
+                                    <p id="lastBackupDate" class="backup-info">Never</p>
+                                </div>
+                                <div class="form-group">
+                                    <label>Backup Size:</label>
+                                    <p id="backupSize" class="backup-info">0 MB</p>
+                                </div>
+                                <div class="form-group">
+                                    <button onclick="createBackup()" class="backup-btn">Create Backup Now</button>
+                                    <button onclick="restoreBackup()" class="restore-btn">Restore Backup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Settings -->
+                <div id="advancedSettings" class="settings-category">
+                    <div class="category-header">
+                        <h3>⚡ Advanced Settings</h3>
+                        <p>Configure advanced system features and debugging</p>
+                    </div>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>System Performance</h4>
+                                <span class="setting-status">Active</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="enableCaching">Enable Caching:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="enableCaching" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cacheSize">Cache Size (MB):</label>
+                                    <input type="number" id="cacheSize" value="100" min="10" max="1000" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="maxConcurrentUsers">Max Concurrent Users:</label>
+                                    <input type="number" id="maxConcurrentUsers" value="50" min="1" max="1000" class="form-input">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>Debugging</h4>
+                                <span class="setting-status">Disabled</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="enableDebugMode">Enable Debug Mode:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="enableDebugMode">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="logLevel">Log Level:</label>
+                                    <select id="logLevel" class="form-select">
+                                        <option value="error">Error</option>
+                                        <option value="warning">Warning</option>
+                                        <option value="info" selected>Info</option>
+                                        <option value="debug">Debug</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <button onclick="clearLogs()" class="clear-btn">Clear Logs</button>
+                                    <button onclick="downloadLogs()" class="download-btn">Download Logs</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Save Actions -->
+            <section class="actions-section">
+                <div class="actions-container">
+                    <div class="actions-left">
+                        <span class="last-saved">Last saved: <span id="lastSavedTime">Never</span></span>
+                        <span class="auto-save" id="autoSaveStatus">Auto-save: On</span>
+                    </div>
+                    <div class="actions-right">
+                        <button onclick="discardChanges()" class="discard-btn">Discard Changes</button>
+                        <button onclick="saveSettings()" class="save-btn">Save Settings</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Settings Import Modal -->
+    <div id="importModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>📥 Import Settings</h3>
+                <button class="modal-close" onclick="closeImportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="importFile">Select Settings File:</label>
+                    <input type="file" id="importFile" accept=".json" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="overwriteExisting" checked>
+                        Overwrite existing settings
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="createBackupBeforeImport" checked>
+                        Create backup before import
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeImportModal()">Cancel</button>
+                <button class="btn-primary" onclick="processImport()">Import Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="confirmTitle">Confirm Action</h3>
+                <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+                <button class="btn-primary" id="confirmAction" onclick="executeConfirmAction()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="system-settings.js"></script>
+</body>
+</html>

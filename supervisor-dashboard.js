@@ -23,7 +23,7 @@ function checkAuthAndRole() {
         return;
     }
     
-    if (userRole !== 'supervisor') {
+    if (userRole !== 'supervisor' && userRole !== 'admin') {
         // Redirect to appropriate dashboard based on role
         if (userRole === 'staff') {
             window.location.href = 'staff-dashboard.html';
@@ -154,8 +154,24 @@ function openSalesOverview() {
     window.location.href = 'sales-overview.html';
 }
 
+function openSalesAnalytics() {
+    // Redirect to the sales analytics page
+    window.location.href = 'sales-analytics.html';
+}
+
+function openSupplyRequest() {
+    // Redirect to the supply request page
+    window.location.href = 'supply-request.html';
+}
+
 function openStaffManagement() {
-    alert('Staff Management System\n\nFeatures coming soon:\n- Add/Edit staff accounts\n- Role and permission management\n- Work schedule management\n- Performance tracking\n- Training records\n- Payroll integration');
+    // Redirect to the staff management page
+    window.location.href = 'staff-management.html';
+}
+
+function openReportIssue() {
+    // Redirect to the report issue page
+    window.location.href = 'report-issue.html';
 }
 
 function generateReport() {
@@ -164,7 +180,8 @@ function generateReport() {
 }
 
 function openSettings() {
-    alert('System Settings\n\nConfiguration options:\n- Alert thresholds\n- Notification preferences\n- User permissions\n- Backup settings\n- Integration settings\n- Security preferences');
+    // Redirect to the system settings page
+    window.location.href = 'system-settings.html';
 }
 
 // Add CSS animations

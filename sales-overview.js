@@ -73,29 +73,38 @@ function initializeSalesModule() {
     // Initialize UI components
     setupEventListeners();
     updateDashboardStats();
-    updateTrendsChart();
+    updateSalesTable();
+    updateChart();
     updateTopProducts();
     updateOutletPerformance();
-    populateForecastProducts();
     
     console.log('Sales Overview module initialized');
 }
 
 function checkAuthenticationAndPermissions() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+    const userRole = sessionStorage.getItem('userRole');
+    const username = sessionStorage.getItem('username');
     
-    if (!currentUser.username) {
+    if (!isLoggedIn || isLoggedIn !== 'true') {
         alert('Please log in to access the sales overview system.');
         window.location.href = 'index.html';
         return;
     }
     
-    // Only supervisors can access sales overview
-    if (currentUser.role !== 'supervisor') {
-        alert('Access denied. Only supervisors can access sales analytics.');
-        window.location.href = currentUser.role === 'staff' ? 'staff-dashboard.html' : 'index.html';
+    // Allow both admin and supervisor roles to access sales overview
+    if (userRole !== 'supervisor' && userRole !== 'admin') {
+        alert('Access denied. Only supervisors and administrators can access sales analytics.');
+        window.location.href = userRole === 'staff' ? 'staff-dashboard.html' : 'index.html';
         return;
     }
+    
+    // Create currentUser object for compatibility
+    const currentUser = {
+        username: username,
+        role: userRole,
+        isLoggedIn: true
+    };
     
     salesState.currentUser = currentUser;
     
@@ -249,7 +258,9 @@ function setupEventListeners() {
     // Logout functionality
     document.getElementById('logoutBtn').addEventListener('click', function() {
         if (confirm('Are you sure you want to logout?')) {
-            localStorage.removeItem('currentUser');
+            sessionStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('username');
+            sessionStorage.removeItem('userRole');
             window.location.href = 'index.html';
         }
     });
@@ -1072,242 +1083,480 @@ function hideLoadingOverlay() {
 }
 
 function goBackToDashboard() {
-    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    if (user.role === 'supervisor') {
+    const userRole = sessionStorage.getItem('userRole');
+    if (userRole === 'supervisor' || userRole === 'admin') {
         window.location.href = 'supervisor-dashboard.html';
-    } else {
+    } else if (userRole === 'staff') {
         window.location.href = 'staff-dashboard.html';
+    } else {
+        window.location.href = 'index.html';
     }
 }
 
-// CSS injection for additional styling
-const additionalStyles = `
-<style>
-.trend-summary {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 15px;
+function generateReport() {
+    const modal = document.getElementById('generateReportModal');
+    if (modal) {
+        modal.style.display = 'block';
+        
+        // Close modal when clicking outside
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                closeGenerateReportModal();
+            }
+        };
+    }
 }
 
-.trend-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
+function closeGenerateReportModal() {
+    const modal = document.getElementById('generateReportModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
-.trend-stat {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-    background: white;
-    border-radius: 5px;
-    border-left: 3px solid #007bff;
-}
-
-.trend-label {
-    font-weight: 500;
-    color: #666;
-}
-
-.trend-value {
-    font-weight: 600;
-    color: #007bff;
-}
-
-.trend-points {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.trend-point {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    background: rgba(0,123,255,0.05);
-    border-radius: 5px;
-}
-
-.point-date {
-    font-weight: 500;
-    color: #666;
-}
-
-.point-value {
-    font-weight: 600;
-    color: #007bff;
-}
-
-.seasonal-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 15px;
-    margin-bottom: 10px;
-    background: rgba(0,123,255,0.05);
-    border-radius: 8px;
-    border-left: 3px solid #007bff;
-}
-
-.seasonal-season {
-    font-weight: 600;
-    color: #333;
-}
-
-.seasonal-trend {
-    font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.9em;
-}
-
-.seasonal-trend.positive {
-    background: #d4edda;
-    color: #155724;
-}
-
-.seasonal-trend.negative {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.seasonal-desc {
-    color: #666;
-    font-size: 0.9em;
-    text-align: right;
-    max-width: 200px;
-}
-
-.forecast-results {
-    max-height: 70vh;
-    overflow-y: auto;
-}
-
-.forecast-header {
-    text-align: center;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.summary-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 3px solid #007bff;
-}
-
-.summary-label {
-    font-weight: 500;
-    color: #666;
-}
-
-.summary-value {
-    font-weight: 600;
-    color: #007bff;
-}
-
-.forecast-table table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-.forecast-table th,
-.forecast-table td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.forecast-table th {
-    background: #f8f9fa;
-    font-weight: 600;
-    color: #333;
-}
-
-.summary-row {
-    background: #f8f9fa;
-    font-weight: 500;
-}
-
-.forecast-notes {
-    margin-top: 25px;
-    padding-top: 20px;
-    border-top: 1px solid #e9ecef;
-}
-
-.forecast-notes ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.forecast-notes li {
-    padding: 5px 0;
-    padding-left: 20px;
-    position: relative;
-}
-
-.forecast-notes li:before {
-    content: '•';
-    color: #007bff;
-    font-weight: bold;
-    position: absolute;
-    left: 0;
-}
-
-.no-data {
-    text-align: center;
-    color: #666;
-    font-style: italic;
-    padding: 40px;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-@media (max-width: 768px) {
-    .trend-stats {
-        grid-template-columns: 1fr;
+function generateSalesReport() {
+    const reportType = document.getElementById('reportType');
+    const reportPeriod = document.getElementById('reportPeriod');
+    const reportFormat = document.getElementById('reportFormat');
+    
+    if (!reportType || !reportPeriod || !reportFormat) {
+        showNotification('Report form elements not found', 'error');
+        return;
     }
     
-    .summary-grid {
-        grid-template-columns: 1fr;
+    const reportTypeValue = reportType.value;
+    const reportPeriodValue = reportPeriod.value;
+    const reportFormatValue = reportFormat.value;
+    
+    // Validate inputs
+    if (!reportTypeValue || !reportPeriodValue || !reportFormatValue) {
+        showNotification('Please select all report options', 'error');
+        return;
     }
     
-    .seasonal-item {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
+    showNotification(`Generating ${reportTypeValue} report for ${reportPeriodValue} in ${reportFormatValue} format...`, 'info');
     
-    .seasonal-desc {
-        text-align: left;
-        max-width: none;
-    }
+    // Simulate report generation with more detailed process
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 20;
+        if (progress <= 100) {
+            const messages = [
+                'Analyzing sales data...',
+                'Processing transactions...',
+                'Calculating metrics...',
+                'Formatting report...',
+                'Finalizing report...'
+            ];
+            showNotification(messages[Math.floor(progress / 20) - 1], 'info');
+        }
+    }, 400);
     
-    .forecast-table {
-        overflow-x: auto;
-    }
+    setTimeout(() => {
+        clearInterval(interval);
+        
+        // Generate actual report data based on selection
+        const reportData = generateReportData(reportTypeValue, reportPeriodValue);
+        
+        // Export based on format
+        switch (reportFormatValue) {
+            case 'pdf':
+                generatePDFReport(reportData, reportTypeValue);
+                break;
+            case 'excel':
+                generateExcelReport(reportData, reportTypeValue);
+                break;
+            case 'csv':
+                generateCSVReport(reportData, reportTypeValue);
+                break;
+            default:
+                generateCSVReport(reportData, reportTypeValue);
+        }
+        
+        showNotification(`${reportTypeValue} report generated successfully!`, 'success');
+        closeGenerateReportModal();
+    }, 2500);
 }
-</style>
+
+function printTransaction() {
+    const modalBody = document.getElementById('transactionModalBody');
+    if (!modalBody) {
+        showNotification('Transaction details not available for printing', 'error');
+        return;
+    }
+    
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+        showNotification('Please allow popups to print transaction details', 'error');
+        return;
+    }
+    
+    const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Transaction Receipt</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+                .transaction-details { margin: 20px 0; }
+                .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                .items-table th, .items-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                .items-table th { background-color: #f8f9fa; }
+                .summary { background: #f8f9fa; padding: 15px; border-radius: 4px; margin-top: 20px; }
+                @media print { 
+                    body { margin: 0; } 
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>PAU Inventory - Transaction Receipt</h1>
+            ${modalBody.innerHTML}
+            <div class="no-print" style="margin-top: 30px;">
+                <button onclick="window.print()">Print</button>
+                <button onclick="window.close()">Close</button>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.focus();
+    
+    // Auto-print after a short delay
+    setTimeout(() => {
+        printWindow.print();
+    }, 500);
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 4px;
+        z-index: 1000;
+        animation: slideIn 0.3s ease-out;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+
+// Add notification animations
+const notificationStyles = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
 `;
 
-// Inject additional styles
-document.head.insertAdjacentHTML('beforeend', additionalStyles);
+const notificationStyleSheet = document.createElement('style');
+notificationStyleSheet.textContent = notificationStyles;
+document.head.appendChild(notificationStyleSheet);
 
-console.log('PAU Inventory Sales Overview module loaded successfully');
+// Report generation helper functions
+function generateReportData(reportType, reportPeriod) {
+    const salesData = salesState.salesData || [];
+    const filteredData = filterDataByPeriod(salesData, reportPeriod);
+    
+    switch (reportType) {
+        case 'summary':
+            return generateSummaryReport(filteredData);
+        case 'detailed':
+            return generateDetailedReport(filteredData);
+        case 'outlet':
+            return generateOutletReport(filteredData);
+        case 'product':
+            return generateProductReport(filteredData);
+        default:
+            return generateSummaryReport(filteredData);
+    }
+}
+
+function filterDataByPeriod(data, period) {
+    const now = new Date();
+    const startDate = new Date();
+    
+    switch (period) {
+        case 'today':
+            startDate.setHours(0, 0, 0, 0);
+            break;
+        case 'week':
+            startDate.setDate(now.getDate() - 7);
+            break;
+        case 'month':
+            startDate.setMonth(now.getMonth() - 1);
+            break;
+        case 'quarter':
+            startDate.setMonth(now.getMonth() - 3);
+            break;
+        case 'year':
+            startDate.setFullYear(now.getFullYear() - 1);
+            break;
+        default:
+            startDate.setMonth(now.getMonth() - 1);
+    }
+    
+    return data.filter(transaction => {
+        const transactionDate = new Date(transaction.timestamp);
+        return transactionDate >= startDate && transactionDate <= now;
+    });
+}
+
+function generateSummaryReport(data) {
+    const totalRevenue = data.reduce((sum, t) => sum + t.totalRevenue, 0);
+    const totalTransactions = data.length;
+    const totalItems = data.reduce((sum, t) => sum + t.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
+    
+    return {
+        type: 'summary',
+        totalRevenue: totalRevenue,
+        totalTransactions: totalTransactions,
+        totalItems: totalItems,
+        averageOrderValue: totalRevenue / totalTransactions || 0,
+        data: data
+    };
+}
+
+function generateDetailedReport(data) {
+    return {
+        type: 'detailed',
+        transactions: data,
+        summary: generateSummaryReport(data)
+    };
+}
+
+function generateOutletReport(data) {
+    const outletData = {};
+    
+    data.forEach(transaction => {
+        if (!outletData[transaction.outlet]) {
+            outletData[transaction.outlet] = {
+                name: getOutletName(transaction.outlet),
+                revenue: 0,
+                transactions: 0,
+                items: 0
+            };
+        }
+        
+        outletData[transaction.outlet].revenue += transaction.totalRevenue;
+        outletData[transaction.outlet].transactions += 1;
+        outletData[transaction.outlet].items += transaction.items.reduce((sum, item) => sum + item.quantity, 0);
+    });
+    
+    return {
+        type: 'outlet',
+        outlets: outletData,
+        summary: generateSummaryReport(data)
+    };
+}
+
+function generateProductReport(data) {
+    const productData = {};
+    
+    data.forEach(transaction => {
+        transaction.items.forEach(item => {
+            if (!productData[item.name]) {
+                productData[item.name] = {
+                    name: item.name,
+                    totalQuantity: 0,
+                    totalRevenue: 0,
+                    averagePrice: 0,
+                    transactions: 0
+                };
+            }
+            
+            productData[item.name].totalQuantity += item.quantity;
+            productData[item.name].totalRevenue += item.revenue;
+            productData[item.name].transactions += 1;
+            productData[item.name].averagePrice = productData[item.name].totalRevenue / productData[item.name].totalQuantity;
+        });
+    });
+    
+    return {
+        type: 'product',
+        products: productData,
+        summary: generateSummaryReport(data)
+    };
+}
+
+function generatePDFReport(reportData, reportType) {
+    // Simulate PDF generation (in real implementation, use libraries like jsPDF)
+    console.log('Generating PDF report:', reportType, reportData);
+    showNotification('PDF report would be generated here (requires PDF library)', 'info');
+}
+
+function generateExcelReport(reportData, reportType) {
+    // Simulate Excel generation (in real implementation, use libraries like xlsx)
+    console.log('Generating Excel report:', reportType, reportData);
+    showNotification('Excel report would be generated here (requires Excel library)', 'info');
+}
+
+function generateCSVReport(reportData, reportType) {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    
+    switch (reportType) {
+        case 'summary':
+            csvContent += "Metric,Value\n";
+            csvContent += `Total Revenue,$${reportData.totalRevenue.toFixed(2)}\n`;
+            csvContent += `Total Transactions,${reportData.totalTransactions}\n`;
+            csvContent += `Total Items,${reportData.totalItems}\n`;
+            csvContent += `Average Order Value,$${reportData.averageOrderValue.toFixed(2)}\n`;
+            break;
+            
+        case 'detailed':
+            csvContent += "Transaction ID,Date,Outlet,Staff,Items,Total Revenue\n";
+            reportData.transactions.forEach(transaction => {
+                csvContent += `${transaction.id},${new Date(transaction.timestamp).toLocaleString()},${getOutletName(transaction.outlet)},${transaction.staff},${transaction.items.length},$${transaction.totalRevenue.toFixed(2)}\n`;
+            });
+            break;
+            
+        case 'outlet':
+            csvContent += "Outlet,Revenue,Transactions,Items\n";
+            Object.values(reportData.outlets).forEach(outlet => {
+                csvContent += `${outlet.name},$${outlet.revenue.toFixed(2)},${outlet.transactions},${outlet.items}\n`;
+            });
+            break;
+            
+        case 'product':
+            csvContent += "Product,Total Quantity,Total Revenue,Average Price,Transactions\n";
+            Object.values(reportData.products).forEach(product => {
+                csvContent += `${product.name},${product.totalQuantity},$${product.totalRevenue.toFixed(2)},$${product.averagePrice.toFixed(2)},${product.transactions}\n`;
+            });
+            break;
+    }
+    
+    // Create download link
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${reportType}_report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Ensure functions are globally accessible for HTML onclick handlers
+window.goBackToDashboard = goBackToDashboard;
+window.generateReport = generateReport;
+window.closeGenerateReportModal = closeGenerateReportModal;
+window.generateSalesReport = generateSalesReport;
+window.exportSalesReport = exportSalesReport;
+window.exportOutletData = exportOutletData;
+window.viewTransactionDetails = viewTransactionDetails;
+window.closeViewTransactionModal = closeViewTransactionModal;
+window.printTransaction = printTransaction;
+window.updatePeriod = updatePeriod;
+window.filterByOutlet = filterByOutlet;
+window.updateChart = updateChart;
+window.updateTopProducts = updateTopProducts;
+
+// Missing functions referenced in HTML
+function updatePeriod() {
+    const periodSelector = document.getElementById('periodSelector');
+    if (!periodSelector) return;
+    
+    const selectedPeriod = periodSelector.value;
+    salesState.currentPeriod = selectedPeriod;
+    
+    console.log('Period updated to:', selectedPeriod);
+    
+    // Update all displays with new period
+    loadSalesData();
+    updateDashboardStats();
+    updateSalesTable();
+    updateChart();
+    updateTopProducts();
+    updateOutletPerformance();
+    
+    showNotification(`Updated view to show ${selectedPeriod} data`, 'info');
+}
+
+// Export outlet data function
+function exportOutletData() {
+    // Check authentication
+    const userRole = sessionStorage.getItem('userRole');
+    if (userRole !== 'supervisor' && userRole !== 'admin') {
+        showNotification('Access denied. Only supervisors and administrators can export outlet data.', 'error');
+        return;
+    }
+    
+    showNotification('Exporting outlet performance data...', 'info');
+    
+    // Generate outlet data
+    const outletData = salesState.outletsData || [];
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Outlet ID,Outlet Name,Total Revenue,Total Sales,Average Order Value,Status\n";
+    
+    outletData.forEach(outlet => {
+        csvContent += `${outlet.id},${outlet.name},$${outlet.totalRevenue.toFixed(2)},${outlet.totalSales},$${outlet.avgOrderValue.toFixed(2)},${outlet.status}\n`;
+    });
+    
+    // Download the file
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `outlet_performance_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showNotification('Outlet data exported successfully!', 'success');
+}
+
+// Test navigation function on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click event listener as backup to inline onclick
+    const logoElement = document.querySelector('.logo');
+    if (logoElement) {
+        logoElement.addEventListener('click', function(e) {
+            console.log('Logo clicked via event listener');
+            goBackToDashboard();
+        });
+    }
+    
+    // Add click event listener to back button as well
+    const backButton = document.querySelector('.back-btn');
+    if (backButton) {
+        backButton.addEventListener('click', function(e) {
+            console.log('Back button clicked via event listener');
+            goBackToDashboard();
+        });
+    }
+});

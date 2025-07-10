@@ -15,8 +15,8 @@
                     <span>Report Generation</span>
                 </div>
                 <div class="user-info">
-                    <span class="role-badge supervisor" id="userRoleBadge">Supervisor</span>
-                    <span id="welcomeMessage">Welcome, Supervisor!</span>
+                    <span class="role-badge" id="userRoleBadge">Supervisor</span>
+                    <span id="welcomeMessage">Welcome, Admin!</span>
                     <button onclick="goBackToDashboard()" class="back-btn">Back to Dashboard</button>
                     <button id="logoutBtn" class="logout-btn">Logout</button>
                 </div>
@@ -24,279 +24,360 @@
         </header>
 
         <main class="main-content">
-            <!-- Report Dashboard -->
-            <section class="dashboard-section">
-                <h2>📊 Report Dashboard</h2>
-                <div class="report-stats">
-                    <div class="stat-card">
-                        <div class="stat-icon">📋</div>
+            <!-- Controls Section -->
+            <section class="controls-section">
+                <div class="controls-header">
+                    <h2>📊 Report Generation</h2>
+                    <div class="controls-actions">
+                        <div class="search-box">
+                            <input type="text" id="searchReports" placeholder="Search reports..." class="search-input">
+                            <button onclick="searchReports()" class="search-btn">�</button>
+                        </div>
+                        <select id="filterCategory" class="filter-select" onchange="filterReports()">
+                            <option value="">All Categories</option>
+                            <option value="sales">Sales Reports</option>
+                            <option value="inventory">Inventory Reports</option>
+                            <option value="financial">Financial Reports</option>
+                            <option value="operational">Operational Reports</option>
+                        </select>
+                        <select id="filterStatus" class="filter-select" onchange="filterReports()">
+                            <option value="">All Status</option>
+                            <option value="completed">Completed</option>
+                            <option value="pending">Pending</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                        <button onclick="showQuickReportModal()" class="add-btn">+ Quick Report</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Statistics Cards -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card total">
+                        <div class="stat-icon">📊</div>
                         <div class="stat-info">
-                            <h3>Total Reports Generated</h3>
+                            <h3>Total Reports</h3>
                             <p class="stat-number" id="totalReports">0</p>
-                            <span class="stat-label">this month</span>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card today">
                         <div class="stat-icon">📅</div>
                         <div class="stat-info">
-                            <h3>Last Report Generated</h3>
-                            <p class="stat-number" id="lastReportDate">Never</p>
-                            <span class="stat-label">date</span>
+                            <h3>Today</h3>
+                            <p class="stat-number" id="reportsToday">0</p>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">⏱️</div>
+                    <div class="stat-card scheduled">
+                        <div class="stat-icon">⏰</div>
                         <div class="stat-info">
-                            <h3>Current System Time</h3>
-                            <p class="stat-number" id="currentTime">--:--</p>
-                            <span class="stat-label">real-time</span>
+                            <h3>Scheduled</h3>
+                            <p class="stat-number" id="scheduledReports">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card templates">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-info">
+                            <h3>Templates</h3>
+                            <p class="stat-number" id="totalTemplates">0</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Report Types -->
-            <section class="report-types-section">
-                <h2>📈 Available Report Types</h2>
-                <div class="report-grid">
-                    <!-- Stock Levels Report -->
-                    <div class="report-card" onclick="selectReportType('stock-levels')">
-                        <div class="report-icon">📦</div>
-                        <div class="report-info">
-                            <h3>Stock Levels Report</h3>
-                            <p>Current inventory levels, low stock alerts, and stock movement analysis</p>
-                            <div class="report-features">
-                                <span class="feature-tag">Inventory Status</span>
-                                <span class="feature-tag">Stock Alerts</span>
-                                <span class="feature-tag">Reorder Points</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Production Output Report -->
-                    <div class="report-card" onclick="selectReportType('production-output')">
-                        <div class="report-icon">🏭</div>
-                        <div class="report-info">
-                            <h3>Production Output Report</h3>
-                            <p>Detailed production metrics, inbound/outbound tracking, and efficiency analysis</p>
-                            <div class="report-features">
-                                <span class="feature-tag">Production Metrics</span>
-                                <span class="feature-tag">Efficiency</span>
-                                <span class="feature-tag">Trends</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Wastage Statistics Report -->
-                    <div class="report-card" onclick="selectReportType('wastage-statistics')">
-                        <div class="report-icon">🗑️</div>
-                        <div class="report-info">
-                            <h3>Wastage Statistics Report</h3>
-                            <p>Comprehensive wastage analysis by location, reason, and financial impact</p>
-                            <div class="report-features">
-                                <span class="feature-tag">Wastage Analysis</span>
-                                <span class="feature-tag">Cost Impact</span>
-                                <span class="feature-tag">Trends</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Inventory Movement Report -->
-                    <div class="report-card" onclick="selectReportType('inventory-movement')">
-                        <div class="report-icon">🔄</div>
-                        <div class="report-info">
-                            <h3>Inventory Movement Report</h3>
-                            <p>Track all inventory transactions, transfers, and stock adjustments</p>
-                            <div class="report-features">
-                                <span class="feature-tag">Movement Tracking</span>
-                                <span class="feature-tag">Audit Trail</span>
-                                <span class="feature-tag">Reconciliation</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sales Performance Report -->
-                    <div class="report-card" onclick="selectReportType('sales-performance')">
-                        <div class="report-icon">💰</div>
-                        <div class="report-info">
-                            <h3>Sales Performance Report</h3>
-                            <p>Revenue analysis, top-selling products, and outlet performance metrics</p>
-                            <div class="report-features">
-                                <span class="feature-tag">Revenue Analysis</span>
-                                <span class="feature-tag">Top Products</span>
-                                <span class="feature-tag">Outlet Performance</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Comprehensive System Report -->
-                    <div class="report-card" onclick="selectReportType('comprehensive')">
-                        <div class="report-icon">📊</div>
-                        <div class="report-info">
-                            <h3>Comprehensive System Report</h3>
-                            <p>Complete system overview including all modules and key performance indicators</p>
-                            <div class="report-features">
-                                <span class="feature-tag">Full System</span>
-                                <span class="feature-tag">All Metrics</span>
-                                <span class="feature-tag">Executive Summary</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Report Configuration -->
-            <section class="config-section" id="configSection" style="display: none;">
+            <!-- Report Categories -->
+            <section class="categories-section">
                 <div class="section-header">
-                    <h2>⚙️ Report Configuration</h2>
-                    <button onclick="closeConfiguration()" class="close-btn">✕</button>
+                    <h3>📋 Report Categories</h3>
+                    <p>Choose from various report types to analyze your business data</p>
                 </div>
-
-                <div class="config-form">
-                    <div class="report-preview">
-                        <h3 id="selectedReportTitle">Report Type</h3>
-                        <p id="selectedReportDesc">Report description</p>
+                <div class="categories-grid">
+                    <div class="category-card sales" onclick="selectCategory('sales')">
+                        <div class="category-icon">💰</div>
+                        <h4>Sales Reports</h4>
+                        <p>Revenue, transactions, and sales performance analytics</p>
+                        <div class="category-stats">
+                            <span>12 Report Types</span>
+                            <span>📈 Most Popular</span>
+                        </div>
                     </div>
-
-                    <form id="reportConfigForm">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="reportName">Report Name *</label>
-                                <input type="text" id="reportName" name="reportName" required placeholder="Enter custom report name">
-                            </div>
-                            <div class="form-group">
-                                <label for="reportFormat">Export Format *</label>
-                                <select id="reportFormat" name="reportFormat" required>
-                                    <option value="">Select format...</option>
-                                    <option value="pdf">PDF Document</option>
-                                    <option value="csv">CSV Spreadsheet</option>
-                                    <option value="html">HTML Report</option>
-                                </select>
-                            </div>
+                    <div class="category-card inventory" onclick="selectCategory('inventory')">
+                        <div class="category-icon">�</div>
+                        <h4>Inventory Reports</h4>
+                        <p>Stock levels, movements, and inventory management</p>
+                        <div class="category-stats">
+                            <span>8 Report Types</span>
+                            <span>🔄 Real-time</span>
                         </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="dateFrom">Date From *</label>
-                                <input type="date" id="dateFrom" name="dateFrom" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="dateTo">Date To *</label>
-                                <input type="date" id="dateTo" name="dateTo" required>
-                            </div>
+                    </div>
+                    <div class="category-card financial" onclick="selectCategory('financial')">
+                        <div class="category-icon">💳</div>
+                        <h4>Financial Reports</h4>
+                        <p>Profit & loss, cash flow, and financial analysis</p>
+                        <div class="category-stats">
+                            <span>6 Report Types</span>
+                            <span>📊 Detailed</span>
                         </div>
-
-                        <div class="form-row" id="categoryFilterRow">
-                            <div class="form-group">
-                                <label for="categoryFilter">Product Category</label>
-                                <select id="categoryFilter" name="categoryFilter">
-                                    <option value="">All Categories</option>
-                                    <option value="raw_ingredient">Raw Ingredients</option>
-                                    <option value="finished_product">Finished Products</option>
-                                    <option value="flour_grains">Flour & Grains</option>
-                                    <option value="dairy">Dairy Products</option>
-                                    <option value="sweeteners">Sweeteners</option>
-                                    <option value="fats_oils">Fats & Oils</option>
-                                </select>
-                            </div>
-                            <div class="form-group" id="outletFilterGroup">
-                                <label for="outletFilter">Outlet Location</label>
-                                <select id="outletFilter" name="outletFilter">
-                                    <option value="">All Outlets</option>
-                                    <option value="factory">Factory</option>
-                                    <option value="main_outlet">Main Outlet</option>
-                                    <option value="downtown_branch">Downtown Branch</option>
-                                    <option value="mall_kiosk">Mall Kiosk</option>
-                                    <option value="airport_branch">Airport Branch</option>
-                                </select>
-                            </div>
+                    </div>
+                    <div class="category-card operational" onclick="selectCategory('operational')">
+                        <div class="category-icon">⚙️</div>
+                        <h4>Operational Reports</h4>
+                        <p>Staff performance, productivity, and operations</p>
+                        <div class="category-stats">
+                            <span>10 Report Types</span>
+                            <span>👥 Team Focus</span>
                         </div>
+                    </div>
+            </section>
 
+            <!-- Report Generation Form -->
+            <section class="form-section" id="reportForm" style="display: none;">
+                <div class="section-header">
+                    <h3>🎯 Configure Report</h3>
+                    <button class="btn-secondary" onclick="resetForm()">Reset Form</button>
+                </div>
+                <div class="form-container">
+                    <div class="form-left">
                         <div class="form-group">
-                            <label for="includeCharts">Additional Options</label>
-                            <div class="checkbox-group">
+                            <label for="reportCategory">Report Category:</label>
+                            <select id="reportCategory" class="form-select" onchange="updateReportTypes()">
+                                <option value="">Select Category</option>
+                                <option value="sales">Sales Reports</option>
+                                <option value="inventory">Inventory Reports</option>
+                                <option value="financial">Financial Reports</option>
+                                <option value="operational">Operational Reports</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reportType">Report Type:</label>
+                            <select id="reportType" class="form-select" onchange="updateReportDescription()">
+                                <option value="">Select Report Type</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reportPeriod">Time Period:</label>
+                            <select id="reportPeriod" class="form-select" onchange="updateDateRange()">
+                                <option value="today">Today</option>
+                                <option value="yesterday">Yesterday</option>
+                                <option value="week">This Week</option>
+                                <option value="month" selected>This Month</option>
+                                <option value="quarter">This Quarter</option>
+                                <option value="year">This Year</option>
+                                <option value="custom">Custom Date Range</option>
+                            </select>
+                        </div>
+                        <div class="form-group custom-date" id="customDateRange" style="display: none;">
+                            <label>Custom Date Range:</label>
+                            <div class="date-inputs">
+                                <input type="date" id="startDate" class="form-input">
+                                <span>to</span>
+                                <input type="date" id="endDate" class="form-input">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="reportFormat">Output Format:</label>
+                            <select id="reportFormat" class="form-select">
+                                <option value="pdf">PDF Document</option>
+                                <option value="excel">Excel Spreadsheet</option>
+                                <option value="csv">CSV File</option>
+                                <option value="json">JSON Data</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-right">
+                        <div class="report-preview">
+                            <h4>📄 Report Preview</h4>
+                            <div class="preview-content" id="previewContent">
+                                <p>Select a report type to see preview</p>
+                            </div>
+                        </div>
+                        <div class="advanced-options">
+                            <h4>⚙️ Advanced Options</h4>
+                            <div class="option-group">
                                 <label class="checkbox-label">
-                                    <input type="checkbox" id="includeCharts" name="includeCharts" checked>
-                                    Include Charts and Graphs
+                                    <input type="checkbox" id="includeCharts" checked>
+                                    <span>Include Charts & Graphs</span>
                                 </label>
                                 <label class="checkbox-label">
-                                    <input type="checkbox" id="includeSummary" name="includeSummary" checked>
-                                    Include Executive Summary
+                                    <input type="checkbox" id="includeDetails" checked>
+                                    <span>Include Detailed Data</span>
                                 </label>
                                 <label class="checkbox-label">
-                                    <input type="checkbox" id="includeTimestamps" name="includeTimestamps" checked>
-                                    Include Detailed Timestamps
+                                    <input type="checkbox" id="includeSummary" checked>
+                                    <span>Include Executive Summary</span>
                                 </label>
                                 <label class="checkbox-label">
-                                    <input type="checkbox" id="includeAuditTrail" name="includeAuditTrail">
-                                    Include Audit Trail Data
+                                    <input type="checkbox" id="emailReport">
+                                    <span>Email Report After Generation</span>
                                 </label>
                             </div>
                         </div>
-
-                        <div class="form-actions">
-                            <button type="button" onclick="previewReport()" class="preview-btn">👁️ Preview Report</button>
-                            <button type="submit" class="generate-btn">📊 Generate Report</button>
-                        </div>
-                    </form>
-                </div>
-            </section>
-
-            <!-- Report Preview -->
-            <section class="preview-section" id="previewSection" style="display: none;">
-                <div class="section-header">
-                    <h2>👁️ Report Preview</h2>
-                    <div class="preview-actions">
-                        <button onclick="editReport()" class="edit-btn">✏️ Edit Configuration</button>
-                        <button onclick="closePreview()" class="close-btn">✕</button>
                     </div>
                 </div>
-
-                <div class="preview-container" id="previewContainer">
-                    <!-- Dynamic preview content will be inserted here -->
+                <div class="form-actions">
+                    <button class="btn-secondary" onclick="saveTemplate()">Save as Template</button>
+                    <button class="btn-primary" onclick="generateReport()">Generate Report</button>
                 </div>
             </section>
 
             <!-- Recent Reports -->
-            <section class="recent-reports-section">
+            <section class="table-section">
                 <div class="section-header">
-                    <h2>📋 Recent Reports</h2>
-                    <button onclick="clearReportHistory()" class="clear-btn">🗑️ Clear History</button>
+                    <h3>📋 Recent Reports</h3>
+                    <div class="section-actions">
+                        <button class="btn-secondary" onclick="refreshReports()">🔄 Refresh</button>
+                        <button class="btn-secondary" onclick="clearReportHistory()">🗑️ Clear History</button>
+                    </div>
                 </div>
-
-                <div class="reports-table-container">
+                <div class="table-container">
                     <table class="reports-table" id="recentReportsTable">
                         <thead>
                             <tr>
                                 <th>Report Name</th>
-                                <th>Type</th>
-                                <th>Date Range</th>
-                                <th>Generated</th>
+                                <th>Category</th>
+                                <th>Generated On</th>
                                 <th>Format</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="recentReportsBody">
-                            <!-- Dynamic content will be inserted here -->
+                            <!-- Recent reports will be populated here -->
                         </tbody>
                     </table>
+                </div>
+            </section>
+
+            <!-- Report Templates -->
+            <section class="templates-section">
+                <div class="section-header">
+                    <h3>📋 Report Templates</h3>
+                    <div class="section-actions">
+                        <button class="btn-secondary" onclick="importTemplate()">📥 Import</button>
+                        <button class="btn-primary" onclick="showCreateTemplateModal()">+ Create Template</button>
+                    </div>
+                </div>
+                <div class="templates-grid" id="templatesGrid">
+                    <!-- Templates will be populated here -->
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- Loading Modal -->
-    <div id="loadingModal" class="modal">
-        <div class="modal-content loading-content">
-            <div class="loading-spinner"></div>
-            <h3>Generating Report...</h3>
-            <p id="loadingText">Collecting data from system modules...</p>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
+    <!-- Quick Report Modal -->
+    <div id="quickReportModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>⚡ Quick Report Generation</h3>
+                <button class="modal-close" onclick="closeQuickReportModal()">&times;</button>
             </div>
-            <p class="progress-text"><span id="progressPercent">0</span>% Complete</p>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="quickReportType">Report Type:</label>
+                    <select id="quickReportType" class="form-select">
+                        <option value="daily-sales">Daily Sales Summary</option>
+                        <option value="inventory-status">Current Inventory Status</option>
+                        <option value="low-stock">Low Stock Items</option>
+                        <option value="expired-items">Expired Items</option>
+                        <option value="staff-activity">Staff Activity Report</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quickReportFormat">Format:</label>
+                    <select id="quickReportFormat" class="form-select">
+                        <option value="pdf">PDF Document</option>
+                        <option value="csv">CSV File</option>
+                        <option value="excel">Excel Spreadsheet</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="quickReportEmail">
+                        <span>Email report immediately</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeQuickReportModal()">Cancel</button>
+                <button class="btn-primary" onclick="generateQuickReport()">Generate Report</button>
+            </div>
         </div>
+    </div>
+
+    <!-- Progress Modal -->
+    <div id="progressModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>🔄 Generating Report</h3>
+            </div>
+            <div class="modal-body">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="progressText">Initializing report generation...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+                <div class="progress-steps">
+                    <div class="step active" id="step1">
+                        <div class="step-icon">1</div>
+                        <span>Data Collection</span>
+                    </div>
+                    <div class="step" id="step2">
+                        <div class="step-icon">2</div>
+                        <span>Processing</span>
+                    </div>
+                    <div class="step" id="step3">
+                        <div class="step-icon">3</div>
+                        <span>Formatting</span>
+                    </div>
+                    <div class="step" id="step4">
+                        <div class="step-icon">4</div>
+                        <span>Finalizing</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="cancelReportGeneration()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Template Modal -->
+    <div id="createTemplateModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>📋 Create Report Template</h3>
+                <button class="modal-close" onclick="closeCreateTemplateModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="templateName">Template Name:</label>
+                    <input type="text" id="templateName" class="form-input" placeholder="Enter template name">
+                </div>
+                <div class="form-group">
+                    <label for="templateDescription">Description:</label>
+                    <textarea id="templateDescription" class="form-textarea" placeholder="Describe this template..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Template Configuration:</label>
+                    <div class="template-config">
+                        <p>Current form settings will be saved as template defaults.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeCreateTemplateModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveReportTemplate()">Save Template</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Indicator -->
+    <div id="securityIndicator" class="security-indicator secure">
+        <span id="securityText">🔒 Secure Session</span>
     </div>
 
     <script src="report-generation.js"></script>
