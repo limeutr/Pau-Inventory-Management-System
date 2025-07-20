@@ -144,14 +144,14 @@ function openProductionTracking() {
     window.location.href = 'production-tracking.html';
 }
 
+function openAddTask() {
+    // Redirect to the add task page for creating staff production tasks
+    window.location.href = 'add-task.html';
+}
+
 function openWastageLogging() {
     // Redirect to the wastage logging page
     window.location.href = 'wastage-logging.html';
-}
-
-function openSalesOverview() {
-    // Redirect to the sales overview page
-    window.location.href = 'sales-overview.html';
 }
 
 function openSalesAnalytics() {

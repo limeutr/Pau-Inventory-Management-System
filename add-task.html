@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAU Inventory - Add Production Task</title>
+    <link rel="stylesheet" href="add-task.css">
+</head>
+<body>
+    <div class="page-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo" onclick="goBack()" style="cursor: pointer;" title="Go Back to Dashboard">
+                    <h1>PAU Inventory</h1>
+                    <span>Add Production Task</span>
+                </div>
+                <div class="user-info">
+                    <span class="role-badge supervisor">Supervisor</span>
+                    <span id="welcomeMessage">Welcome, Admin!</span>
+                    <button id="logoutBtn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>Create New Production Task</h2>
+                    <p>Add a new task for staff members to complete</p>
+                </div>
+
+                <form id="addTaskForm" class="task-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskTitle">Task Title <span class="required">*</span></label>
+                            <input type="text" id="taskTitle" name="taskTitle" required 
+                                   placeholder="e.g., Prepare 50 Classic Bread Loaves">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="taskPriority">Priority <span class="required">*</span></label>
+                            <select id="taskPriority" name="taskPriority" required>
+                                <option value="">Select Priority</option>
+                                <option value="high">High Priority</option>
+                                <option value="medium">Medium Priority</option>
+                                <option value="low">Low Priority</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskDueDate">Due Date <span class="required">*</span></label>
+                            <input type="date" id="taskDueDate" name="taskDueDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="taskDueTime">Due Time <span class="required">*</span></label>
+                            <input type="time" id="taskDueTime" name="taskDueTime" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="estimatedTime">Estimated Duration <span class="required">*</span></label>
+                            <input type="text" id="estimatedTime" name="estimatedTime" required 
+                                   placeholder="e.g., 2h 30m">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="assignedStaff">Assign to Staff</label>
+                            <select id="assignedStaff" name="assignedStaff">
+                                <option value="">All Staff (General Task)</option>
+                                <option value="john_doe">John Doe - Baker</option>
+                                <option value="jane_smith">Jane Smith - Production Assistant</option>
+                                <option value="mike_wilson">Mike Wilson - Senior Baker</option>
+                                <option value="sarah_brown">Sarah Brown - Production Lead</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="taskDescription">Task Description</label>
+                        <textarea id="taskDescription" name="taskDescription" rows="4" 
+                                  placeholder="Provide detailed instructions for completing this task..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="targetQuantity">Target Quantity</label>
+                            <input type="number" id="targetQuantity" name="targetQuantity" min="1" 
+                                   placeholder="e.g., 50">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="quantityUnit">Unit</label>
+                            <select id="quantityUnit" name="quantityUnit">
+                                <option value="">Select Unit</option>
+                                <option value="pieces">Pieces</option>
+                                <option value="loaves">Loaves</option>
+                                <option value="kg">Kilograms (kg)</option>
+                                <option value="grams">Grams (g)</option>
+                                <option value="liters">Liters (L)</option>
+                                <option value="batches">Batches</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskCategory">Task Category</label>
+                        <select id="taskCategory" name="taskCategory">
+                            <option value="">Select Category</option>
+                            <option value="baking">Baking</option>
+                            <option value="preparation">Preparation</option>
+                            <option value="cleaning">Cleaning & Maintenance</option>
+                            <option value="packaging">Packaging</option>
+                            <option value="quality_check">Quality Check</option>
+                            <option value="inventory">Inventory Management</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="sendNotification" name="sendNotification" checked>
+                            <span class="checkmark"></span>
+                            Send notification to assigned staff
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="goBack()">Cancel</button>
+                        <button type="submit" class="btn-primary">Create Task</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Task Preview -->
+            <div class="task-preview">
+                <h3>Task Preview</h3>
+                <div class="preview-card">
+                    <div class="task-item" id="previewTask">
+                        <div class="task-status">
+                            <input type="checkbox" disabled>
+                        </div>
+                        <div class="task-info">
+                            <h4 id="previewTitle">Task Title will appear here</h4>
+                            <p id="previewDetails">Priority: - | Due: -</p>
+                            <div class="task-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <span id="previewProgress">0/- completed</span>
+                            </div>
+                        </div>
+                        <span class="task-time" id="previewTime">-</span>
+                    </div>
+                </div>
+                <p class="preview-note">This is how the task will appear on the staff dashboard</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="add-task.js"></script>
+</body>
+</html>
