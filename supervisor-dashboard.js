@@ -134,19 +134,9 @@ function openInventoryManagement() {
     window.location.href = 'inventory-management.html';
 }
 
-function openIngredientManagement() {
-    // Redirect to the ingredient management page
-    window.location.href = 'ingredient-management.html';
-}
-
 function openProductionTracking() {
     // Redirect to the production tracking page
     window.location.href = 'production-tracking.html';
-}
-
-function openAddTask() {
-    // Redirect to the add task page for creating staff production tasks
-    window.location.href = 'add-task.html';
 }
 
 function openWastageLogging() {
