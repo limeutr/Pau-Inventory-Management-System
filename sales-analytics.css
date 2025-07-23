@@ -619,3 +619,118 @@ body {
         font-size: 0.9em;
     }
 }
+
+/* Ingredient and Supplier Item Styles */
+.ingredient-item,
+.supplier-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 4px solid #4CAF50;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.ingredient-item:hover,
+.supplier-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ingredient-info h4,
+.supplier-info h4 {
+    color: #333;
+    font-size: 1em;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.ingredient-info p,
+.supplier-info p {
+    color: #666;
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.ingredient-metrics,
+.supplier-metrics {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+}
+
+.ingredient-cost,
+.supplier-spend {
+    font-weight: 600;
+    color: #333;
+    font-size: 1em;
+    margin-bottom: 4px;
+}
+
+.monthly-spend,
+.supplier-rank {
+    font-size: 0.85em;
+    color: #666;
+}
+
+/* Usage and Reliability Indicators */
+.usage-high {
+    color: #d32f2f;
+    font-weight: 600;
+}
+
+.usage-medium {
+    color: #f57c00;
+    font-weight: 600;
+}
+
+.usage-low {
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+.reliability-high {
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+.reliability-medium {
+    color: #f57c00;
+    font-weight: 600;
+}
+
+.reliability-low {
+    color: #d32f2f;
+    font-weight: 600;
+}
+
+/* Enhanced Analytics Grid for New Sections */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ingredient-item,
+    .supplier-item {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .ingredient-metrics,
+    .supplier-metrics {
+        align-items: center;
+        margin-top: 10px;
+    }
+}

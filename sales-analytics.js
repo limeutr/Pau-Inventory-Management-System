@@ -3,28 +3,29 @@ let currentUser = {};
 let salesData = {};
 let charts = {};
 
-// Sample data for demonstration
+// Sample data for demonstration - PAU Products & Ingredients
 const SAMPLE_SALES_DATA = {
     monthly: [
-        { month: 'Jan 2025', revenue: 98500, units: 6420, orders: 892, avgOrder: 110.43, growth: 8.5 },
-        { month: 'Feb 2025', revenue: 105200, units: 6850, orders: 945, avgOrder: 111.32, growth: 6.8 },
-        { month: 'Mar 2025', revenue: 112800, units: 7320, orders: 1015, avgOrder: 111.13, growth: 7.2 },
-        { month: 'Apr 2025', revenue: 119600, units: 7680, orders: 1098, avgOrder: 108.93, growth: 6.0 },
-        { month: 'May 2025', revenue: 125400, units: 8140, orders: 1187, avgOrder: 105.65, growth: 4.8 },
-        { month: 'Jun 2025', revenue: 133200, units: 8590, orders: 1254, avgOrder: 106.22, growth: 6.2 },
-        { month: 'Jul 2025', revenue: 125450, units: 8432, orders: 1254, avgOrder: 100.04, growth: -5.8 }
+        { month: 'Jan 2025', revenue: 18500, units: 4420, orders: 892, avgOrder: 20.74, growth: 8.5 },
+        { month: 'Feb 2025', revenue: 19200, units: 4850, orders: 945, avgOrder: 20.32, growth: 6.8 },
+        { month: 'Mar 2025', revenue: 21800, units: 5320, orders: 1015, avgOrder: 21.48, growth: 7.2 },
+        { month: 'Apr 2025', revenue: 23600, units: 5680, orders: 1098, avgOrder: 21.49, growth: 6.0 },
+        { month: 'May 2025', revenue: 25400, units: 6140, orders: 1187, avgOrder: 21.40, growth: 4.8 },
+        { month: 'Jun 2025', revenue: 27200, units: 6590, orders: 1254, avgOrder: 21.69, growth: 6.2 },
+        { month: 'Jul 2025', revenue: 28450, units: 6832, orders: 1354, avgOrder: 21.01, growth: 4.6 }
     ],
     products: [
-        { name: 'Classic Bread', revenue: 45200, units: 2890, growth: 12.5, percentage: 36 },
-        { name: 'Chocolate Croissant', revenue: 32100, units: 1456, growth: 8.7, percentage: 26 },
-        { name: 'Blueberry Muffin', revenue: 18900, units: 945, growth: 15.2, percentage: 15 },
-        { name: 'Vanilla Cake', revenue: 15600, units: 612, growth: -3.2, percentage: 12 },
-        { name: 'Cinnamon Roll', revenue: 13650, units: 529, growth: 6.8, percentage: 11 }
+        { name: 'Lotus Bao', revenue: 8500, units: 1700, growth: 15.2, percentage: 29.9, price: 5.00 },
+        { name: 'Char Siew Pau', revenue: 7650, units: 1700, growth: 12.5, percentage: 26.9, price: 4.50 },
+        { name: 'Red Bean Pau', revenue: 5850, units: 1300, growth: 8.7, percentage: 20.6, price: 4.50 },
+        { name: 'Classic Pau', revenue: 3850, units: 1100, growth: 6.8, percentage: 13.5, price: 3.50 },
+        { name: 'Nai Wong Bao', revenue: 1800, units: 600, growth: -2.1, percentage: 6.3, price: 3.00 },
+        { name: 'Vegetarian Bao', revenue: 800, units: 320, growth: 4.2, percentage: 2.8, price: 2.50 }
     ],
     locations: [
-        { name: 'Main Outlet', revenue: 78500, percentage: 62.6 },
-        { name: 'University Campus', revenue: 31200, percentage: 24.8 },
-        { name: 'City Center', revenue: 15750, percentage: 12.6 }
+        { name: 'Main Outlet', revenue: 18500, percentage: 65.1 },
+        { name: 'University Campus', revenue: 7200, percentage: 25.3 },
+        { name: 'Food Court', revenue: 2750, percentage: 9.6 }
     ]
 };
 
@@ -335,7 +336,7 @@ function populateAnalyticsTables() {
         productItem.innerHTML = `
             <div class="product-info">
                 <h4>#${index + 1} ${product.name}</h4>
-                <p>${product.units.toLocaleString()} units sold</p>
+                <p>${product.units.toLocaleString()} units sold • $${product.price.toFixed(2)} each</p>
             </div>
             <div class="product-metrics">
                 <div class="product-revenue">$${product.revenue.toLocaleString()}</div>
@@ -349,20 +350,24 @@ function populateAnalyticsTables() {
 function generateInsights() {
     const insights = [
         {
-            title: "Strong Product Performance",
-            text: "Classic Bread continues to be the top performer with 36% of total revenue and 12.5% growth this quarter."
+            title: "Premium PAU Leading Sales",
+            text: "Lotus Bao ($5.00) generates the highest revenue at 29.9% of total sales, showing strong demand for premium options."
         },
         {
-            title: "Seasonal Trend Alert",
-            text: "July showed a 5.8% decline in revenue, typical for summer months. Consider summer-specific promotions."
+            title: "Growth in Traditional Flavors",
+            text: "Red Bean Pau and Char Siew Pau show consistent growth at 8.7% and 12.5% respectively."
         },
         {
-            title: "Order Value Opportunity",
-            text: "Average order value decreased by 2.1%. Bundle deals could help increase customer spend per visit."
+            title: "Vegetarian Market Potential",
+            text: "Vegetarian Bao has the lowest sales but maintains 4.2% growth, indicating untapped market potential."
         },
         {
             title: "Location Performance",
-            text: "Main Outlet generates 62.6% of revenue. Consider expanding successful strategies to other locations."
+            text: "Main Outlet generates 65.1% of revenue. Consider expanding successful strategies to other locations."
+        },
+        {
+            title: "Product Diversification Opportunity",
+            text: "Top 3 products (Lotus Bao, Char Siew Pau, Red Bean Pau) account for 77.4% of revenue. Consider introducing new varieties."
         }
     ];
     
@@ -492,12 +497,13 @@ function exportProductData() {
         Product: product.name,
         Revenue: product.revenue,
         Units: product.units,
+        Price: product.price,
         'Growth %': product.growth,
         'Market Share %': product.percentage
     }));
     
-    downloadCSV(data, 'product-performance-data.csv');
-    showNotification('Product data exported successfully!', 'success');
+    downloadCSV(data, 'pau-product-performance.csv');
+    showNotification('PAU product data exported successfully!', 'success');
 }
 
 function generateExportData() {
