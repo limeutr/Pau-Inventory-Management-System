@@ -21,12 +21,214 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup form submission
     setupFormSubmission();
     
+    // Initialize searchable dropdowns
+    initializeSearchableDropdowns();
+    
     // Load and display inventory
     displayInventoryItems();
     
     // Update statistics
     updateStatistics();
 });
+
+// Searchable Dropdown Component
+class SearchableDropdown {
+    constructor(selectElement) {
+        this.originalSelect = selectElement;
+        this.options = Array.from(selectElement.options).slice(1); // Skip first empty option
+        this.selectedValue = '';
+        this.filteredOptions = [...this.options];
+        this.highlightedIndex = -1;
+        this.isOpen = false;
+        
+        this.createDropdown();
+        this.bindEvents();
+    }
+    
+    createDropdown() {
+        // Create wrapper
+        this.wrapper = document.createElement('div');
+        this.wrapper.className = 'searchable-dropdown';
+        
+        // Create input
+        this.input = document.createElement('input');
+        this.input.type = 'text';
+        this.input.className = 'dropdown-input';
+        this.input.placeholder = this.originalSelect.options[0].text;
+        this.input.setAttribute('autocomplete', 'off');
+        
+        // Create arrow
+        this.arrow = document.createElement('span');
+        this.arrow.className = 'dropdown-arrow';
+        this.arrow.innerHTML = '▼';
+        
+        // Create dropdown list
+        this.dropdownList = document.createElement('div');
+        this.dropdownList.className = 'dropdown-list';
+        
+        // Insert wrapper after original select
+        this.originalSelect.parentNode.insertBefore(this.wrapper, this.originalSelect.nextSibling);
+        
+        // Hide original select
+        this.originalSelect.style.display = 'none';
+        
+        // Append elements
+        this.wrapper.appendChild(this.input);
+        this.wrapper.appendChild(this.arrow);
+        this.wrapper.appendChild(this.dropdownList);
+        
+        this.renderOptions();
+    }
+    
+    bindEvents() {
+        // Input events
+        this.input.addEventListener('input', (e) => this.handleInput(e));
+        this.input.addEventListener('focus', () => this.open());
+        this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
+        
+        // Click outside to close
+        document.addEventListener('click', (e) => {
+            if (!this.wrapper.contains(e.target)) {
+                this.close();
+            }
+        });
+        
+        // Arrow click
+        this.arrow.addEventListener('click', () => {
+            if (this.isOpen) {
+                this.close();
+            } else {
+                this.open();
+                this.input.focus();
+            }
+        });
+    }
+    
+    handleInput(e) {
+        const query = e.target.value.toLowerCase();
+        this.filteredOptions = this.options.filter(option => 
+            option.text.toLowerCase().includes(query)
+        );
+        this.highlightedIndex = -1;
+        this.renderOptions();
+        if (!this.isOpen) this.open();
+    }
+    
+    handleKeydown(e) {
+        if (!this.isOpen) return;
+        
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                this.highlightedIndex = Math.min(this.highlightedIndex + 1, this.filteredOptions.length - 1);
+                this.updateHighlight();
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                this.highlightedIndex = Math.max(this.highlightedIndex - 1, -1);
+                this.updateHighlight();
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (this.highlightedIndex >= 0) {
+                    this.selectOption(this.filteredOptions[this.highlightedIndex]);
+                }
+                break;
+            case 'Escape':
+                this.close();
+                break;
+        }
+    }
+    
+    renderOptions() {
+        this.dropdownList.innerHTML = '';
+        
+        if (this.filteredOptions.length === 0) {
+            const noResults = document.createElement('div');
+            noResults.className = 'no-results';
+            noResults.textContent = 'No results found';
+            this.dropdownList.appendChild(noResults);
+            return;
+        }
+        
+        this.filteredOptions.forEach((option, index) => {
+            const optionElement = document.createElement('div');
+            optionElement.className = 'dropdown-option';
+            optionElement.textContent = option.text;
+            optionElement.setAttribute('data-value', option.value);
+            
+            optionElement.addEventListener('click', () => {
+                this.selectOption(option);
+            });
+            
+            this.dropdownList.appendChild(optionElement);
+        });
+    }
+    
+    updateHighlight() {
+        const options = this.dropdownList.querySelectorAll('.dropdown-option');
+        options.forEach((option, index) => {
+            option.classList.toggle('highlighted', index === this.highlightedIndex);
+        });
+        
+        // Scroll highlighted option into view
+        if (this.highlightedIndex >= 0) {
+            options[this.highlightedIndex].scrollIntoView({
+                block: 'nearest'
+            });
+        }
+    }
+    
+    selectOption(option) {
+        this.selectedValue = option.value;
+        this.input.value = option.text;
+        this.originalSelect.value = option.value;
+        
+        // Trigger change event on original select
+        const event = new Event('change', { bubbles: true });
+        this.originalSelect.dispatchEvent(event);
+        
+        this.close();
+    }
+    
+    open() {
+        if (this.isOpen) return;
+        
+        this.isOpen = true;
+        this.input.classList.add('active');
+        this.dropdownList.classList.add('show');
+        this.filteredOptions = [...this.options];
+        this.renderOptions();
+    }
+    
+    close() {
+        if (!this.isOpen) return;
+        
+        this.isOpen = false;
+        this.input.classList.remove('active');
+        this.dropdownList.classList.remove('show');
+        this.highlightedIndex = -1;
+    }
+    
+    setValue(value) {
+        const option = this.options.find(opt => opt.value === value);
+        if (option) {
+            this.selectOption(option);
+        } else {
+            this.input.value = '';
+            this.selectedValue = '';
+            this.originalSelect.value = '';
+        }
+    }
+}
+
+function initializeSearchableDropdowns() {
+    // Initialize searchable dropdowns for form selects
+    const selectElements = document.querySelectorAll('#itemType, #location, #unit, #supplier');
+    selectElements.forEach(select => {
+        new SearchableDropdown(select);
+    });
+}
 
 function checkAuthAndRole() {
     const isLoggedIn = sessionStorage.getItem('isLoggedIn');
@@ -103,8 +305,9 @@ function goBackToDashboard() {
 }
 
 function initializeInventoryData() {
-    // Sample inventory data
+    // Force update to PAU Bakery inventory data (override any cached data)
     const sampleData = [
+        // Raw Ingredients
         {
             id: 'INV001',
             name: 'All Purpose Flour',
@@ -129,84 +332,175 @@ function initializeInventoryData() {
         },
         {
             id: 'INV003',
-            name: 'Fresh Eggs',
+            name: 'Instant Dry Yeast',
             type: 'raw_ingredient',
             location: 'factory',
-            quantity: 144,
-            unit: 'pcs',
-            expiryDate: '2025-07-05',
-            minStockLevel: 50,
-            supplier: 'Farm Fresh Eggs'
+            quantity: 3.2,
+            unit: 'kg',
+            expiryDate: '2025-09-30',
+            minStockLevel: 3,
+            supplier: 'Golden Wheat Co.'
         },
         {
             id: 'INV004',
-            name: 'Butter',
+            name: 'Cooking Oil',
+            type: 'raw_ingredient',
+            location: 'factory',
+            quantity: 8,
+            unit: 'L',
+            expiryDate: '2025-11-20',
+            minStockLevel: 5,
+            supplier: 'Golden Wheat Co.'
+        },
+        {
+            id: 'INV005',
+            name: 'Salt',
+            type: 'raw_ingredient',
+            location: 'factory',
+            quantity: 10,
+            unit: 'kg',
+            expiryDate: '2027-01-01',
+            minStockLevel: 5,
+            supplier: 'Sweet Supply Ltd.'
+        },
+        {
+            id: 'INV006',
+            name: 'Baking Powder',
+            type: 'raw_ingredient',
+            location: 'factory',
+            quantity: 2.5,
+            unit: 'kg',
+            expiryDate: '2025-10-15',
+            minStockLevel: 2,
+            supplier: 'Sweet Supply Ltd.'
+        },
+        {
+            id: 'INV007',
+            name: 'Char Siew',
+            type: 'raw_ingredient',
+            location: 'factory',
+            quantity: 5,
+            unit: 'kg',
+            expiryDate: '2025-07-23',
+            minStockLevel: 3,
+            supplier: 'Filling Co.'
+        },
+        {
+            id: 'INV008',
+            name: 'Red Bean Paste',
             type: 'raw_ingredient',
             location: 'factory',
             quantity: 8,
             unit: 'kg',
-            expiryDate: '2025-08-20',
+            expiryDate: '2025-08-30',
             minStockLevel: 5,
-            supplier: 'Dairy Best'
+            supplier: 'Filling Co.'
         },
         {
-            id: 'INV005',
-            name: 'Fresh Milk',
+            id: 'INV009',
+            name: 'Lotus Seed Paste',
             type: 'raw_ingredient',
             location: 'factory',
-            quantity: 12,
-            unit: 'L',
-            expiryDate: '2025-07-04',
-            minStockLevel: 10,
-            supplier: 'Local Dairy Farm'
-        },
-        {
-            id: 'INV006',
-            name: 'Blueberries',
-            type: 'raw_ingredient',
-            location: 'factory',
-            quantity: 3,
+            quantity: 6,
             unit: 'kg',
-            expiryDate: '2025-07-08',
-            minStockLevel: 2,
-            supplier: 'Berry Farms Inc.'
+            expiryDate: '2025-08-15',
+            minStockLevel: 4,
+            supplier: 'Filling Co.'
         },
         {
-            id: 'INV007',
-            name: 'Classic Bread',
+            id: 'INV010',
+            name: 'Custard Filling',
+            type: 'raw_ingredient',
+            location: 'factory',
+            quantity: 4,
+            unit: 'kg',
+            expiryDate: '2025-07-28',
+            minStockLevel: 3,
+            supplier: 'Filling Co.'
+        },
+        {
+            id: 'INV011',
+            name: 'Mushroom & Veg Mix',
+            type: 'raw_ingredient',
+            location: 'factory',
+            quantity: 7,
+            unit: 'kg',
+            expiryDate: '2025-07-25',
+            minStockLevel: 5,
+            supplier: 'Filling Co.'
+        },
+        // Finished Products
+        {
+            id: 'INV012',
+            name: 'Classic Pau',
             type: 'finished_product',
             location: 'outlet',
-            quantity: 25,
+            quantity: 45,
             unit: 'pcs',
-            expiryDate: '2025-07-03',
-            minStockLevel: 10,
+            expiryDate: '2025-07-23',
+            minStockLevel: 20,
             supplier: 'In-house Production'
         },
         {
-            id: 'INV008',
-            name: 'Chocolate Croissant',
+            id: 'INV013',
+            name: 'Char Siew Pau',
             type: 'finished_product',
             location: 'outlet',
-            quantity: 18,
+            quantity: 32,
             unit: 'pcs',
-            expiryDate: '2025-07-03',
+            expiryDate: '2025-07-23',
             minStockLevel: 15,
             supplier: 'In-house Production'
         },
         {
-            id: 'INV009',
-            name: 'Expired Vanilla Extract',
-            type: 'raw_ingredient',
-            location: 'factory',
-            quantity: 2,
-            unit: 'bottles',
-            expiryDate: '2025-06-30',
-            minStockLevel: 3,
-            supplier: 'Flavor Co.'
+            id: 'INV014',
+            name: 'Nai Wong Bao',
+            type: 'finished_product',
+            location: 'outlet',
+            quantity: 28,
+            unit: 'pcs',
+            expiryDate: '2025-07-23',
+            minStockLevel: 15,
+            supplier: 'In-house Production'
+        },
+        {
+            id: 'INV015',
+            name: 'Red Bean Pau',
+            type: 'finished_product',
+            location: 'outlet',
+            quantity: 22,
+            unit: 'pcs',
+            expiryDate: '2025-07-23',
+            minStockLevel: 12,
+            supplier: 'In-house Production'
+        },
+        {
+            id: 'INV016',
+            name: 'Lotus Bao',
+            type: 'finished_product',
+            location: 'outlet',
+            quantity: 18,
+            unit: 'pcs',
+            expiryDate: '2025-07-23',
+            minStockLevel: 10,
+            supplier: 'In-house Production'
+        },
+        {
+            id: 'INV017',
+            name: 'Vegetarian Bao',
+            type: 'finished_product',
+            location: 'outlet',
+            quantity: 35,
+            unit: 'pcs',
+            expiryDate: '2025-07-23',
+            minStockLevel: 18,
+            supplier: 'In-house Production'
         }
     ];
     
+    // Force update inventory items and save to localStorage
     inventoryItems = sampleData;
+    localStorage.setItem('inventoryItems', JSON.stringify(inventoryItems));
     nextItemId = inventoryItems.length + 1;
     filteredItems = [...inventoryItems];
 }

@@ -25,6 +25,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup form
     setupForm();
     
+    // Initialize searchable dropdowns
+    initializeSearchableDropdowns();
+    
     // Set current date and time
     setCurrentDateTime();
     
@@ -97,77 +100,218 @@ function goBackToDashboard() {
 }
 
 function loadInventoryItems() {
-    // Load from localStorage if available, otherwise use sample data
-    const savedInventory = localStorage.getItem('inventoryItems');
-    if (savedInventory) {
-        inventoryItems = JSON.parse(savedInventory);
-    } else {
-        // Sample inventory data
-        inventoryItems = [
+    // Force update to PAU Bakery inventory data (override any cached data)
+    inventoryItems = [
+            // Raw Ingredients
             {
                 id: 'INV001',
                 name: 'All Purpose Flour',
                 type: 'raw_ingredient',
                 location: 'factory',
-                quantity: 500,
+                quantity: 15,
                 unit: 'kg',
                 price: 2.50,
                 minStock: 50,
-                supplier: 'Local Mills Ltd',
-                expiryDate: '2025-08-15'
+                supplier: 'Golden Wheat Co.',
+                expiryDate: '2025-12-31'
             },
             {
                 id: 'INV002',
                 name: 'Sugar',
                 type: 'raw_ingredient',
                 location: 'factory',
-                quantity: 200,
+                quantity: 22,
                 unit: 'kg',
-                price: 1.20,
-                minStock: 30,
-                supplier: 'Sweet Supply Co',
-                expiryDate: '2025-12-31'
+                price: 1.80,
+                minStock: 20,
+                supplier: 'Sweet Supply Ltd.',
+                expiryDate: '2026-06-15'
             },
             {
                 id: 'INV003',
-                name: 'Bread Loaves',
-                type: 'finished_product',
+                name: 'Instant Dry Yeast',
+                type: 'raw_ingredient',
                 location: 'factory',
-                quantity: 150,
-                unit: 'units',
-                price: 3.50,
-                minStock: 20,
-                supplier: 'Internal Production',
-                expiryDate: '2025-07-05'
+                quantity: 3.2,
+                unit: 'kg',
+                price: 10.00,
+                minStock: 3,
+                supplier: 'Golden Wheat Co.',
+                expiryDate: '2025-09-30'
             },
             {
                 id: 'INV004',
-                name: 'Pastries',
-                type: 'finished_product',
-                location: 'factory',
-                quantity: 75,
-                unit: 'units',
-                price: 5.00,
-                minStock: 10,
-                supplier: 'Internal Production',
-                expiryDate: '2025-07-04'
-            },
-            {
-                id: 'INV005',
                 name: 'Cooking Oil',
                 type: 'raw_ingredient',
                 location: 'factory',
-                quantity: 100,
-                unit: 'liters',
-                price: 4.75,
+                quantity: 8,
+                unit: 'L',
+                price: 4.50,
+                minStock: 5,
+                supplier: 'Golden Wheat Co.',
+                expiryDate: '2025-11-20'
+            },
+            {
+                id: 'INV005',
+                name: 'Salt',
+                type: 'raw_ingredient',
+                location: 'factory',
+                quantity: 10,
+                unit: 'kg',
+                price: 1.20,
+                minStock: 5,
+                supplier: 'Sweet Supply Ltd.',
+                expiryDate: '2027-01-01'
+            },
+            {
+                id: 'INV006',
+                name: 'Baking Powder',
+                type: 'raw_ingredient',
+                location: 'factory',
+                quantity: 2.5,
+                unit: 'kg',
+                price: 1.20,
+                minStock: 2,
+                supplier: 'Sweet Supply Ltd.',
+                expiryDate: '2025-10-15'
+            },
+            {
+                id: 'INV007',
+                name: 'Char Siew',
+                type: 'raw_ingredient',
+                location: 'factory',
+                quantity: 5,
+                unit: 'kg',
+                price: 12.00,
+                minStock: 3,
+                supplier: 'Filling Co.',
+                expiryDate: '2025-07-23'
+            },
+            {
+                id: 'INV008',
+                name: 'Red Bean Paste',
+                type: 'raw_ingredient',
+                location: 'factory',
+                quantity: 8,
+                unit: 'kg',
+                price: 6.00,
+                minStock: 5,
+                supplier: 'Filling Co.',
+                expiryDate: '2025-08-30'
+            },
+            {
+                id: 'INV009',
+                name: 'Lotus Seed Paste',
+                type: 'raw_ingredient',
+                location: 'factory',
+                quantity: 6,
+                unit: 'kg',
+                price: 8.00,
+                minStock: 4,
+                supplier: 'Filling Co.',
+                expiryDate: '2025-08-15'
+            },
+            {
+                id: 'INV010',
+                name: 'Custard Filling',
+                type: 'raw_ingredient',
+                location: 'factory',
+                quantity: 4,
+                unit: 'kg',
+                price: 7.50,
+                minStock: 3,
+                supplier: 'Filling Co.',
+                expiryDate: '2025-07-28'
+            },
+            {
+                id: 'INV011',
+                name: 'Mushroom & Veg Mix',
+                type: 'raw_ingredient',
+                location: 'factory',
+                quantity: 7,
+                unit: 'kg',
+                price: 6.00,
+                minStock: 5,
+                supplier: 'Filling Co.',
+                expiryDate: '2025-07-25'
+            },
+            // Finished PAU Products
+            {
+                id: 'INV012',
+                name: 'Classic Pau',
+                type: 'finished_product',
+                location: 'outlet',
+                quantity: 45,
+                unit: 'pcs',
+                price: 3.50,
+                minStock: 20,
+                supplier: 'In-house Production',
+                expiryDate: '2025-07-23'
+            },
+            {
+                id: 'INV013',
+                name: 'Char Siew Pau',
+                type: 'finished_product',
+                location: 'outlet',
+                quantity: 32,
+                unit: 'pcs',
+                price: 4.50,
                 minStock: 15,
-                supplier: 'Oil Works Inc',
-                expiryDate: '2025-09-20'
+                supplier: 'In-house Production',
+                expiryDate: '2025-07-23'
+            },
+            {
+                id: 'INV014',
+                name: 'Nai Wong Bao',
+                type: 'finished_product',
+                location: 'outlet',
+                quantity: 28,
+                unit: 'pcs',
+                price: 3.00,
+                minStock: 15,
+                supplier: 'In-house Production',
+                expiryDate: '2025-07-23'
+            },
+            {
+                id: 'INV015',
+                name: 'Red Bean Pau',
+                type: 'finished_product',
+                location: 'outlet',
+                quantity: 22,
+                unit: 'pcs',
+                price: 4.50,
+                minStock: 12,
+                supplier: 'In-house Production',
+                expiryDate: '2025-07-23'
+            },
+            {
+                id: 'INV016',
+                name: 'Lotus Bao',
+                type: 'finished_product',
+                location: 'outlet',
+                quantity: 18,
+                unit: 'pcs',
+                price: 5.00,
+                minStock: 10,
+                supplier: 'In-house Production',
+                expiryDate: '2025-07-23'
+            },
+            {
+                id: 'INV017',
+                name: 'Vegetarian Bao',
+                type: 'finished_product',
+                location: 'outlet',
+                quantity: 35,
+                unit: 'pcs',
+                price: 2.50,
+                minStock: 18,
+                supplier: 'In-house Production',
+                expiryDate: '2025-07-23'
             }
         ];
-        localStorage.setItem('inventoryItems', JSON.stringify(inventoryItems));
-    }
     
+    // Force update and save to localStorage
+    localStorage.setItem('inventoryItems', JSON.stringify(inventoryItems));
     populateItemSelect();
 }
 
@@ -181,6 +325,12 @@ function populateItemSelect() {
         option.textContent = `${item.name} (${item.id}) - ${item.quantity} ${item.unit}`;
         itemSelect.appendChild(option);
     });
+    
+    // Refresh the searchable dropdown if it exists
+    if (window.itemSelectDropdown) {
+        const newOptions = Array.from(itemSelect.options).slice(1);
+        window.itemSelectDropdown.refresh(newOptions);
+    }
 }
 
 function initializeWastageData() {
@@ -189,39 +339,91 @@ function initializeWastageData() {
     if (savedWastage) {
         wastageEntries = JSON.parse(savedWastage);
     } else {
-        // Sample wastage data for demonstration
+        // Sample PAU wastage data for demonstration
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        
         wastageEntries = [
             {
                 id: 'WASTE001',
-                itemId: 'INV003',
-                itemName: 'Bread Loaves',
-                quantity: 5,
-                unit: 'units',
-                location: 'factory',
-                outletLocation: null,
+                itemId: 'INV013',
+                itemName: 'Char Siew Pau',
+                quantity: 8,
+                unit: 'pcs',
+                location: 'outlet',
+                outletLocation: 'pau_central_outlet',
                 reason: 'expired',
                 customReason: null,
-                notes: 'Past expiry date, discarded for safety',
-                timestamp: new Date('2025-07-01T08:30:00').toISOString(),
-                loggedBy: 'staff1',
-                reportedBy: null,
-                valueLost: 17.50
+                notes: 'End of day unsold PAU - passed optimal freshness for sale',
+                timestamp: yesterday.toISOString(),
+                loggedBy: currentUser.username,
+                reportedBy: 'Outlet Manager',
+                valueLost: 36.00
             },
             {
                 id: 'WASTE002',
-                itemId: 'INV004',
-                itemName: 'Pastries',
-                quantity: 3,
-                unit: 'units',
+                itemId: 'INV007',
+                itemName: 'Char Siew',
+                quantity: 0.5,
+                unit: 'kg',
+                location: 'factory',
+                outletLocation: null,
+                reason: 'contaminated',
+                customReason: null,
+                notes: 'Foreign material found during inspection - discarded entire batch as precaution',
+                timestamp: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 15).toISOString(),
+                loggedBy: 'production_supervisor',
+                reportedBy: null,
+                valueLost: 6.00
+            },
+            {
+                id: 'WASTE003',
+                itemId: 'INV012',
+                itemName: 'Classic Pau',
+                quantity: 12,
+                unit: 'pcs',
                 location: 'outlet',
-                outletLocation: 'main_outlet',
+                outletLocation: 'shopping_mall_kiosk',
                 reason: 'damaged',
                 customReason: null,
-                notes: 'Dropped during transport',
-                timestamp: new Date('2025-07-01T14:15:00').toISOString(),
-                loggedBy: 'mary',
-                reportedBy: 'John Smith',
-                valueLost: 15.00
+                notes: 'Damaged during delivery transport - steamer container shifted',
+                timestamp: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 11, 30).toISOString(),
+                loggedBy: 'delivery_staff',
+                reportedBy: 'Mall Kiosk Staff',
+                valueLost: 42.00
+            },
+            {
+                id: 'WASTE004',
+                itemId: 'INV016',
+                itemName: 'Lotus Bao',
+                quantity: 6,
+                unit: 'pcs',
+                location: 'outlet',
+                outletLocation: 'downtown_pau_branch',
+                reason: 'quality_issues',
+                customReason: null,
+                notes: 'Filling not properly sealed - lotus paste leaking from several units',
+                timestamp: yesterday.toISOString(),
+                loggedBy: 'quality_controller',
+                reportedBy: 'Branch Staff',
+                valueLost: 30.00
+            },
+            {
+                id: 'WASTE005',
+                itemId: 'INV010',
+                itemName: 'Custard Filling',
+                quantity: 0.3,
+                unit: 'kg',
+                location: 'factory',
+                outletLocation: null,
+                reason: 'production_error',
+                customReason: null,
+                notes: 'Overcooking during preparation - texture became grainy and unusable',
+                timestamp: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 7, 45).toISOString(),
+                loggedBy: 'baker_jane',
+                reportedBy: null,
+                valueLost: 2.25
             }
         ];
         localStorage.setItem('wastageEntries', JSON.stringify(wastageEntries));
@@ -463,6 +665,212 @@ function showConfirmationModal() {
 function closeConfirmModal() {
     document.getElementById('confirmModal').style.display = 'none';
     pendingWastage = null;
+}
+
+// Searchable Dropdown Component
+class SearchableDropdown {
+    constructor(selectElement) {
+        this.originalSelect = selectElement;
+        this.options = Array.from(selectElement.options).slice(1); // Skip first empty option
+        this.selectedValue = '';
+        this.filteredOptions = [...this.options];
+        this.highlightedIndex = -1;
+        this.isOpen = false;
+        
+        this.createDropdown();
+        this.bindEvents();
+    }
+    
+    createDropdown() {
+        // Create wrapper
+        this.wrapper = document.createElement('div');
+        this.wrapper.className = 'searchable-dropdown';
+        
+        // Create input
+        this.input = document.createElement('input');
+        this.input.type = 'text';
+        this.input.className = 'dropdown-input';
+        this.input.placeholder = this.originalSelect.options[0].text;
+        this.input.setAttribute('autocomplete', 'off');
+        
+        // Create arrow
+        this.arrow = document.createElement('span');
+        this.arrow.className = 'dropdown-arrow';
+        this.arrow.innerHTML = '▼';
+        
+        // Create dropdown list
+        this.dropdownList = document.createElement('div');
+        this.dropdownList.className = 'dropdown-list';
+        
+        // Insert wrapper after original select
+        this.originalSelect.parentNode.insertBefore(this.wrapper, this.originalSelect.nextSibling);
+        
+        // Hide original select
+        this.originalSelect.style.display = 'none';
+        
+        // Append elements
+        this.wrapper.appendChild(this.input);
+        this.wrapper.appendChild(this.arrow);
+        this.wrapper.appendChild(this.dropdownList);
+        
+        this.renderOptions();
+    }
+    
+    bindEvents() {
+        // Input events
+        this.input.addEventListener('input', (e) => this.handleInput(e));
+        this.input.addEventListener('focus', () => this.open());
+        this.input.addEventListener('keydown', (e) => this.handleKeydown(e));
+        
+        // Click outside to close
+        document.addEventListener('click', (e) => {
+            if (!this.wrapper.contains(e.target)) {
+                this.close();
+            }
+        });
+        
+        // Arrow click
+        this.arrow.addEventListener('click', () => {
+            if (this.isOpen) {
+                this.close();
+            } else {
+                this.open();
+                this.input.focus();
+            }
+        });
+    }
+    
+    handleInput(e) {
+        const query = e.target.value.toLowerCase();
+        this.filteredOptions = this.options.filter(option => 
+            option.text.toLowerCase().includes(query)
+        );
+        this.highlightedIndex = -1;
+        this.renderOptions();
+        if (!this.isOpen) this.open();
+    }
+    
+    handleKeydown(e) {
+        if (!this.isOpen) return;
+        
+        switch(e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                this.highlightedIndex = Math.min(this.highlightedIndex + 1, this.filteredOptions.length - 1);
+                this.updateHighlight();
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                this.highlightedIndex = Math.max(this.highlightedIndex - 1, -1);
+                this.updateHighlight();
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (this.highlightedIndex >= 0) {
+                    this.selectOption(this.filteredOptions[this.highlightedIndex]);
+                }
+                break;
+            case 'Escape':
+                this.close();
+                break;
+        }
+    }
+    
+    renderOptions() {
+        this.dropdownList.innerHTML = '';
+        
+        if (this.filteredOptions.length === 0) {
+            const noResults = document.createElement('div');
+            noResults.className = 'no-results';
+            noResults.textContent = 'No results found';
+            this.dropdownList.appendChild(noResults);
+            return;
+        }
+        
+        this.filteredOptions.forEach((option, index) => {
+            const optionElement = document.createElement('div');
+            optionElement.className = 'dropdown-option';
+            optionElement.textContent = option.text;
+            optionElement.setAttribute('data-value', option.value);
+            
+            optionElement.addEventListener('click', () => {
+                this.selectOption(option);
+            });
+            
+            this.dropdownList.appendChild(optionElement);
+        });
+    }
+    
+    updateHighlight() {
+        const options = this.dropdownList.querySelectorAll('.dropdown-option');
+        options.forEach((option, index) => {
+            option.classList.toggle('highlighted', index === this.highlightedIndex);
+        });
+        
+        // Scroll highlighted option into view
+        if (this.highlightedIndex >= 0) {
+            options[this.highlightedIndex].scrollIntoView({
+                block: 'nearest'
+            });
+        }
+    }
+    
+    selectOption(option) {
+        this.selectedValue = option.value;
+        this.input.value = option.text;
+        this.originalSelect.value = option.value;
+        
+        // Trigger change event on original select
+        const event = new Event('change', { bubbles: true });
+        this.originalSelect.dispatchEvent(event);
+        
+        this.close();
+    }
+    
+    open() {
+        if (this.isOpen) return;
+        
+        this.isOpen = true;
+        this.input.classList.add('active');
+        this.dropdownList.classList.add('show');
+        this.filteredOptions = [...this.options];
+        this.renderOptions();
+    }
+    
+    close() {
+        if (!this.isOpen) return;
+        
+        this.isOpen = false;
+        this.input.classList.remove('active');
+        this.dropdownList.classList.remove('show');
+        this.highlightedIndex = -1;
+    }
+    
+    setValue(value) {
+        const option = this.options.find(opt => opt.value === value);
+        if (option) {
+            this.selectOption(option);
+        } else {
+            this.input.value = '';
+            this.selectedValue = '';
+            this.originalSelect.value = '';
+        }
+    }
+    
+    refresh(newOptions) {
+        this.options = newOptions;
+        this.filteredOptions = [...this.options];
+        if (this.isOpen) {
+            this.renderOptions();
+        }
+    }
+}
+
+function initializeSearchableDropdowns() {
+    // Initialize searchable dropdowns for form selects
+    window.itemSelectDropdown = new SearchableDropdown(document.getElementById('itemSelect'));
+    window.outletLocationDropdown = new SearchableDropdown(document.getElementById('outletLocation'));
+    window.wasteReasonDropdown = new SearchableDropdown(document.getElementById('wasteReason'));
 }
 
 function confirmWastage() {

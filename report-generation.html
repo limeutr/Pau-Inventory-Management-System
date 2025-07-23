@@ -35,10 +35,10 @@
                         </div>
                         <select id="filterCategory" class="filter-select" onchange="filterReports()">
                             <option value="">All Categories</option>
-                            <option value="sales">Sales Reports</option>
-                            <option value="inventory">Inventory Reports</option>
-                            <option value="financial">Financial Reports</option>
-                            <option value="operational">Operational Reports</option>
+                            <option value="sales">PAU Sales Reports</option>
+                            <option value="inventory">Ingredient Reports</option>
+                            <option value="financial">Supplier & Cost Reports</option>
+                            <option value="operational">Production Reports</option>
                         </select>
                         <select id="filterStatus" class="filter-select" onchange="filterReports()">
                             <option value="">All Status</option>
@@ -88,44 +88,44 @@
             <!-- Report Categories -->
             <section class="categories-section">
                 <div class="section-header">
-                    <h3>📋 Report Categories</h3>
-                    <p>Choose from various report types to analyze your business data</p>
+                    <h3>📋 PAU Report Categories</h3>
+                    <p>Choose from various PAU-specific report types to analyze your bakery business data</p>
                 </div>
                 <div class="categories-grid">
                     <div class="category-card sales" onclick="selectCategory('sales')">
                         <div class="category-icon">💰</div>
-                        <h4>Sales Reports</h4>
-                        <p>Revenue, transactions, and sales performance analytics</p>
+                        <h4>PAU Sales Reports</h4>
+                        <p>Classic Pau ($3.50), Char Siew Pau ($4.50), Nai Wong Bao ($3.00), Red Bean Pau ($4.50), Lotus Bao ($5.00), Vegetarian Bao ($2.50)</p>
                         <div class="category-stats">
-                            <span>12 Report Types</span>
+                            <span>6 PAU Products</span>
                             <span>📈 Most Popular</span>
                         </div>
                     </div>
                     <div class="category-card inventory" onclick="selectCategory('inventory')">
-                        <div class="category-icon">�</div>
-                        <h4>Inventory Reports</h4>
-                        <p>Stock levels, movements, and inventory management</p>
+                        <div class="category-icon">📦</div>
+                        <h4>Ingredient Reports</h4>
+                        <p>Raw ingredients, filling supplies, and PAU production materials tracking</p>
                         <div class="category-stats">
-                            <span>8 Report Types</span>
+                            <span>11 Ingredients</span>
                             <span>🔄 Real-time</span>
                         </div>
                     </div>
                     <div class="category-card financial" onclick="selectCategory('financial')">
                         <div class="category-icon">💳</div>
                         <h4>Financial Reports</h4>
-                        <p>Profit & loss, cash flow, and financial analysis</p>
+                        <p>PAU profit margins, ingredient costs, and supplier payment analysis</p>
                         <div class="category-stats">
-                            <span>6 Report Types</span>
-                            <span>📊 Detailed</span>
+                            <span>3 Main Suppliers</span>
+                            <span>📊 Cost Analysis</span>
                         </div>
                     </div>
                     <div class="category-card operational" onclick="selectCategory('operational')">
                         <div class="category-icon">⚙️</div>
-                        <h4>Operational Reports</h4>
-                        <p>Staff performance, productivity, and operations</p>
+                        <h4>Production Reports</h4>
+                        <p>PAU production efficiency, steaming operations, and filling preparation</p>
                         <div class="category-stats">
-                            <span>10 Report Types</span>
-                            <span>👥 Team Focus</span>
+                            <span>PAU Focused</span>
+                            <span>👥 Production Team</span>
                         </div>
                     </div>
             </section>
@@ -142,10 +142,10 @@
                             <label for="reportCategory">Report Category:</label>
                             <select id="reportCategory" class="form-select" onchange="updateReportTypes()">
                                 <option value="">Select Category</option>
-                                <option value="sales">Sales Reports</option>
-                                <option value="inventory">Inventory Reports</option>
-                                <option value="financial">Financial Reports</option>
-                                <option value="operational">Operational Reports</option>
+                                <option value="sales">PAU Sales Reports</option>
+                                <option value="inventory">Ingredient & Stock Reports</option>
+                                <option value="financial">Financial & Supplier Reports</option>
+                                <option value="operational">Production & Operations</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -275,11 +275,15 @@
                 <div class="form-group">
                     <label for="quickReportType">Report Type:</label>
                     <select id="quickReportType" class="form-select">
-                        <option value="daily-sales">Daily Sales Summary</option>
-                        <option value="inventory-status">Current Inventory Status</option>
-                        <option value="low-stock">Low Stock Items</option>
-                        <option value="expired-items">Expired Items</option>
-                        <option value="staff-activity">Staff Activity Report</option>
+                        <option value="daily-pau-sales">Daily PAU Sales Summary</option>
+                        <option value="pau-inventory-status">PAU Inventory Status</option>
+                        <option value="filling-ingredients">Filling Ingredients Report</option>
+                        <option value="supplier-analysis">Supplier Analysis (Golden Wheat Co., Sweet Supply Ltd., Filling Co.)</option>
+                        <option value="pau-production-efficiency">PAU Production Efficiency</option>
+                        <option value="low-stock-pau">Low Stock PAU Items</option>
+                        <option value="expired-ingredients">Expired Ingredients Alert</option>
+                        <option value="pau-wastage-analysis">PAU Wastage Analysis</option>
+                        <option value="finished-pau-stock">Finished PAU Stock Report</option>
                     </select>
                 </div>
                 <div class="form-group">

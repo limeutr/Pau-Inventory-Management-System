@@ -66,10 +66,12 @@
                         </select>
                         <select id="typeFilter" onchange="filterIssues()">
                             <option value="">All Types</option>
-                            <option value="equipment">Equipment</option>
-                            <option value="safety">Safety</option>
+                            <option value="equipment">PAU Equipment</option>
+                            <option value="quality">Food Safety & Quality</option>
+                            <option value="supplier">Supplier Issues</option>
+                            <option value="production">PAU Production</option>
+                            <option value="ingredient">Ingredient Issues</option>
                             <option value="system">System</option>
-                            <option value="operational">Operational</option>
                             <option value="other">Other</option>
                         </select>
                         <input type="date" id="dateFilter" onchange="filterIssues()">
@@ -79,37 +81,37 @@
 
             <!-- Quick Report Section -->
             <section class="quick-report-section">
-                <h3>🚨 Quick Report</h3>
+                <h3>🚨 Quick PAU Issue Report</h3>
                 <div class="quick-report-grid">
                     <button onclick="quickReport('equipment', 'high')" class="quick-btn equipment">
-                        <span class="quick-icon">⚙️</span>
+                        <span class="quick-icon">🥟</span>
                         <div class="quick-info">
-                            <strong>Equipment Failure</strong>
-                            <p>Report broken or malfunctioning equipment</p>
+                            <strong>PAU Equipment Failure</strong>
+                            <p>Report steamer, mixer, or filling machine issues</p>
                         </div>
                     </button>
                     
-                    <button onclick="quickReport('safety', 'critical')" class="quick-btn safety">
+                    <button onclick="quickReport('quality', 'critical')" class="quick-btn safety">
                         <span class="quick-icon">⚠️</span>
                         <div class="quick-info">
-                            <strong>Safety Concern</strong>
-                            <p>Report safety hazards or incidents</p>
+                            <strong>Food Safety & Quality</strong>
+                            <p>Report ingredient contamination or PAU quality issues</p>
                         </div>
                     </button>
                     
-                    <button onclick="quickReport('system', 'medium')" class="quick-btn system">
-                        <span class="quick-icon">💻</span>
+                    <button onclick="quickReport('supplier', 'high')" class="quick-btn system">
+                        <span class="quick-icon">�</span>
                         <div class="quick-info">
-                            <strong>System Issue</strong>
-                            <p>Report software or network problems</p>
+                            <strong>Supplier Issue</strong>
+                            <p>Report issues with Golden Wheat Co., Sweet Supply Ltd., or Filling Co.</p>
                         </div>
                     </button>
                     
-                    <button onclick="quickReport('operational', 'medium')" class="quick-btn operational">
-                        <span class="quick-icon">📋</span>
+                    <button onclick="quickReport('production', 'medium')" class="quick-btn operational">
+                        <span class="quick-icon">🏭</span>
                         <div class="quick-info">
-                            <strong>Operational Issue</strong>
-                            <p>Report process or workflow problems</p>
+                            <strong>PAU Production Issue</strong>
+                            <p>Report filling, steaming, or packaging problems</p>
                         </div>
                     </button>
                 </div>
@@ -191,10 +193,12 @@
                         <label for="issueType">Issue Type *</label>
                         <select id="issueType" name="issueType" required>
                             <option value="">Select Type</option>
-                            <option value="equipment">Equipment</option>
-                            <option value="safety">Safety</option>
-                            <option value="system">System</option>
-                            <option value="operational">Operational</option>
+                            <option value="equipment">PAU Equipment (Steamers, Mixers, Filling Machines)</option>
+                            <option value="quality">Food Safety & Quality</option>
+                            <option value="supplier">Supplier Issues (Golden Wheat Co., Sweet Supply Ltd., Filling Co.)</option>
+                            <option value="production">PAU Production Process</option>
+                            <option value="ingredient">Ingredient Issues (Flour, Fillings, etc.)</option>
+                            <option value="system">System/Software</option>
                             <option value="other">Other</option>
                         </select>
                     </div>
@@ -213,47 +217,89 @@
                         <label for="location">Location *</label>
                         <select id="location" name="location" required>
                             <option value="">Select Location</option>
-                            <option value="factory">Factory</option>
-                            <option value="outlet">Outlet</option>
-                            <option value="warehouse">Warehouse</option>
-                            <option value="office">Office</option>
+                            <option value="factory">PAU Factory/Production Area</option>
+                            <option value="steaming">Steaming Section</option>
+                            <option value="filling">Filling Preparation Area</option>
+                            <option value="packaging">Packaging & Distribution</option>
+                            <option value="storage">Ingredient Storage</option>
+                            <option value="main_outlet">Main Outlet</option>
+                            <option value="downtown_branch">Downtown Branch</option>
+                            <option value="mall_kiosk">Mall Kiosk</option>
+                            <option value="airport_branch">Airport Branch</option>
+                            <option value="office">Office/Administration</option>
                             <option value="other">Other</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="equipment">Equipment/Asset</label>
-                        <input type="text" id="equipment" name="equipment" placeholder="Specific equipment or asset (if applicable)">
+                        <label for="equipment">Equipment/Asset/Product</label>
+                        <select id="equipment" name="equipment">
+                            <option value="">Select Equipment/Product (if applicable)</option>
+                            <optgroup label="PAU Products">
+                                <option value="Classic Pau">Classic Pau ($3.50)</option>
+                                <option value="Char Siew Pau">Char Siew Pau ($4.50)</option>
+                                <option value="Nai Wong Bao">Nai Wong Bao ($3.00)</option>
+                                <option value="Red Bean Pau">Red Bean Pau ($4.50)</option>
+                                <option value="Lotus Bao">Lotus Bao ($5.00)</option>
+                                <option value="Vegetarian Bao">Vegetarian Bao ($2.50)</option>
+                            </optgroup>
+                            <optgroup label="Raw Ingredients">
+                                <option value="All Purpose Flour">All Purpose Flour ($2.50) - Golden Wheat Co.</option>
+                                <option value="Sugar">Sugar ($1.80) - Sweet Supply Ltd.</option>
+                                <option value="Instant Dry Yeast">Instant Dry Yeast ($10.00) - Golden Wheat Co.</option>
+                                <option value="Cooking Oil">Cooking Oil ($4.50) - Golden Wheat Co.</option>
+                                <option value="Salt">Salt ($1.20) - Sweet Supply Ltd.</option>
+                                <option value="Baking Powder">Baking Powder ($1.20) - Sweet Supply Ltd.</option>
+                            </optgroup>
+                            <optgroup label="Fillings">
+                                <option value="Char Siew">Char Siew ($12.00) - Filling Co.</option>
+                                <option value="Red Bean Paste">Red Bean Paste ($6.00) - Filling Co.</option>
+                                <option value="Lotus Seed Paste">Lotus Seed Paste ($8.00) - Filling Co.</option>
+                                <option value="Custard Filling">Custard Filling ($7.50) - Filling Co.</option>
+                                <option value="Mushroom & Veg Mix">Mushroom & Veg Mix ($6.00) - Filling Co.</option>
+                            </optgroup>
+                            <optgroup label="Equipment">
+                                <option value="PAU Steamer">PAU Steamer</option>
+                                <option value="Dough Mixer">Dough Mixer</option>
+                                <option value="Filling Machine">Filling Machine</option>
+                                <option value="Packaging Equipment">Packaging Equipment</option>
+                                <option value="Other Equipment">Other Equipment</option>
+                            </optgroup>
+                        </select>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="description">Detailed Description *</label>
-                    <textarea id="description" name="description" rows="4" placeholder="Provide detailed description of the issue, including what happened, when it occurred, and any relevant circumstances..." required></textarea>
+                    <textarea id="description" name="description" rows="4" placeholder="Provide detailed description of the PAU-related issue, including what happened, when it occurred, which products or ingredients were affected, and any relevant circumstances..." required></textarea>
                 </div>
                 <div class="form-group">
                     <label for="stepsToReproduce">Steps to Reproduce (if applicable)</label>
-                    <textarea id="stepsToReproduce" name="stepsToReproduce" rows="3" placeholder="List the steps that led to this issue..."></textarea>
+                    <textarea id="stepsToReproduce" name="stepsToReproduce" rows="3" placeholder="List the PAU production steps or processes that led to this issue..."></textarea>
                 </div>
                 <div class="form-group">
                     <label for="impact">Impact Assessment</label>
-                    <textarea id="impact" name="impact" rows="2" placeholder="Describe how this issue affects operations, safety, or productivity..."></textarea>
+                    <textarea id="impact" name="impact" rows="2" placeholder="Describe how this issue affects PAU production, quality, safety, customer satisfaction, or outlet operations..."></textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="urgency">Urgency</label>
                         <select id="urgency" name="urgency">
-                            <option value="low">Low - Can wait</option>
-                            <option value="medium" selected>Medium - Should be addressed soon</option>
-                            <option value="high">High - Needs immediate attention</option>
-                            <option value="critical">Critical - Urgent, affecting operations</option>
+                            <option value="low">Low - Can wait (non-critical PAU issue)</option>
+                            <option value="medium" selected>Medium - Should be addressed soon (affecting PAU quality)</option>
+                            <option value="high">High - Needs immediate attention (production impact)</option>
+                            <option value="critical">Critical - Urgent, affecting PAU production/food safety</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="department">Department</label>
                         <select id="department" name="department">
-                            <option value="production">Production</option>
+                            <option value="pau_production">PAU Production</option>
+                            <option value="filling_preparation">Filling Preparation</option>
+                            <option value="quality_control">Quality Control</option>
+                            <option value="packaging_distribution">Packaging & Distribution</option>
+                            <option value="inventory_management">Inventory Management</option>
+                            <option value="outlet_management">Outlet Management</option>
+                            <option value="administration">Administration</option>
                             <option value="maintenance">Maintenance</option>
-                            <option value="it">IT</option>
-                            <option value="management">Management</option>
                             <option value="other">Other</option>
                         </select>
                     </div>

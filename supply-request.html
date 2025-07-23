@@ -145,8 +145,9 @@
                     <select id="category" name="category" required>
                         <option value="">Select Category</option>
                         <option value="raw_ingredient">Raw Ingredient</option>
-                        <option value="packaging">Packaging</option>
-                        <option value="equipment">Equipment</option>
+                        <option value="filling">PAU Filling</option>
+                        <option value="packaging">Packaging Materials</option>
+                        <option value="equipment">Kitchen Equipment</option>
                         <option value="supplies">General Supplies</option>
                         <option value="other">Other</option>
                     </select>
@@ -160,11 +161,14 @@
                         <label for="unit">Unit</label>
                         <select id="unit" name="unit" required>
                             <option value="kg">Kilograms (kg)</option>
+                            <option value="g">Grams (g)</option>
                             <option value="L">Liters (L)</option>
+                            <option value="ml">Milliliters (ml)</option>
                             <option value="pcs">Pieces (pcs)</option>
                             <option value="boxes">Boxes</option>
                             <option value="bags">Bags</option>
                             <option value="bottles">Bottles</option>
+                            <option value="containers">Containers</option>
                         </select>
                     </div>
                 </div>
@@ -187,7 +191,13 @@
                 </div>
                 <div class="form-group">
                     <label for="preferredSupplier">Preferred Supplier</label>
-                    <input type="text" id="preferredSupplier" name="preferredSupplier" placeholder="Optional">
+                    <select id="preferredSupplier" name="preferredSupplier">
+                        <option value="">Select Supplier (Optional)</option>
+                        <option value="Golden Wheat Co.">Golden Wheat Co.</option>
+                        <option value="Sweet Supply Ltd.">Sweet Supply Ltd.</option>
+                        <option value="Filling Co.">Filling Co.</option>
+                        <option value="Other">Other (Specify in justification)</option>
+                    </select>
                 </div>
                 <div class="form-actions">
                     <button type="button" onclick="closeModal()" class="cancel-btn">Cancel</button>

@@ -109,11 +109,11 @@
                             <div class="setting-content">
                                 <div class="form-group">
                                     <label for="systemName">System Name:</label>
-                                    <input type="text" id="systemName" value="PAU Inventory Management System" class="form-input">
+                                    <input type="text" id="systemName" value="PAU Bakery Inventory Management System" class="form-input">
                                 </div>
                                 <div class="form-group">
                                     <label for="organizationName">Organization:</label>
-                                    <input type="text" id="organizationName" value="PAU University" class="form-input">
+                                    <input type="text" id="organizationName" value="PAU Bakery Enterprise" class="form-input">
                                 </div>
                                 <div class="form-group">
                                     <label for="systemVersion">Version:</label>
@@ -148,6 +148,7 @@
                                 <div class="form-group">
                                     <label for="currency">Currency:</label>
                                     <select id="currency" class="form-select">
+                                        <option value="SGD" selected>SGD ($)</option>
                                         <option value="USD">USD ($)</option>
                                         <option value="EUR">EUR (€)</option>
                                         <option value="GBP">GBP (£)</option>
@@ -164,21 +165,82 @@
                             </div>
                             <div class="setting-content">
                                 <div class="form-group">
-                                    <label for="businessHours">Business Hours:</label>
+                                    <label for="businessHours">PAU Bakery Operating Hours:</label>
                                     <div class="time-range">
-                                        <input type="time" id="businessStart" value="08:00" class="form-input">
+                                        <input type="time" id="businessStart" value="05:00" class="form-input">
                                         <span>to</span>
-                                        <input type="time" id="businessEnd" value="17:00" class="form-input">
+                                        <input type="time" id="businessEnd" value="20:00" class="form-input">
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="lowStockThreshold">Low Stock Threshold (%):</label>
-                                    <input type="number" id="lowStockThreshold" value="20" min="0" max="100" class="form-input">
+                                    <label for="lowStockThreshold">PAU Product Low Stock Threshold (%):</label>
+                                    <input type="number" id="lowStockThreshold" value="15" min="0" max="100" class="form-input">
                                 </div>
                                 <div class="form-group">
-                                    <label for="autoReorder">Auto-Reorder:</label>
+                                    <label for="autoReorder">Auto-Reorder for PAU Ingredients:</label>
                                     <label class="switch">
-                                        <input type="checkbox" id="autoReorder">
+                                        <input type="checkbox" id="autoReorder" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>PAU Product Management</h4>
+                                <span class="setting-status">Active</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label for="defaultPauShelfLife">Default PAU Shelf Life (hours):</label>
+                                    <input type="number" id="defaultPauShelfLife" value="8" min="4" max="24" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="freshnessPeriod">PAU Freshness Period (hours):</label>
+                                    <input type="number" id="freshnessPeriod" value="4" min="2" max="12" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="enableQualityTracking">Enable Quality Tracking:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="enableQualityTracking" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-card">
+                            <div class="setting-header">
+                                <h4>PAU Supplier Configuration</h4>
+                                <span class="setting-status">Active</span>
+                            </div>
+                            <div class="setting-content">
+                                <div class="form-group">
+                                    <label>Primary Suppliers:</label>
+                                    <div class="supplier-list">
+                                        <div class="supplier-item">
+                                            <strong>Golden Wheat Co.</strong>
+                                            <small>All Purpose Flour ($2.50), Instant Dry Yeast ($10.00), Cooking Oil ($4.50)</small>
+                                        </div>
+                                        <div class="supplier-item">
+                                            <strong>Sweet Supply Ltd.</strong>
+                                            <small>Sugar ($1.80), Salt ($1.20), Baking Powder ($1.20)</small>
+                                        </div>
+                                        <div class="supplier-item">
+                                            <strong>Filling Co.</strong>
+                                            <small>Char Siew ($12.00), Red Bean Paste ($6.00), Lotus Seed Paste ($8.00), Custard Filling ($7.50), Mushroom & Veg Mix ($6.00)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="autoOrderThreshold">Auto-Order Threshold (units):</label>
+                                    <input type="number" id="autoOrderThreshold" value="10" min="5" max="50" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label for="supplierNotifications">Supplier Notifications:</label>
+                                    <label class="switch">
+                                        <input type="checkbox" id="supplierNotifications" checked>
                                         <span class="slider"></span>
                                     </label>
                                 </div>
@@ -306,7 +368,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="dbName">Database Name:</label>
-                                    <input type="text" id="dbName" value="pau_inventory" class="form-input">
+                                    <input type="text" id="dbName" value="pau_bakery_inventory" class="form-input">
                                 </div>
                                 <div class="form-group">
                                     <button onclick="testConnection()" class="test-btn">Test Connection</button>
@@ -363,7 +425,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="emailFrom">From Email:</label>
-                                    <input type="email" id="emailFrom" value="noreply@pau.edu" class="form-input">
+                                    <input type="email" id="emailFrom" value="noreply@paubakery.com" class="form-input">
                                 </div>
                                 <div class="form-group">
                                     <button onclick="testEmail()" class="test-btn">Send Test Email</button>
@@ -378,21 +440,21 @@
                             </div>
                             <div class="setting-content">
                                 <div class="form-group">
-                                    <label for="lowStockAlerts">Low Stock Alerts:</label>
+                                    <label for="lowStockAlerts">PAU Product Low Stock Alerts:</label>
                                     <label class="switch">
                                         <input type="checkbox" id="lowStockAlerts" checked>
                                         <span class="slider"></span>
                                     </label>
                                 </div>
                                 <div class="form-group">
-                                    <label for="expiryAlerts">Expiry Alerts:</label>
+                                    <label for="expiryAlerts">PAU Ingredient Expiry Alerts:</label>
                                     <label class="switch">
                                         <input type="checkbox" id="expiryAlerts" checked>
                                         <span class="slider"></span>
                                     </label>
                                 </div>
                                 <div class="form-group">
-                                    <label for="systemAlerts">System Alerts:</label>
+                                    <label for="systemAlerts">PAU Bakery System Alerts:</label>
                                     <label class="switch">
                                         <input type="checkbox" id="systemAlerts" checked>
                                         <span class="slider"></span>

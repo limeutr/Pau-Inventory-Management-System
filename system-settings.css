@@ -478,6 +478,38 @@ body {
     flex: 1;
 }
 
+/* Supplier List Styles */
+.supplier-list {
+    margin-top: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.supplier-item {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.supplier-item:last-child {
+    border-bottom: none;
+}
+
+.supplier-item strong {
+    color: #1976d2;
+    font-weight: 600;
+    font-size: 0.95em;
+}
+
+.supplier-item small {
+    color: #666;
+    font-size: 0.85em;
+    line-height: 1.4;
+}
+
 /* Switch Toggle */
 .switch {
     position: relative;
@@ -586,8 +618,7 @@ input:checked + .slider:before {
     border-radius: 12px;
     padding: 25px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    position: sticky;
-    bottom: 20px;
+    margin-top: 30px;
 }
 
 .actions-container {

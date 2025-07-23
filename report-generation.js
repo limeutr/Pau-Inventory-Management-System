@@ -13,53 +13,77 @@ let reportState = {
 
 // Report type configurations
 const REPORT_TYPES = {
-    'stock-levels': {
-        title: 'Stock Levels Report',
-        description: 'Current inventory levels, low stock alerts, and stock movement analysis',
+    'pau-sales-summary': {
+        title: 'PAU Sales Summary Report',
+        description: 'Revenue analysis for Classic Pau ($3.50), Char Siew Pau ($4.50), Nai Wong Bao ($3.00), Red Bean Pau ($4.50), Lotus Bao ($5.00), Vegetarian Bao ($2.50)',
+        icon: '💰',
+        category: 'sales',
+        dataSource: ['production', 'inventory'],
+        filters: ['date', 'outlet', 'pau-type'],
+        charts: ['revenue', 'topPauProducts', 'outletPerformance']
+    },
+    'ingredient-stock-levels': {
+        title: 'Ingredient Stock Levels Report',
+        description: 'Current levels of All Purpose Flour, Sugar, Yeast, Oil, Salt, Baking Powder, Char Siew, Red Bean Paste, Lotus Seed Paste, Custard Filling, Mushroom & Veg Mix',
         icon: '📦',
+        category: 'inventory',
         dataSource: ['inventory'],
-        filters: ['category', 'outlet', 'date'],
-        charts: ['stockLevels', 'lowStockAlerts', 'categoryDistribution']
+        filters: ['supplier', 'ingredient-type', 'date'],
+        charts: ['stockLevels', 'lowStockAlerts', 'supplierDistribution']
     },
-    'production-output': {
-        title: 'Production Output Report',
-        description: 'Detailed production metrics, inbound/outbound tracking, and efficiency analysis',
+    'supplier-analysis': {
+        title: 'Supplier Analysis Report',
+        description: 'Performance analysis for Golden Wheat Co., Sweet Supply Ltd., and Filling Co. including costs and delivery schedules',
+        icon: '🚚',
+        category: 'financial',
+        dataSource: ['inventory', 'suppliers'],
+        filters: ['supplier', 'date', 'ingredient'],
+        charts: ['supplierCosts', 'deliveryPerformance', 'qualityMetrics']
+    },
+    'pau-production-efficiency': {
+        title: 'PAU Production Efficiency Report',
+        description: 'Detailed PAU production metrics, steaming operations, filling preparation, and efficiency analysis',
         icon: '🏭',
+        category: 'operational',
         dataSource: ['production'],
-        filters: ['date', 'category', 'outlet'],
-        charts: ['productionTrends', 'inboundOutbound', 'efficiency']
+        filters: ['date', 'pau-type', 'shift'],
+        charts: ['productionTrends', 'steamingEfficiency', 'fillingUtilization']
     },
-    'wastage-statistics': {
-        title: 'Wastage Statistics Report',
-        description: 'Comprehensive wastage analysis by location, reason, and financial impact',
-        icon: '🗑️',
+    'filling-ingredient-usage': {
+        title: 'Filling Ingredient Usage Report',
+        description: 'Analysis of Char Siew ($12.00), Red Bean Paste ($6.00), Lotus Seed Paste ($8.00), Custard Filling ($7.50), Mushroom & Veg Mix ($6.00) consumption',
+        icon: '🥟',
+        category: 'inventory',
+        dataSource: ['inventory', 'production'],
+        filters: ['date', 'filling-type', 'outlet'],
+        charts: ['fillingUsage', 'costAnalysis', 'wastageImpact']
+    },
+    'pau-wastage-analysis': {
+        title: 'PAU Wastage Analysis Report',
+        description: 'Comprehensive PAU wastage analysis by location, reason, and financial impact on finished products',
+        icon: '�️',
+        category: 'operational',
         dataSource: ['wastage'],
-        filters: ['date', 'outlet', 'category'],
+        filters: ['date', 'outlet', 'pau-type'],
         charts: ['wastageByReason', 'costImpact', 'trends']
     },
-    'inventory-movement': {
-        title: 'Inventory Movement Report',
-        description: 'Track all inventory transactions, transfers, and stock adjustments',
-        icon: '🔄',
-        dataSource: ['inventory', 'production', 'wastage'],
-        filters: ['date', 'category', 'outlet'],
-        charts: ['movementFlow', 'transactionTypes', 'reconciliation']
+    'financial-pau-summary': {
+        title: 'Financial PAU Summary Report',
+        description: 'Profit margins on PAU products, ingredient costs analysis, and supplier payment tracking',
+        icon: '�',
+        category: 'financial',
+        dataSource: ['inventory', 'production', 'suppliers'],
+        filters: ['date', 'supplier', 'pau-type'],
+        charts: ['profitMargins', 'ingredientCosts', 'supplierPayments']
     },
-    'sales-performance': {
-        title: 'Sales Performance Report',
-        description: 'Revenue analysis, top-selling products, and outlet performance metrics',
-        icon: '💰',
-        dataSource: ['production', 'inventory'],
-        filters: ['date', 'outlet', 'category'],
-        charts: ['revenue', 'topProducts', 'outletPerformance']
-    },
-    'comprehensive': {
-        title: 'Comprehensive System Report',
-        description: 'Complete system overview including all modules and key performance indicators',
+    'comprehensive-pau': {
+        title: 'Comprehensive PAU Business Report',
+        description: 'Complete PAU bakery overview including all products, ingredients, suppliers, and key performance indicators',
         icon: '📊',
-        dataSource: ['inventory', 'production', 'wastage', 'ingredients'],
+        category: 'operational',
+        dataSource: ['inventory', 'production', 'wastage', 'suppliers'],
         filters: ['date', 'outlet'],
-        charts: ['systemOverview', 'kpiSummary', 'trendsAnalysis']
+        charts: ['systemOverview', 'kpiSummary', 'trendsAnalysis', 'supplierPerformance']
     }
 };
 
@@ -1653,4 +1677,183 @@ function goBackToDashboard() {
     } else {
         window.location.href = 'staff-dashboard.html';
     }
+}
+
+// Category selection and report type mapping functions
+function selectCategory(category) {
+    // Show the report form
+    const reportForm = document.getElementById('reportForm');
+    if (reportForm) {
+        reportForm.style.display = 'block';
+        reportForm.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Set the category in the dropdown
+    const reportCategorySelect = document.getElementById('reportCategory');
+    if (reportCategorySelect) {
+        reportCategorySelect.value = category;
+        updateReportTypes();
+    }
+}
+
+function updateReportTypes() {
+    const categorySelect = document.getElementById('reportCategory');
+    const typeSelect = document.getElementById('reportType');
+    
+    if (!categorySelect || !typeSelect) return;
+    
+    const selectedCategory = categorySelect.value;
+    typeSelect.innerHTML = '<option value="">Select Report Type</option>';
+    
+    // Filter report types by category
+    Object.entries(REPORT_TYPES).forEach(([key, reportType]) => {
+        if (!selectedCategory || reportType.category === selectedCategory) {
+            const option = document.createElement('option');
+            option.value = key;
+            option.textContent = reportType.title;
+            typeSelect.appendChild(option);
+        }
+    });
+}
+
+function updateReportDescription() {
+    const typeSelect = document.getElementById('reportType');
+    const previewContent = document.getElementById('previewContent');
+    
+    if (!typeSelect || !previewContent) return;
+    
+    const selectedType = typeSelect.value;
+    if (selectedType && REPORT_TYPES[selectedType]) {
+        const reportType = REPORT_TYPES[selectedType];
+        previewContent.innerHTML = `
+            <div class="report-preview-header">
+                <h5>${reportType.icon} ${reportType.title}</h5>
+                <p>${reportType.description}</p>
+            </div>
+            <div class="report-preview-details">
+                <h6>Data Sources:</h6>
+                <ul>
+                    ${reportType.dataSource.map(source => `<li>${source.charAt(0).toUpperCase() + source.slice(1)}</li>`).join('')}
+                </ul>
+                <h6>Available Charts:</h6>
+                <ul>
+                    ${reportType.charts.map(chart => `<li>${chart.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+    } else {
+        previewContent.innerHTML = '<p>Select a report type to see preview</p>';
+    }
+}
+
+function updateDateRange() {
+    const periodSelect = document.getElementById('reportPeriod');
+    const customDateRange = document.getElementById('customDateRange');
+    
+    if (!periodSelect || !customDateRange) return;
+    
+    if (periodSelect.value === 'custom') {
+        customDateRange.style.display = 'block';
+    } else {
+        customDateRange.style.display = 'none';
+    }
+}
+
+function resetForm() {
+    const form = document.getElementById('reportForm');
+    if (form) {
+        form.style.display = 'none';
+    }
+    
+    // Reset all form inputs
+    const inputs = ['reportCategory', 'reportType', 'reportPeriod', 'reportFormat'];
+    inputs.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.selectedIndex = 0;
+    });
+    
+    // Reset preview
+    const previewContent = document.getElementById('previewContent');
+    if (previewContent) {
+        previewContent.innerHTML = '<p>Select a report type to see preview</p>';
+    }
+    
+    // Hide custom date range
+    const customDateRange = document.getElementById('customDateRange');
+    if (customDateRange) {
+        customDateRange.style.display = 'none';
+    }
+}
+
+// Template management functions
+function saveTemplate() {
+    const categorySelect = document.getElementById('reportCategory');
+    const typeSelect = document.getElementById('reportType');
+    const periodSelect = document.getElementById('reportPeriod');
+    const formatSelect = document.getElementById('reportFormat');
+    
+    if (!categorySelect?.value || !typeSelect?.value) {
+        alert('Please select at least a category and report type before saving as template.');
+        return;
+    }
+    
+    const templateName = prompt('Enter template name:');
+    if (!templateName) return;
+    
+    const template = {
+        id: 'TPL' + Date.now(),
+        name: templateName,
+        category: categorySelect.value,
+        reportType: typeSelect.value,
+        period: periodSelect.value,
+        format: formatSelect.value,
+        createdAt: new Date().toISOString()
+    };
+    
+    // Save to localStorage
+    const templates = JSON.parse(localStorage.getItem('reportTemplates') || '[]');
+    templates.push(template);
+    localStorage.setItem('reportTemplates', JSON.stringify(templates));
+    
+    alert(`Template "${templateName}" saved successfully!`);
+    updateStatistics();
+}
+
+function showCreateTemplateModal() {
+    const modal = document.getElementById('createTemplateModal');
+    if (modal) {
+        modal.style.display = 'block';
+    }
+}
+
+function closeCreateTemplateModal() {
+    const modal = document.getElementById('createTemplateModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function saveReportTemplate() {
+    const nameInput = document.getElementById('templateName');
+    const descInput = document.getElementById('templateDescription');
+    
+    if (!nameInput?.value) {
+        alert('Please enter a template name.');
+        return;
+    }
+    
+    const template = {
+        id: 'TPL' + Date.now(),
+        name: nameInput.value,
+        description: descInput.value,
+        createdAt: new Date().toISOString()
+    };
+    
+    const templates = JSON.parse(localStorage.getItem('reportTemplates') || '[]');
+    templates.push(template);
+    localStorage.setItem('reportTemplates', JSON.stringify(templates));
+    
+    closeCreateTemplateModal();
+    alert(`Template "${template.name}" created successfully!`);
+    updateStatistics();
 }
