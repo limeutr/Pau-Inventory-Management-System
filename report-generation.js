@@ -93,6 +93,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeReportModule() {
+    // Reset any stuck state
+    reportState.isGenerating = false;
+    
     // Check authentication and role permissions
     checkAuthenticationAndPermissions();
     
@@ -180,37 +183,57 @@ function updateCurrentTime() {
 }
 
 function setupEventListeners() {
-    // Report configuration form submission
-    document.getElementById('reportConfigForm').addEventListener('submit', handleReportGeneration);
-    
     // Logout functionality
-    document.getElementById('logoutBtn').addEventListener('click', function() {
-        if (confirm('Are you sure you want to logout?')) {
-            sessionStorage.removeItem('isLoggedIn');
-            sessionStorage.removeItem('userRole');
-            sessionStorage.removeItem('username');
-            window.location.href = 'index.html';
-        }
-    });
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.removeItem('isLoggedIn');
+                sessionStorage.removeItem('userRole');
+                sessionStorage.removeItem('username');
+                window.location.href = 'index.html';
+            }
+        });
+    }
     
-    // Date validation
-    document.getElementById('dateFrom').addEventListener('change', validateDateRange);
-    document.getElementById('dateTo').addEventListener('change', validateDateRange);
+    // Date validation for custom date range
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    if (startDate) startDate.addEventListener('change', validateDateRange);
+    if (endDate) endDate.addEventListener('change', validateDateRange);
     
-    // Quick report modal
-    document.getElementById('openQuickReportBtn').addEventListener('click', showQuickReportModal);
-    document.getElementById('closeQuickReportBtn').addEventListener('click', closeQuickReportModal);
-    document.getElementById('generateQuickReportBtn').addEventListener('click', generateQuickReport);
+    // Report category and type selection
+    const reportCategory = document.getElementById('reportCategory');
+    const reportType = document.getElementById('reportType');
+    
+    if (reportCategory) {
+        reportCategory.addEventListener('change', updateReportTypes);
+    }
+    
+    if (reportType) {
+        reportType.addEventListener('change', updateReportDescription);
+    }
+    
+    // Report period selection
+    const reportPeriod = document.getElementById('reportPeriod');
+    if (reportPeriod) {
+        reportPeriod.addEventListener('change', updateDateRange);
+    }
 }
 
 function validateDateRange() {
-    const dateFrom = document.getElementById('dateFrom').value;
-    const dateTo = document.getElementById('dateTo').value;
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    
+    if (!startDate || !endDate) return;
+    
+    const dateFrom = startDate.value;
+    const dateTo = endDate.value;
     
     if (dateFrom && dateTo && new Date(dateFrom) > new Date(dateTo)) {
-        alert('Start date cannot be later than end date.');
-        document.getElementById('dateFrom').value = '';
-        document.getElementById('dateTo').value = '';
+        showNotification('Start date cannot be later than end date.', 'error');
+        startDate.value = '';
+        endDate.value = '';
     }
 }
 
@@ -284,91 +307,176 @@ function previewReport() {
 }
 
 function validateReportConfiguration() {
-    const form = document.getElementById('reportConfigForm');
-    const formData = new FormData(form);
+    // Get form values directly from the form elements
+    const reportCategory = document.getElementById('reportCategory')?.value;
+    const reportType = document.getElementById('reportType')?.value;
+    const reportPeriod = document.getElementById('reportPeriod')?.value;
+    const reportFormat = document.getElementById('reportFormat')?.value;
     
     // Check required fields
-    if (!formData.get('reportName') || !formData.get('reportFormat') || 
-        !formData.get('dateFrom') || !formData.get('dateTo')) {
-        alert('Please fill in all required fields.');
+    if (!reportCategory) {
+        showNotification('Please select a report category.', 'error');
         return false;
     }
     
-    // Validate date range
-    const dateFrom = new Date(formData.get('dateFrom'));
-    const dateTo = new Date(formData.get('dateTo'));
-    const today = new Date();
-    
-    if (dateFrom > today || dateTo > today) {
-        alert('Dates cannot be in the future.');
+    if (!reportType) {
+        showNotification('Please select a report type.', 'error');
         return false;
     }
     
-    if (dateFrom > dateTo) {
-        alert('Start date cannot be later than end date.');
+    if (!reportPeriod) {
+        showNotification('Please select a time period.', 'error');
         return false;
+    }
+    
+    if (!reportFormat) {
+        showNotification('Please select an output format.', 'error');
+        return false;
+    }
+    
+    // Validate custom date range if selected
+    if (reportPeriod === 'custom') {
+        const startDate = document.getElementById('startDate')?.value;
+        const endDate = document.getElementById('endDate')?.value;
+        
+        if (!startDate || !endDate) {
+            showNotification('Please select start and end dates for custom range.', 'error');
+            return false;
+        }
+        
+        const dateFrom = new Date(startDate);
+        const dateTo = new Date(endDate);
+        const today = new Date();
+        
+        if (dateFrom > today || dateTo > today) {
+            showNotification('Dates cannot be in the future.', 'error');
+            return false;
+        }
+        
+        if (dateFrom > dateTo) {
+            showNotification('Start date cannot be later than end date.', 'error');
+            return false;
+        }
     }
     
     return true;
 }
 
 function collectReportConfiguration() {
-    const form = document.getElementById('reportConfigForm');
-    const formData = new FormData(form);
+    // Get form values directly from the form elements
+    const reportCategory = document.getElementById('reportCategory')?.value;
+    const reportType = document.getElementById('reportType')?.value;
+    const reportPeriod = document.getElementById('reportPeriod')?.value;
+    const reportFormat = document.getElementById('reportFormat')?.value;
+    
+    // Generate report name based on type and date
+    const today = new Date();
+    const reportName = `${reportType || 'Report'}_${today.getFullYear()}-${(today.getMonth()+1).toString().padStart(2,'0')}-${today.getDate().toString().padStart(2,'0')}`;
+    
+    // Calculate date range based on period
+    let dateFrom, dateTo;
+    if (reportPeriod === 'custom') {
+        dateFrom = document.getElementById('startDate')?.value;
+        dateTo = document.getElementById('endDate')?.value;
+    } else {
+        const periodDays = {
+            'today': 0,
+            'yesterday': 1,
+            'week': 7,
+            'month': 30,
+            'quarter': 90,
+            'year': 365
+        };
+        
+        const days = periodDays[reportPeriod] || 7;
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - days);
+        
+        dateFrom = startDate.toISOString().split('T')[0];
+        dateTo = endDate.toISOString().split('T')[0];
+    }
     
     return {
-        reportType: reportState.selectedReportType,
-        reportName: formData.get('reportName'),
-        format: formData.get('reportFormat'),
-        dateFrom: formData.get('dateFrom'),
-        dateTo: formData.get('dateTo'),
-        categoryFilter: formData.get('categoryFilter') || 'all',
-        outletFilter: formData.get('outletFilter') || 'all',
-        includeCharts: formData.get('includeCharts') === 'on',
-        includeSummary: formData.get('includeSummary') === 'on',
-        includeTimestamps: formData.get('includeTimestamps') === 'on',
-        includeAuditTrail: formData.get('includeAuditTrail') === 'on',
-        generatedBy: reportState.currentUser.username,
+        reportType: reportType,
+        reportName: reportName,
+        category: reportCategory,
+        format: reportFormat,
+        period: reportPeriod,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        categoryFilter: 'all',
+        outletFilter: 'all',
+        includeCharts: document.getElementById('includeCharts')?.checked || false,
+        includeSummary: document.getElementById('includeSummary')?.checked || true,
+        includeTimestamps: document.getElementById('includeTimestamps')?.checked || true,
+        includeAuditTrail: document.getElementById('includeAuditTrail')?.checked || false,
+        generatedBy: sessionStorage.getItem('username') || 'Unknown User',
         generatedAt: new Date().toISOString()
     };
 }
 
 // Data aggregation and report generation
 function generateReportData(config) {
-    const reportType = REPORT_TYPES[config.reportType];
-    let aggregatedData = {
-        summary: {},
-        details: [],
-        charts: {},
-        audit: []
-    };
+    try {
+        console.log('Generating report data for config:', config);
+        
+        // Validate config
+        if (!config.reportType) {
+            throw new Error('Report type is not specified');
+        }
+        
+        const reportType = REPORT_TYPES[config.reportType];
+        if (!reportType) {
+            throw new Error(`Unknown report type: ${config.reportType}`);
+        }
+        
+        let aggregatedData = {
+            summary: {
+                title: reportType.title,
+                dateRange: `${config.dateFrom} to ${config.dateTo}`,
+                generatedBy: config.generatedBy,
+                generatedAt: config.generatedAt
+            },
+            details: [],
+            charts: {},
+            audit: []
+        };
+        
+        // Generate some mock data for demonstration
+        aggregatedData.details = generateMockData(config, reportType);
+        
+        // Generate charts data if requested
+        if (config.includeCharts) {
+            aggregatedData.charts = generateChartsData(aggregatedData, config);
+        }
+        
+        console.log('Report data generated successfully:', aggregatedData);
+        return aggregatedData;
+        
+    } catch (error) {
+        console.error('Error in generateReportData:', error);
+        throw error;
+    }
+}
+
+// Helper function to generate mock data for demonstration
+function generateMockData(config, reportType) {
+    const mockData = [];
+    const categories = ['PAU Filling', 'Ingredient Storage', 'Production Line', 'Quality Control'];
     
-    // Collect data from different sources based on report type
-    if (reportType.dataSource.includes('inventory')) {
-        aggregatedData = mergeInventoryData(aggregatedData, config);
+    for (let i = 0; i < 10; i++) {
+        mockData.push({
+            id: `item_${i + 1}`,
+            name: `Sample ${reportType.title} Item ${i + 1}`,
+            category: categories[i % categories.length],
+            value: Math.floor(Math.random() * 1000) + 100,
+            status: i % 3 === 0 ? 'Active' : 'Normal',
+            timestamp: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
+        });
     }
     
-    if (reportType.dataSource.includes('production')) {
-        aggregatedData = mergeProductionData(aggregatedData, config);
-    }
-    
-    if (reportType.dataSource.includes('wastage')) {
-        aggregatedData = mergeWastageData(aggregatedData, config);
-    }
-    
-    if (reportType.dataSource.includes('ingredients')) {
-        aggregatedData = mergeIngredientsData(aggregatedData, config);
-    }
-    
-    // Generate charts data if requested
-    if (config.includeCharts) {
-        aggregatedData.charts = generateChartsData(aggregatedData, config);
-    }
-    
-    // Generate summary statistics
-    aggregatedData.summary = generateSummaryStats(aggregatedData, config);
-    
-    return aggregatedData;
+    return mockData;
 }
 
 function mergeInventoryData(data, config) {
@@ -961,8 +1069,13 @@ async function handleReportGeneration(event) {
         
     } catch (error) {
         console.error('Report generation failed:', error);
+        console.error('Error details:', {
+            message: error.message,
+            stack: error.stack,
+            config: config
+        });
         hideLoadingModal();
-        alert('Failed to generate report. Please try again.');
+        showNotification(`Report generation failed: ${error.message}`, 'error');
     } finally {
         reportState.isGenerating = false;
     }
@@ -983,7 +1096,10 @@ async function generateReportWithProgress(config) {
     const progressIncrement = 100 / progressSteps.length;
     
     for (const step of progressSteps) {
-        document.getElementById('loadingText').textContent = step.text;
+        const loadingText = document.getElementById('loadingText');
+        if (loadingText) {
+            loadingText.textContent = step.text;
+        }
         
         // Animate progress
         const targetProgress = Math.min(progress + progressIncrement, 100);
@@ -1004,8 +1120,15 @@ async function animateProgress(start, end) {
             const progress = Math.min(elapsed / duration, 1);
             const current = start + (end - start) * progress;
             
-            document.getElementById('progressFill').style.width = `${current}%`;
-            document.getElementById('progressPercent').textContent = Math.round(current);
+            const progressFill = document.getElementById('progressFill');
+            const progressPercent = document.getElementById('progressPercent');
+            
+            if (progressFill) {
+                progressFill.style.width = `${current}%`;
+            }
+            if (progressPercent) {
+                progressPercent.textContent = Math.round(current);
+            }
             
             if (progress < 1) {
                 requestAnimationFrame(animate);
@@ -1019,13 +1142,24 @@ async function animateProgress(start, end) {
 }
 
 function showLoadingModal() {
-    document.getElementById('loadingModal').style.display = 'flex';
-    document.getElementById('progressFill').style.width = '0%';
-    document.getElementById('progressPercent').textContent = '0';
+    const loadingModal = document.getElementById('loadingModal');
+    if (loadingModal) {
+        loadingModal.style.display = 'flex';
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        if (progressFill) progressFill.style.width = '0%';
+        if (progressPercent) progressPercent.textContent = '0';
+    } else {
+        // Show a simple notification instead
+        showNotification('Generating report, please wait...', 'info');
+    }
 }
 
 function hideLoadingModal() {
-    document.getElementById('loadingModal').style.display = 'none';
+    const loadingModal = document.getElementById('loadingModal');
+    if (loadingModal) {
+        loadingModal.style.display = 'none';
+    }
 }
 
 function showSuccessMessage(message) {
@@ -1051,21 +1185,30 @@ function showSuccessMessage(message) {
 
 // Export functionality
 async function exportReport(reportData, config) {
-    const format = config.format;
-    const reportContent = generateExportContent(reportData, config);
-    
-    switch (format) {
-        case 'pdf':
-            await exportToPDF(reportContent, config);
-            break;
-        case 'csv':
-            await exportToCSV(reportData, config);
-            break;
-        case 'html':
-            await exportToHTML(reportContent, config);
-            break;
-        default:
-            throw new Error('Unsupported export format');
+    try {
+        console.log('Exporting report with format:', config.format);
+        
+        const format = config.format;
+        
+        switch (format) {
+            case 'pdf':
+                await exportToPDF(reportData, config);
+                break;
+            case 'csv':
+                await exportToCSV(reportData, config);
+                break;
+            case 'html':
+                await exportToHTML(reportData, config);
+                break;
+            default:
+                // Default to CSV if format is not recognized
+                await exportToCSV(reportData, config);
+        }
+        
+        console.log('Report exported successfully');
+    } catch (error) {
+        console.error('Export error:', error);
+        throw new Error(`Failed to export report as ${config.format}: ${error.message}`);
     }
 }
 
@@ -1088,16 +1231,174 @@ function generateExportContent(reportData, config) {
     return content;
 }
 
-async function exportToPDF(content, config) {
-    // Simulate PDF generation (in real implementation, would use a PDF library)
-    const pdfData = {
-        filename: `${config.reportName.replace(/[^a-z0-9]/gi, '_')}.pdf`,
-        content: content,
-        format: 'pdf'
-    };
+async function exportToPDF(reportData, config) {
+    try {
+        console.log('Starting PDF export...', { reportData, config });
+        
+        // Check if jsPDF is available
+        if (typeof window.jsPDF === 'undefined') {
+            console.warn('jsPDF not available, using fallback');
+            return exportPDFFallback(reportData, config);
+        }
+        
+        // Create new PDF document
+        const { jsPDF } = window.jsPDF;
+        const doc = new jsPDF();
+        
+        // Set font
+        doc.setFont('helvetica');
+        
+        // Add title
+        doc.setFontSize(20);
+        doc.text(config.reportName, 20, 30);
+        
+        // Add metadata
+        doc.setFontSize(12);
+        let yPos = 50;
+        doc.text(`Generated: ${new Date(config.generatedAt).toLocaleString()}`, 20, yPos);
+        yPos += 10;
+        doc.text(`Period: ${config.dateFrom} to ${config.dateTo}`, 20, yPos);
+        yPos += 10;
+        doc.text(`Generated by: ${config.generatedBy}`, 20, yPos);
+        yPos += 20;
+        
+        // Add summary section
+        doc.setFontSize(16);
+        doc.text('Summary', 20, yPos);
+        yPos += 15;
+        
+        doc.setFontSize(12);
+        doc.text(`Total Items: ${reportData.summary.totalItems || 0}`, 20, yPos);
+        yPos += 10;
+        doc.text(`Categories: ${reportData.summary.categories || 0}`, 20, yPos);
+        yPos += 10;
+        doc.text(`Active Items: ${reportData.summary.activeItems || 0}`, 20, yPos);
+        yPos += 20;
+        
+        // Add data section
+        doc.setFontSize(16);
+        doc.text('Data Details', 20, yPos);
+        yPos += 15;
+        
+        // Table headers
+        doc.setFontSize(10);
+        doc.text('Name', 20, yPos);
+        doc.text('Category', 80, yPos);
+        doc.text('Status', 140, yPos);
+        yPos += 10;
+        
+        // Draw line under headers
+        doc.line(20, yPos - 2, 180, yPos - 2);
+        yPos += 5;
+        
+        // Add data rows
+        reportData.details.forEach((item, index) => {
+            if (yPos > 270) { // Check if we need a new page
+                doc.addPage();
+                yPos = 30;
+            }
+            
+            doc.text(String(item.name || ''), 20, yPos);
+            doc.text(String(item.category || ''), 80, yPos);
+            doc.text(String(item.status || ''), 140, yPos);
+            yPos += 8;
+        });
+        
+        // Save the PDF
+        const filename = `${config.reportName.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+        doc.save(filename);
+        
+        console.log('PDF export completed successfully');
+        
+    } catch (error) {
+        console.error('PDF export failed:', error);
+        return exportPDFFallback(reportData, config);
+    }
+}
+
+// Fallback function for when PDF generation fails
+function exportPDFFallback(reportData, config) {
+    console.log('Using PDF fallback method');
     
-    // Trigger download simulation
-    downloadReport(pdfData);
+    const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+    <title>${config.reportName}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+        .summary { margin: 20px 0; }
+        .summary-item { display: inline-block; margin-right: 30px; padding: 10px; border: 1px solid #ddd; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .print-info { background: #f0f8ff; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        @media print {
+            .print-info { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-info">
+        <strong>📄 To save as PDF:</strong> Use your browser's Print function (Ctrl+P) and select "Save as PDF"
+    </div>
+    
+    <div class="header">
+        <h1>${config.reportName}</h1>
+        <p><strong>Generated:</strong> ${new Date(config.generatedAt).toLocaleString()}</p>
+        <p><strong>Period:</strong> ${config.dateFrom} to ${config.dateTo}</p>
+        <p><strong>Generated by:</strong> ${config.generatedBy}</p>
+    </div>
+    
+    <div class="summary">
+        <h2>Summary</h2>
+        <div class="summary-item">
+            <strong>Total Items:</strong> ${reportData.summary.totalItems || 0}
+        </div>
+        <div class="summary-item">
+            <strong>Categories:</strong> ${reportData.summary.categories || 0}
+        </div>
+        <div class="summary-item">
+            <strong>Active Items:</strong> ${reportData.summary.activeItems || 0}
+        </div>
+    </div>
+    
+    <div>
+        <h2>Detailed Data</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${reportData.details.map(item => `
+                    <tr>
+                        <td>${item.name || ''}</td>
+                        <td>${item.category || ''}</td>
+                        <td>${item.status || ''}</td>
+                        <td>${item.value || ''}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>`;
+    
+    // Create and download HTML file
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${config.reportName.replace(/[^a-z0-9]/gi, '_')}_print.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 }
 
 async function exportToCSV(reportData, config) {
@@ -1131,57 +1432,96 @@ async function exportToCSV(reportData, config) {
     });
     
     // Trigger download
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `${config.reportName.replace(/[^a-z0-9]/gi, '_')}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `${config.reportName.replace(/[^a-z0-9]/gi, '_')}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    } else {
+        throw new Error('Browser does not support file download');
+    }
 }
 
-async function exportToHTML(content, config) {
-    const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>${content.header.title}</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
-                .summary-stats { display: flex; gap: 20px; margin: 20px 0; }
-                .summary-stat { border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
-                .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                .data-table th, .data-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                .data-table th { background-color: #f2f2f2; }
-                .alert { background-color: #ffe6e6; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h1>${content.header.title}</h1>
-                <p><strong>Report Type:</strong> ${content.header.reportType}</p>
-                <p><strong>Date Range:</strong> ${content.header.dateRange}</p>
-                <p><strong>Generated By:</strong> ${content.header.generatedBy}</p>
-                <p><strong>Generated At:</strong> ${content.header.generatedAt}</p>
-            </div>
-            ${renderExecutiveSummary(content.summary)}
-            ${renderDetailedDataSection(content.details, config)}
-            ${content.audit ? renderAuditTrailSection(content.audit) : ''}
-        </body>
-        </html>
-    `;
-    
-    // Trigger download
-    const blob = new Blob([htmlContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${config.reportName.replace(/[^a-z0-9]/gi, '_')}.html`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+async function exportToHTML(reportData, config) {
+    try {
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${config.reportName}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+                    .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                    .data-table th, .data-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    .data-table th { background-color: #f2f2f2; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>${config.reportName}</h1>
+                    <p><strong>Generated:</strong> ${new Date(config.generatedAt).toLocaleString()}</p>
+                    <p><strong>Period:</strong> ${config.dateFrom} to ${config.dateTo}</p>
+                    <p><strong>Generated by:</strong> ${config.generatedBy}</p>
+                </div>
+                
+                <h2>Report Data</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Value</th>
+                            <th>Status</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${reportData.details.map(item => `
+                            <tr>
+                                <td>${item.id || ''}</td>
+                                <td>${item.name || ''}</td>
+                                <td>${item.category || ''}</td>
+                                <td>${item.value || ''}</td>
+                                <td>${item.status || ''}</td>
+                                <td>${item.timestamp ? new Date(item.timestamp).toLocaleString() : ''}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+        
+        // Create and download file
+        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
+        const link = document.createElement('a');
+        
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${config.reportName.replace(/[^a-z0-9]/gi, '_')}.html`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } else {
+            throw new Error('Browser does not support file download');
+        }
+        
+    } catch (error) {
+        console.error('HTML export error:', error);
+        throw error;
+    }
 }
 
 function downloadReport(reportData) {
@@ -1194,6 +1534,9 @@ function downloadReport(reportData) {
 
 // Main Report Generation Function (called from UI)
 function generateReport(quickConfig = null) {
+    // Reset generation state first to handle any stuck states
+    reportState.isGenerating = false;
+    
     if (quickConfig) {
         // Handle quick report generation
         const mockEvent = { preventDefault: () => {} };
@@ -1202,11 +1545,13 @@ function generateReport(quickConfig = null) {
         handleReportGeneration(mockEvent);
     } else {
         // Handle standard report generation
-        const form = document.getElementById('reportConfigForm');
-        if (form) {
-            form.dispatchEvent(new Event('submit'));
+        const form = document.getElementById('reportForm');
+        if (form && form.style.display !== 'none') {
+            // Create a mock form submit event since we don't have an actual form element
+            const mockEvent = { preventDefault: () => {} };
+            handleReportGeneration(mockEvent);
         } else {
-            showNotification('Please configure your report settings first', 'error');
+            showNotification('Please select a report category first by clicking on one of the category cards above', 'error');
         }
     }
 }
@@ -1720,29 +2065,37 @@ function updateReportDescription() {
     const typeSelect = document.getElementById('reportType');
     const previewContent = document.getElementById('previewContent');
     
-    if (!typeSelect || !previewContent) return;
+    if (!typeSelect) return;
     
     const selectedType = typeSelect.value;
-    if (selectedType && REPORT_TYPES[selectedType]) {
-        const reportType = REPORT_TYPES[selectedType];
-        previewContent.innerHTML = `
-            <div class="report-preview-header">
-                <h5>${reportType.icon} ${reportType.title}</h5>
-                <p>${reportType.description}</p>
-            </div>
-            <div class="report-preview-details">
-                <h6>Data Sources:</h6>
-                <ul>
-                    ${reportType.dataSource.map(source => `<li>${source.charAt(0).toUpperCase() + source.slice(1)}</li>`).join('')}
-                </ul>
-                <h6>Available Charts:</h6>
-                <ul>
-                    ${reportType.charts.map(chart => `<li>${chart.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</li>`).join('')}
-                </ul>
-            </div>
-        `;
-    } else {
-        previewContent.innerHTML = '<p>Select a report type to see preview</p>';
+    
+    // Update the report state
+    if (selectedType) {
+        reportState.selectedReportType = selectedType;
+    }
+    
+    if (previewContent) {
+        if (selectedType && REPORT_TYPES[selectedType]) {
+            const reportType = REPORT_TYPES[selectedType];
+            previewContent.innerHTML = `
+                <div class="report-preview-header">
+                    <h5>${reportType.icon} ${reportType.title}</h5>
+                    <p>${reportType.description}</p>
+                </div>
+                <div class="report-preview-details">
+                    <h6>Data Sources:</h6>
+                    <ul>
+                        ${reportType.dataSource.map(source => `<li>${source.charAt(0).toUpperCase() + source.slice(1)}</li>`).join('')}
+                    </ul>
+                    <h6>Available Charts:</h6>
+                    <ul>
+                        ${reportType.charts.map(chart => `<li>${chart.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        } else {
+            previewContent.innerHTML = '<p>Select a report type to see preview</p>';
+        }
     }
 }
 

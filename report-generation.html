@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PAU Inventory - Report Generation</title>
     <link rel="stylesheet" href="report-generation.css">
+    
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Debug: Check if jsPDF loaded correctly
+        window.addEventListener('load', function() {
+            console.log('jsPDF available:', typeof window.jsPDF !== 'undefined');
+            if (typeof window.jsPDF !== 'undefined') {
+                console.log('jsPDF version:', window.jsPDF.jsPDF);
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="report-container">
@@ -15,7 +27,7 @@
                     <span>Report Generation</span>
                 </div>
                 <div class="user-info">
-                    <span class="role-badge" id="userRoleBadge">Supervisor</span>
+                    <span class="role-badge" id="userRoleBadge">Admin</span>
                     <span id="welcomeMessage">Welcome, Admin!</span>
                     <button onclick="goBackToDashboard()" class="back-btn">Back to Dashboard</button>
                     <button id="logoutBtn" class="logout-btn">Logout</button>
