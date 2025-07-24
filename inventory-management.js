@@ -264,24 +264,22 @@ function setupLogout() {
 
 function updateUserInfo() {
     const welcomeMessage = document.getElementById('welcomeMessage');
-    const roleBadge = document.getElementById('userRoleBadge');
     const addBtn = document.querySelector('.add-btn');
     
     const displayName = currentUser.username.charAt(0).toUpperCase() + currentUser.username.slice(1);
     welcomeMessage.textContent = `Welcome, ${displayName}!`;
     
-    if (currentUser.role === 'supervisor') {
-        roleBadge.textContent = 'Supervisor';
-        roleBadge.className = 'role-badge supervisor';
-        // Supervisors have full access
+    if (currentUser.role === 'supervisor' || currentUser.role === 'admin') {
+        // Supervisors and admins have full access
+        if (addBtn) {
+            addBtn.style.display = 'inline-block';
+        }
     } else {
-        roleBadge.textContent = 'Staff';
-        roleBadge.className = 'role-badge staff';
         // Hide add button for staff users
         if (addBtn) {
             addBtn.style.display = 'none';
         }
-        // Show read-only notice for staff
+        // Show read-only notice for staff only
         showStaffAccessNotice();
     }
 }
@@ -561,12 +559,11 @@ function displayInventoryItems() {
             <td>${formatDate(item.expiryDate)}</td>
             <td><span class="status-indicator ${status}">${getStatusText(status)}</span></td>
             <td class="actions">
-                <button onclick="editItem('${item.id}')" class="action-btn edit-btn" 
-                    ${currentUser.role !== 'supervisor' ? 'disabled title="Only supervisors can edit items"' : ''}>
-                    ${currentUser.role === 'supervisor' ? 'Edit' : 'View'}
+                <button onclick="editItem('${item.id}')" class="action-btn edit-btn">
+                    ${(currentUser.role === 'supervisor' || currentUser.role === 'admin') ? 'Edit' : 'View'}
                 </button>
                 <button onclick="deleteItem('${item.id}')" class="action-btn delete-btn" 
-                    ${currentUser.role !== 'supervisor' ? 'disabled title="Only supervisors can delete items"' : ''}>
+                    ${currentUser.role !== 'supervisor' && currentUser.role !== 'admin' ? 'disabled title="Only administrators and supervisors can delete items"' : ''}>
                     Delete
                 </button>
             </td>
@@ -647,8 +644,8 @@ function filterItems() {
 
 // Modal Functions
 function openAddItemModal() {
-    if (currentUser.role !== 'supervisor') {
-        alert('⚠️ Access Denied\n\nOnly supervisors can add new inventory items.');
+    if (currentUser.role !== 'supervisor' && currentUser.role !== 'admin') {
+        alert('⚠️ Access Denied\n\nOnly administrators and supervisors can add new inventory items.');
         return;
     }
     
@@ -665,7 +662,7 @@ function editItem(itemId) {
     const item = inventoryItems.find(i => i.id === itemId);
     if (!item) return;
     
-    if (currentUser.role === 'supervisor') {
+    if (currentUser.role === 'supervisor' || currentUser.role === 'admin') {
         document.getElementById('modalTitle').textContent = 'Edit Item';
     } else {
         document.getElementById('modalTitle').textContent = 'View Item Details (Read-Only)';
@@ -680,8 +677,8 @@ function editItem(itemId) {
     document.getElementById('minStockLevel').value = item.minStockLevel;
     document.getElementById('supplier').value = item.supplier;
     
-    // Make form read-only for staff users
-    if (currentUser.role !== 'supervisor') {
+    // Make form read-only for non-admin/supervisor users
+    if (currentUser.role !== 'supervisor' && currentUser.role !== 'admin') {
         const formInputs = document.querySelectorAll('#itemForm input, #itemForm select');
         formInputs.forEach(input => {
             input.disabled = true;
@@ -698,16 +695,33 @@ function editItem(itemId) {
             cancelBtn.textContent = 'Close';
         }
     } else {
-        // Store the item ID for updating (supervisors only)
+        // Store the item ID for updating (admins and supervisors)
         document.getElementById('itemForm').dataset.editingId = itemId;
+        
+        // Ensure form inputs are enabled for admins and supervisors
+        const formInputs = document.querySelectorAll('#itemForm input, #itemForm select');
+        formInputs.forEach(input => {
+            input.disabled = false;
+        });
+        
+        // Show save button for admins and supervisors
+        const saveBtn = document.querySelector('.save-btn');
+        if (saveBtn) {
+            saveBtn.style.display = 'inline-block';
+        }
+        
+        const cancelBtn = document.querySelector('.cancel-btn');
+        if (cancelBtn) {
+            cancelBtn.textContent = 'Cancel';
+        }
     }
     
     document.getElementById('itemModal').style.display = 'block';
 }
 
 function deleteItem(itemId) {
-    if (currentUser.role !== 'supervisor') {
-        alert('⚠️ Access Denied\n\nOnly supervisors are permitted to permanently delete inventory entries to prevent data loss due to accidental deletion.');
+    if (currentUser.role !== 'supervisor' && currentUser.role !== 'admin') {
+        alert('⚠️ Access Denied\n\nOnly administrators and supervisors are permitted to permanently delete inventory entries to prevent data loss due to accidental deletion.');
         return;
     }
     
@@ -734,17 +748,20 @@ function closeModal() {
     document.getElementById('itemModal').style.display = 'none';
     document.getElementById('itemForm').removeAttribute('data-editing-id');
     
-    // Reset form for next use
+    // Reset form for next use - enable all inputs
     const formInputs = document.querySelectorAll('#itemForm input, #itemForm select');
     formInputs.forEach(input => {
         input.disabled = false;
     });
     
-    // Reset buttons
+    // Reset buttons to default state
     const saveBtn = document.querySelector('.save-btn');
     const cancelBtn = document.querySelector('.cancel-btn');
     if (saveBtn) saveBtn.style.display = 'inline-block';
     if (cancelBtn) cancelBtn.textContent = 'Cancel';
+    
+    // Reset form content
+    document.getElementById('itemForm').reset();
 }
 
 function closeConfirmModal() {

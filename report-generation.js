@@ -61,7 +61,7 @@ const REPORT_TYPES = {
     'pau-wastage-analysis': {
         title: 'PAU Wastage Analysis Report',
         description: 'Comprehensive PAU wastage analysis by location, reason, and financial impact on finished products',
-        icon: '�️',
+        icon: '♻️',
         category: 'operational',
         dataSource: ['wastage'],
         filters: ['date', 'outlet', 'pau-type'],
@@ -70,7 +70,7 @@ const REPORT_TYPES = {
     'financial-pau-summary': {
         title: 'Financial PAU Summary Report',
         description: 'Profit margins on PAU products, ingredient costs analysis, and supplier payment tracking',
-        icon: '�',
+        icon: '🪙',
         category: 'financial',
         dataSource: ['inventory', 'production', 'suppliers'],
         filters: ['date', 'supplier', 'pau-type'],
@@ -105,6 +105,9 @@ function initializeReportModule() {
     // Load existing report history
     loadReportHistory();
     
+    // Load and display templates
+    loadAndDisplayTemplates();
+    
     // Update statistics
     updateStatistics();
     
@@ -115,7 +118,56 @@ function initializeReportModule() {
     // Set up form validation and event listeners
     setupEventListeners();
     
+    // Initialize sample data if needed (for demo purposes)
+    initializeSampleDataIfNeeded();
+    
     console.log('Report Generation module initialized');
+}
+
+// Initialize sample data for demo purposes
+function initializeSampleDataIfNeeded() {
+    const templates = JSON.parse(localStorage.getItem('reportTemplates') || '[]');
+    
+    // Add sample templates if none exist
+    if (templates.length === 0) {
+        const sampleTemplates = [
+            {
+                id: 'TPL' + Date.now() + '_1',
+                name: 'Daily PAU Sales Template',
+                description: 'Quick template for generating daily PAU sales reports with all product types',
+                configuration: {
+                    reportCategory: 'sales',
+                    reportType: 'pau-sales-summary',
+                    reportPeriod: 'today',
+                    reportFormat: 'pdf',
+                    includeCharts: true,
+                    includeSummary: true,
+                    includeDetails: true
+                },
+                category: 'sales',
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'TPL' + Date.now() + '_2',
+                name: 'Weekly Inventory Report',
+                description: 'Comprehensive weekly inventory report for all ingredients and stock levels',
+                configuration: {
+                    reportCategory: 'inventory',
+                    reportType: 'ingredient-stock-levels',
+                    reportPeriod: 'week',
+                    reportFormat: 'excel',
+                    includeCharts: true,
+                    includeSummary: true,
+                    includeDetails: true
+                },
+                category: 'inventory',
+                createdAt: new Date().toISOString()
+            }
+        ];
+        
+        localStorage.setItem('reportTemplates', JSON.stringify(sampleTemplates));
+        console.log('Sample templates initialized');
+    }
 }
 
 function checkAuthenticationAndPermissions() {
@@ -1029,7 +1081,7 @@ async function handleReportGeneration(event) {
     event.preventDefault();
     
     if (reportState.isGenerating) {
-        alert('A report is already being generated. Please wait.');
+        showNotification('A report is already being generated. Please wait.', 'warning');
         return;
     }
     
@@ -1538,11 +1590,8 @@ function generateReport(quickConfig = null) {
     reportState.isGenerating = false;
     
     if (quickConfig) {
-        // Handle quick report generation
-        const mockEvent = { preventDefault: () => {} };
-        reportState.selectedReportType = quickConfig.type;
-        reportState.reportConfiguration = quickConfig;
-        handleReportGeneration(mockEvent);
+        // Handle quick report generation with special flow
+        handleQuickReportGeneration(quickConfig);
     } else {
         // Handle standard report generation
         const form = document.getElementById('reportForm');
@@ -1554,6 +1603,106 @@ function generateReport(quickConfig = null) {
             showNotification('Please select a report category first by clicking on one of the category cards above', 'error');
         }
     }
+}
+
+// Handle Quick Report Generation with simplified flow
+async function handleQuickReportGeneration(quickConfig) {
+    if (reportState.isGenerating) {
+        showNotification('A report is already being generated. Please wait.', 'warning');
+        return;
+    }
+    
+    reportState.isGenerating = true;
+    
+    // Show loading modal
+    showLoadingModal();
+    
+    try {
+        // Create proper configuration for quick report
+        const config = createQuickReportConfiguration(quickConfig);
+        
+        // Simulate report generation with progress updates
+        await generateReportWithProgress(config);
+        
+        // Generate the actual report
+        const reportData = generateReportData(config);
+        
+        // Export the report
+        await exportReport(reportData, config);
+        
+        // Save to history
+        saveReportToHistory(config, reportData);
+        
+        // Update UI
+        updateReportHistory();
+        updateDashboardStats();
+        
+        // Show success message
+        hideLoadingModal();
+        showSuccessMessage(`Quick Report "${config.reportName}" generated successfully!`);
+        
+    } catch (error) {
+        console.error('Quick report generation failed:', error);
+        hideLoadingModal();
+        showNotification(`Quick report generation failed: ${error.message}`, 'error');
+    } finally {
+        reportState.isGenerating = false;
+    }
+}
+
+// Create configuration for quick reports
+function createQuickReportConfiguration(quickConfig) {
+    const today = new Date();
+    const reportTypeNames = {
+        'daily-pau-sales': 'Daily PAU Sales Summary',
+        'pau-inventory-status': 'PAU Inventory Status',
+        'filling-ingredients': 'Filling Ingredients Report',
+        'supplier-analysis': 'Supplier Analysis Report',
+        'pau-production-efficiency': 'PAU Production Efficiency',
+        'low-stock-pau': 'Low Stock PAU Items',
+        'expired-ingredients': 'Expired Ingredients Alert',
+        'pau-wastage-analysis': 'PAU Wastage Analysis',
+        'finished-pau-stock': 'Finished PAU Stock Report'
+    };
+    
+    const reportName = reportTypeNames[quickConfig.type] || quickConfig.type;
+    const dateStr = `${today.getFullYear()}-${(today.getMonth()+1).toString().padStart(2,'0')}-${today.getDate().toString().padStart(2,'0')}`;
+    
+    return {
+        reportType: quickConfig.type,
+        reportName: `${reportName}_${dateStr}`,
+        category: getCategoryForQuickReport(quickConfig.type),
+        format: quickConfig.format || 'pdf',
+        period: quickConfig.dateRange || 'today',
+        dateFrom: today.toISOString().split('T')[0],
+        dateTo: today.toISOString().split('T')[0],
+        categoryFilter: 'all',
+        outletFilter: 'all',
+        includeCharts: true,
+        includeSummary: true,
+        includeTimestamps: true,
+        includeAuditTrail: false,
+        generatedBy: sessionStorage.getItem('username') || 'Unknown User',
+        generatedAt: new Date().toISOString(),
+        emailAfterGeneration: quickConfig.emailAfterGeneration || false,
+        quickGeneration: true
+    };
+}
+
+// Get category for quick report types
+function getCategoryForQuickReport(reportType) {
+    const categoryMap = {
+        'daily-pau-sales': 'sales',
+        'pau-inventory-status': 'inventory',
+        'filling-ingredients': 'inventory',
+        'supplier-analysis': 'financial',
+        'pau-production-efficiency': 'operational',
+        'low-stock-pau': 'inventory',
+        'expired-ingredients': 'inventory',
+        'pau-wastage-analysis': 'operational',
+        'finished-pau-stock': 'inventory'
+    };
+    return categoryMap[reportType] || 'operational';
 }
 
 // Notification System
@@ -1606,6 +1755,170 @@ function updateStatistics() {
     
     // Update templates count
     document.getElementById('totalTemplates').textContent = templates.length;
+    
+    // Update template display
+    loadAndDisplayTemplates();
+}
+
+// Template Management Functions
+function loadAndDisplayTemplates() {
+    const templates = JSON.parse(localStorage.getItem('reportTemplates') || '[]');
+    const templatesGrid = document.getElementById('templatesGrid');
+    
+    if (!templatesGrid) {
+        console.warn('Templates grid not found');
+        return;
+    }
+    
+    if (templates.length === 0) {
+        templatesGrid.innerHTML = `
+            <div class="no-templates">
+                <div class="no-templates-icon">📋</div>
+                <h4>No Templates Yet</h4>
+                <p>Create your first report template to get started</p>
+                <button class="btn-primary" onclick="showCreateTemplateModal()">+ Create Template</button>
+            </div>
+        `;
+        return;
+    }
+    
+    templatesGrid.innerHTML = templates.map(template => `
+        <div class="template-card" data-template-id="${template.id}">
+            <div class="template-header">
+                <div class="template-icon">📋</div>
+                <div class="template-actions">
+                    <button class="template-action-btn" onclick="useTemplate('${template.id}')" title="Use Template">
+                        <span>📄</span>
+                    </button>
+                    <button class="template-action-btn" onclick="editTemplate('${template.id}')" title="Edit Template">
+                        <span>✏️</span>
+                    </button>
+                    <button class="template-action-btn delete" onclick="deleteTemplate('${template.id}')" title="Delete Template">
+                        <span>🗑️</span>
+                    </button>
+                </div>
+            </div>
+            <div class="template-content">
+                <h4 class="template-name">${template.name}</h4>
+                <p class="template-description">${template.description || 'No description provided'}</p>
+                <div class="template-meta">
+                    <span class="template-date">Created: ${new Date(template.createdAt).toLocaleDateString()}</span>
+                    <span class="template-category">${template.category || 'General'}</span>
+                </div>
+            </div>
+            <div class="template-footer">
+                <button class="btn-secondary template-use-btn" onclick="useTemplate('${template.id}')">
+                    Use Template
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Template Action Functions
+function useTemplate(templateId) {
+    const templates = JSON.parse(localStorage.getItem('reportTemplates') || '[]');
+    const template = templates.find(t => t.id === templateId);
+    
+    if (!template) {
+        showNotification('Template not found', 'error');
+        return;
+    }
+    
+    // Apply template configuration to the form if it exists
+    if (template.configuration) {
+        applyTemplateConfiguration(template.configuration);
+    }
+    
+    showNotification(`Template "${template.name}" applied successfully`, 'success');
+    
+    // Show the report form if it's hidden
+    const reportForm = document.getElementById('reportForm');
+    if (reportForm) {
+        reportForm.style.display = 'block';
+        reportForm.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function editTemplate(templateId) {
+    const templates = JSON.parse(localStorage.getItem('reportTemplates') || '[]');
+    const template = templates.find(t => t.id === templateId);
+    
+    if (!template) {
+        showNotification('Template not found', 'error');
+        return;
+    }
+    
+    // Populate the edit modal with template data
+    document.getElementById('templateName').value = template.name;
+    document.getElementById('templateDescription').value = template.description || '';
+    
+    // Store the template ID for updating
+    document.getElementById('createTemplateModal').setAttribute('data-editing-template', templateId);
+    
+    // Change modal title and button text
+    const modalHeader = document.querySelector('#createTemplateModal .modal-header h3');
+    const saveButton = document.querySelector('#createTemplateModal .btn-primary');
+    
+    if (modalHeader) modalHeader.textContent = '✏️ Edit Report Template';
+    if (saveButton) saveButton.textContent = 'Update Template';
+    
+    showCreateTemplateModal();
+}
+
+function deleteTemplate(templateId) {
+    const templates = JSON.parse(localStorage.getItem('reportTemplates') || '[]');
+    const template = templates.find(t => t.id === templateId);
+    
+    if (!template) {
+        showNotification('Template not found', 'error');
+        return;
+    }
+    
+    if (confirm(`Are you sure you want to delete the template "${template.name}"?`)) {
+        const updatedTemplates = templates.filter(t => t.id !== templateId);
+        localStorage.setItem('reportTemplates', JSON.stringify(updatedTemplates));
+        
+        showNotification(`Template "${template.name}" deleted successfully`, 'success');
+        loadAndDisplayTemplates();
+        updateStatistics();
+    }
+}
+
+function applyTemplateConfiguration(config) {
+    // Apply template configuration to form fields
+    if (config.reportCategory) {
+        const categorySelect = document.getElementById('reportCategory');
+        if (categorySelect) {
+            categorySelect.value = config.reportCategory;
+            updateReportTypes(); // Trigger category change
+        }
+    }
+    
+    if (config.reportType) {
+        setTimeout(() => {
+            const typeSelect = document.getElementById('reportType');
+            if (typeSelect) typeSelect.value = config.reportType;
+        }, 100);
+    }
+    
+    if (config.reportPeriod) {
+        const periodSelect = document.getElementById('reportPeriod');
+        if (periodSelect) periodSelect.value = config.reportPeriod;
+    }
+    
+    if (config.reportFormat) {
+        const formatSelect = document.getElementById('reportFormat');
+        if (formatSelect) formatSelect.value = config.reportFormat;
+    }
+    
+    // Apply advanced options
+    ['includeCharts', 'includeDetails', 'includeSummary', 'emailReport'].forEach(option => {
+        if (config[option] !== undefined) {
+            const checkbox = document.getElementById(option);
+            if (checkbox) checkbox.checked = config[option];
+        }
+    });
 }
 
 // Report history management
@@ -1727,17 +2040,80 @@ function generateQuickReport() {
         return;
     }
     
-    // Set up quick report configuration
-    const quickReportConfig = {
-        type: reportType,
-        format: format,
-        emailAfterGeneration: emailReport,
-        dateRange: 'today',
-        quickGeneration: true
+    // Close the quick report modal
+    closeQuickReportModal();
+    
+    // Map quick report types to categories
+    const reportCategoryMap = {
+        'daily-pau-sales': 'sales',
+        'pau-inventory-status': 'inventory',
+        'filling-ingredients': 'inventory',
+        'supplier-analysis': 'financial',
+        'pau-production-efficiency': 'operational',
+        'low-stock-pau': 'inventory',
+        'expired-ingredients': 'inventory',
+        'pau-wastage-analysis': 'operational',
+        'finished-pau-stock': 'inventory'
     };
     
-    closeQuickReportModal();
-    generateReport(quickReportConfig);
+    // Get the category for this report type
+    const category = reportCategoryMap[reportType] || 'sales';
+    
+    // Show the report generation form
+    selectCategory(category);
+    
+    // Set the specific report type in the form
+    setTimeout(() => {
+        const reportTypeSelect = document.getElementById('reportType');
+        if (reportTypeSelect) {
+            // Find the corresponding option value for the quick report type
+            const reportTypeMapping = {
+                'daily-pau-sales': 'pau-sales-summary',
+                'pau-inventory-status': 'ingredient-stock-levels',
+                'filling-ingredients': 'ingredient-stock-levels',
+                'supplier-analysis': 'supplier-analysis',
+                'pau-production-efficiency': 'pau-production-efficiency',
+                'low-stock-pau': 'ingredient-stock-levels',
+                'expired-ingredients': 'ingredient-stock-levels',
+                'pau-wastage-analysis': 'pau-production-efficiency',
+                'finished-pau-stock': 'ingredient-stock-levels'
+            };
+            
+            const mappedReportType = reportTypeMapping[reportType];
+            if (mappedReportType) {
+                reportTypeSelect.value = mappedReportType;
+                updateReportDescription(); // Update the preview
+            }
+        }
+        
+        // Set the format
+        const formatSelect = document.getElementById('reportFormat');
+        if (formatSelect) {
+            formatSelect.value = format;
+        }
+        
+        // Set email option
+        const emailCheckbox = document.getElementById('emailReport');
+        if (emailCheckbox) {
+            emailCheckbox.checked = emailReport;
+        }
+        
+        // Set time period to today for quick reports
+        const periodSelect = document.getElementById('reportPeriod');
+        if (periodSelect) {
+            periodSelect.value = 'today';
+        }
+        
+        // Show notification about what was set up
+        showNotification(`Quick Report setup complete! Review settings and click "Generate Report" to proceed.`, 'success');
+        
+        // Scroll to the form
+        const reportForm = document.getElementById('reportForm');
+        if (reportForm) {
+            reportForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+    }, 500); // Small delay to allow the category selection to complete
 }
 
 // Search and Filter Functions
@@ -2079,17 +2455,17 @@ function updateReportDescription() {
             const reportType = REPORT_TYPES[selectedType];
             previewContent.innerHTML = `
                 <div class="report-preview-header">
-                    <h5>${reportType.icon} ${reportType.title}</h5>
+                    <h4>${reportType.icon} ${reportType.title}</h4>
                     <p>${reportType.description}</p>
                 </div>
                 <div class="report-preview-details">
-                    <h6>Data Sources:</h6>
-                    <ul>
-                        ${reportType.dataSource.map(source => `<li>${source.charAt(0).toUpperCase() + source.slice(1)}</li>`).join('')}
+                    <h5>Data Sources:</h5>
+                    <ul style="margin-left: 20px; padding-left: 15px;">
+                        ${reportType.dataSource.map(source => `<li style="margin-bottom: 5px;">${source.charAt(0).toUpperCase() + source.slice(1)}</li>`).join('')}
                     </ul>
-                    <h6>Available Charts:</h6>
-                    <ul>
-                        ${reportType.charts.map(chart => `<li>${chart.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</li>`).join('')}
+                    <h5>Available Charts:</h5>
+                    <ul style="margin-left: 20px; padding-left: 15px;">
+                        ${reportType.charts.map(chart => `<li style="margin-bottom: 5px;">${chart.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</li>`).join('')}
                     </ul>
                 </div>
             `;
@@ -2175,7 +2551,7 @@ function saveTemplate() {
 function showCreateTemplateModal() {
     const modal = document.getElementById('createTemplateModal');
     if (modal) {
-        modal.style.display = 'block';
+        modal.style.display = 'flex';
     }
 }
 
@@ -2183,30 +2559,107 @@ function closeCreateTemplateModal() {
     const modal = document.getElementById('createTemplateModal');
     if (modal) {
         modal.style.display = 'none';
+        
+        // Reset form
+        document.getElementById('templateName').value = '';
+        document.getElementById('templateDescription').value = '';
+        
+        // Reset modal state if editing
+        modal.removeAttribute('data-editing-template');
+        const modalHeader = document.querySelector('#createTemplateModal .modal-header h3');
+        const saveButton = document.querySelector('#createTemplateModal .btn-primary');
+        if (modalHeader) modalHeader.textContent = '📋 Create Report Template';
+        if (saveButton) saveButton.textContent = 'Save Template';
     }
 }
 
 function saveReportTemplate() {
     const nameInput = document.getElementById('templateName');
     const descInput = document.getElementById('templateDescription');
+    const modal = document.getElementById('createTemplateModal');
     
     if (!nameInput?.value) {
-        alert('Please enter a template name.');
+        showNotification('Please enter a template name.', 'error');
         return;
     }
     
-    const template = {
-        id: 'TPL' + Date.now(),
-        name: nameInput.value,
-        description: descInput.value,
-        createdAt: new Date().toISOString()
-    };
-    
+    // Check if we're editing an existing template
+    const editingTemplateId = modal.getAttribute('data-editing-template');
     const templates = JSON.parse(localStorage.getItem('reportTemplates') || '[]');
-    templates.push(template);
-    localStorage.setItem('reportTemplates', JSON.stringify(templates));
+    
+    if (editingTemplateId) {
+        // Update existing template
+        const templateIndex = templates.findIndex(t => t.id === editingTemplateId);
+        if (templateIndex !== -1) {
+            templates[templateIndex] = {
+                ...templates[templateIndex],
+                name: nameInput.value,
+                description: descInput.value,
+                updatedAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem('reportTemplates', JSON.stringify(templates));
+            showNotification(`Template "${nameInput.value}" updated successfully!`, 'success');
+        }
+        
+        // Reset modal state
+        modal.removeAttribute('data-editing-template');
+        const modalHeader = document.querySelector('#createTemplateModal .modal-header h3');
+        const saveButton = document.querySelector('#createTemplateModal .btn-primary');
+        if (modalHeader) modalHeader.textContent = '📋 Create Report Template';
+        if (saveButton) saveButton.textContent = 'Save Template';
+        
+    } else {
+        // Create new template
+        const currentConfig = collectCurrentFormConfiguration();
+        
+        const template = {
+            id: 'TPL' + Date.now(),
+            name: nameInput.value,
+            description: descInput.value,
+            configuration: currentConfig,
+            category: currentConfig.reportCategory || 'General',
+            createdAt: new Date().toISOString()
+        };
+        
+        templates.push(template);
+        localStorage.setItem('reportTemplates', JSON.stringify(templates));
+        showNotification(`Template "${template.name}" created successfully!`, 'success');
+    }
+    
+    // Clear form inputs
+    nameInput.value = '';
+    descInput.value = '';
     
     closeCreateTemplateModal();
-    alert(`Template "${template.name}" created successfully!`);
+    
+    // Update the display and statistics
+    loadAndDisplayTemplates();
     updateStatistics();
+}
+
+// Collect current form configuration for template saving
+function collectCurrentFormConfiguration() {
+    const config = {};
+    
+    // Collect form values
+    const categorySelect = document.getElementById('reportCategory');
+    const typeSelect = document.getElementById('reportType');
+    const periodSelect = document.getElementById('reportPeriod');
+    const formatSelect = document.getElementById('reportFormat');
+    
+    if (categorySelect?.value) config.reportCategory = categorySelect.value;
+    if (typeSelect?.value) config.reportType = typeSelect.value;
+    if (periodSelect?.value) config.reportPeriod = periodSelect.value;
+    if (formatSelect?.value) config.reportFormat = formatSelect.value;
+    
+    // Collect advanced options
+    ['includeCharts', 'includeDetails', 'includeSummary', 'emailReport'].forEach(option => {
+        const checkbox = document.getElementById(option);
+        if (checkbox) {
+            config[option] = checkbox.checked;
+        }
+    });
+    
+    return config;
 }

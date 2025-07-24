@@ -379,3 +379,399 @@ function updateStockStatus(card, currentValue) {
         }
     }
 }
+
+// Alert Details Modal Functions
+function showAlertDetails(alertType) {
+    const modal = document.getElementById('alertDetailsModal');
+    const modalIcon = document.getElementById('modalAlertIcon');
+    const modalTitle = document.getElementById('modalAlertTitle');
+    const modalSeverity = document.getElementById('modalAlertSeverity');
+    const modalDescription = document.getElementById('modalAlertDescription');
+    const modalCurrentStock = document.getElementById('modalCurrentStock');
+    const modalMinStock = document.getElementById('modalMinStock');
+    const modalShortage = document.getElementById('modalShortage');
+    const modalSupplier = document.getElementById('modalSupplier');
+    
+    // Configure modal content based on alert type
+    if (alertType === 'flour-critical') {
+        modalIcon.textContent = '🔴';
+        modalTitle.textContent = 'Critical Flour Stock Alert';
+        modalSeverity.textContent = 'URGENT';
+        modalSeverity.className = 'severity-badge urgent';
+        modalDescription.textContent = 'All Purpose Flour stock has reached critically low levels and requires immediate attention. Current production orders are at risk of being delayed or cancelled without immediate restocking.';
+        modalCurrentStock.textContent = '15 kg';
+        modalMinStock.textContent = '50 kg';
+        modalShortage.textContent = '35 kg (70% below minimum)';
+        modalSupplier.textContent = 'Golden Wheat Co.';
+    }
+    
+    // Show modal with animation
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    
+    // Add event listener for ESC key
+    document.addEventListener('keydown', handleModalEscKey);
+}
+
+function closeAlertModal() {
+    const modal = document.getElementById('alertDetailsModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto'; // Restore scrolling
+    
+    // Remove ESC key listener
+    document.removeEventListener('keydown', handleModalEscKey);
+}
+
+function handleModalEscKey(event) {
+    if (event.key === 'Escape') {
+        closeAlertModal();
+    }
+}
+
+// Action functions for modal buttons
+function contactSupplier() {
+    alert('Contacting Golden Wheat Co...\n\nPhone: (555) 123-4567\nEmail: orders@goldenwheat.com\n\nRequest: Emergency flour delivery (50kg minimum)\nEstimated delivery: 2-4 hours');
+    
+    // Mark action as completed
+    markActionCompleted('contact-supplier');
+}
+
+function notifySupervisor() {
+    alert('Supervisor notification sent!\n\nMessage: Critical flour shortage detected\nAction required: Approve emergency supplier contact\nStatus: Pending supervisor response');
+    
+    // Mark action as completed
+    markActionCompleted('notify-supervisor');
+}
+
+function updateProduction() {
+    alert('Production schedule updated!\n\nAdjustments made:\n• Reduced Classic Pau production from 60 to 30 units\n• Prioritized high-margin items\n• Estimated flour conservation: 15kg\n\nNew production timeline available in Production Tracking.');
+    
+    // Mark action as completed
+    markActionCompleted('update-production');
+}
+
+function markActionCompleted(actionType) {
+    // Find and check the corresponding checkbox in the modal
+    const checkboxes = document.querySelectorAll('.action-checkbox');
+    checkboxes.forEach(checkbox => {
+        const actionText = checkbox.parentNode.querySelector('.action-text strong').textContent.toLowerCase();
+        
+        if ((actionType === 'contact-supplier' && actionText.includes('contact')) ||
+            (actionType === 'notify-supervisor' && actionText.includes('notify')) ||
+            (actionType === 'update-production' && actionText.includes('adjust'))) {
+            checkbox.checked = true;
+            checkbox.parentNode.style.opacity = '0.7';
+        }
+    });
+}
+
+// Functions for Char Siew warning alert buttons
+function contactFillingCo() {
+    // Show detailed contact information and options
+    const contactInfo = `
+🏢 FILLING CO. - EMERGENCY CONTACT
+
+📞 Phone: (555) 789-0123
+📧 Email: urgent@fillingco.com
+📱 WhatsApp: +1-555-789-0123
+
+⏰ URGENT REQUEST:
+• Product: Char Siew (BBQ Pork Filling)
+• Current Stock: 3 kg
+• Required: Minimum 8 kg (emergency order: 15 kg)
+• Delivery Timeline: Same day if ordered before 2 PM
+
+💰 PRICING:
+• Regular price: $12/kg
+• Rush delivery fee: +$25
+• Estimated total: $205 (15kg + rush fee)
+
+📋 NEXT STEPS:
+1. Call now to place emergency order
+2. Confirm delivery time and cost
+3. Update inventory system with expected delivery
+4. Adjust production schedule accordingly
+
+Would you like to:
+- Copy phone number to clipboard?
+- Send automated email request?
+- View supplier order history?
+    `;
+    
+    if (confirm(contactInfo + "\n\nClick OK to call Filling Co. now, or Cancel to take other actions.")) {
+        // Simulate calling the supplier
+        alert("📞 Calling Filling Co...\n\n✅ Call connected!\n📝 Order placed: 15kg Char Siew\n⏰ Delivery confirmed: Today 4:30 PM\n💰 Total cost: $205 (including rush fee)\n\n📋 Action logged in system.\n🔔 Supervisor has been notified.");
+        
+        // Update the alert to show it's been handled
+        updateAlertStatus('char-siew-warning', 'contacted');
+        
+        // Log the action
+        logStaffAction('contacted_filling_co', 'Emergency Char Siew order placed - 15kg delivery at 4:30 PM');
+    }
+}
+
+function updateProductionPlan() {
+    // Show the production plan modal
+    const modal = document.getElementById('productionPlanModal');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    // Setup option selection listeners
+    setupProductionOptionListeners();
+    
+    // Add event listener for ESC key
+    document.addEventListener('keydown', handleProductionModalEscKey);
+}
+
+function setupProductionOptionListeners() {
+    const radioButtons = document.querySelectorAll('input[name="productionOption"]');
+    const previewSection = document.getElementById('productionPreview');
+    const previewContent = document.getElementById('previewContent');
+    const applyBtn = document.getElementById('applyBtn');
+    
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                showProductionPreview(this.value);
+                previewSection.style.display = 'block';
+                applyBtn.disabled = false;
+            }
+        });
+    });
+}
+
+function showProductionPreview(option) {
+    const previewContent = document.getElementById('previewContent');
+    let content = '';
+    
+    switch(option) {
+        case 'reduce':
+            content = `
+                <p><strong>📉 Production Reduction Plan</strong></p>
+                <table class="preview-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Current Plan</th>
+                            <th>New Plan</th>
+                            <th>Change</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Classic Pau</td>
+                            <td>60 units</td>
+                            <td>60 units</td>
+                            <td><span class="preview-change unchanged">No change</span></td>
+                        </tr>
+                        <tr>
+                            <td>Char Siew Pau</td>
+                            <td>40 units</td>
+                            <td>15 units</td>
+                            <td><span class="preview-change decrease">-25 units</span></td>
+                        </tr>
+                        <tr>
+                            <td>Lotus Bao</td>
+                            <td>24 units</td>
+                            <td>24 units</td>
+                            <td><span class="preview-change unchanged">No change</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p><strong>Impact:</strong> Char Siew savings: 5 kg | Revenue impact: -$112.50</p>
+            `;
+            break;
+            
+        case 'substitute':
+            content = `
+                <p><strong>🔄 Product Substitution Plan</strong></p>
+                <table class="preview-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Current Plan</th>
+                            <th>New Plan</th>
+                            <th>Change</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Classic Pau</td>
+                            <td>60 units</td>
+                            <td>60 units</td>
+                            <td><span class="preview-change unchanged">No change</span></td>
+                        </tr>
+                        <tr>
+                            <td>Char Siew Pau</td>
+                            <td>40 units</td>
+                            <td>15 units</td>
+                            <td><span class="preview-change decrease">-25 units</span></td>
+                        </tr>
+                        <tr>
+                            <td>Red Bean Pau</td>
+                            <td>0 units</td>
+                            <td>15 units</td>
+                            <td><span class="preview-change increase">+15 units</span></td>
+                        </tr>
+                        <tr>
+                            <td>Vegetarian Bao</td>
+                            <td>0 units</td>
+                            <td>10 units</td>
+                            <td><span class="preview-change increase">+10 units</span></td>
+                        </tr>
+                        <tr>
+                            <td>Lotus Bao</td>
+                            <td>24 units</td>
+                            <td>24 units</td>
+                            <td><span class="preview-change unchanged">No change</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p><strong>Impact:</strong> Revenue maintained | Customer satisfaction: High (popular alternatives)</p>
+            `;
+            break;
+            
+        case 'delay':
+            content = `
+                <p><strong>⏰ Production Delay Plan</strong></p>
+                <table class="preview-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Today</th>
+                            <th>Tomorrow</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Classic Pau</td>
+                            <td>60 units</td>
+                            <td>60 units</td>
+                            <td>No change</td>
+                        </tr>
+                        <tr>
+                            <td>Char Siew Pau</td>
+                            <td>20 units</td>
+                            <td>40 units</td>
+                            <td>+20 carried over</td>
+                        </tr>
+                        <tr>
+                            <td>Lotus Bao</td>
+                            <td>24 units</td>
+                            <td>24 units</td>
+                            <td>No change</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p><strong>Impact:</strong> Emergency delivery expected 4:30 PM | Customer notifications required</p>
+            `;
+            break;
+    }
+    
+    previewContent.innerHTML = content;
+}
+
+function applyProductionPlan() {
+    const selectedOption = document.querySelector('input[name="productionOption"]:checked');
+    
+    if (!selectedOption) {
+        alert('Please select an option first.');
+        return;
+    }
+    
+    const option = selectedOption.value;
+    let message = '';
+    
+    switch(option) {
+        case 'reduce':
+            message = "✅ PRODUCTION PLAN UPDATED - Reduction Strategy\n\n📉 Char Siew Pau reduced from 40 to 15 units\n💾 Char Siew savings: 5 kg\n📝 Updated production schedule:\n  - Classic Pau: 60 units (unchanged)\n  - Char Siew Pau: 15 units (-25)\n  - Lotus Bao: 24 units (unchanged)\n\n🔔 Team has been notified of changes.\n📊 Customer service informed of reduced availability.";
+            updateAlertStatus('char-siew-warning', 'production-reduced');
+            logStaffAction('reduced_production', 'Reduced Char Siew Pau production by 25 units to conserve filling');
+            break;
+            
+        case 'substitute':
+            message = "✅ PRODUCTION PLAN UPDATED - Substitution Strategy\n\n🔄 Product substitution implemented:\n  - Char Siew Pau: 15 units (-25)\n  - Red Bean Pau: +15 units\n  - Vegetarian Bao: +10 units\n\n💰 Revenue impact: Minimal (substituted products have similar margins)\n📊 Customer satisfaction: High (popular alternatives)\n🔔 Sales team notified of product availability changes.";
+            updateAlertStatus('char-siew-warning', 'products-substituted');
+            logStaffAction('substituted_products', 'Replaced 25 Char Siew Pau with Red Bean Pau and Vegetarian Bao');
+            break;
+            
+        case 'delay':
+            message = "✅ PRODUCTION PLAN UPDATED - Delay Strategy\n\n⏰ Production delayed:\n  - Today: 20 Char Siew Pau only\n  - Tomorrow: +20 Char Siew Pau added to schedule\n\n📦 Emergency delivery expected: 4:30 PM today\n🔄 Full production resumes tomorrow\n📞 Customers with advance orders have been contacted.";
+            updateAlertStatus('char-siew-warning', 'production-delayed');
+            logStaffAction('delayed_production', 'Delayed 20 Char Siew Pau to tomorrow pending emergency delivery');
+            break;
+    }
+    
+    alert(message);
+    closeProductionPlanModal();
+}
+
+function closeProductionPlanModal() {
+    const modal = document.getElementById('productionPlanModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    
+    // Reset form
+    const radioButtons = document.querySelectorAll('input[name="productionOption"]');
+    radioButtons.forEach(radio => radio.checked = false);
+    
+    const previewSection = document.getElementById('productionPreview');
+    previewSection.style.display = 'none';
+    
+    const applyBtn = document.getElementById('applyBtn');
+    applyBtn.disabled = true;
+    
+    // Remove ESC key listener
+    document.removeEventListener('keydown', handleProductionModalEscKey);
+}
+
+function handleProductionModalEscKey(event) {
+    if (event.key === 'Escape') {
+        closeProductionPlanModal();
+    }
+}
+
+// Helper functions for alert management
+function updateAlertStatus(alertId, status) {
+    // Find the alert element and update its visual status
+    const alerts = document.querySelectorAll('.alert-item');
+    alerts.forEach(alert => {
+        if (alert.querySelector('h3').textContent.includes('Char Siew')) {
+            // Add a status indicator
+            const statusIndicator = document.createElement('div');
+            statusIndicator.className = 'alert-status-indicator';
+            statusIndicator.innerHTML = `<span class="status-badge resolved">✅ ${status.replace('-', ' ').toUpperCase()}</span>`;
+            
+            // Remove existing status indicator if any
+            const existing = alert.querySelector('.alert-status-indicator');
+            if (existing) existing.remove();
+            
+            // Add new status
+            alert.querySelector('.alert-content').appendChild(statusIndicator);
+            
+            // Update alert styling
+            alert.style.opacity = '0.8';
+            alert.style.borderLeft = '4px solid #4CAF50';
+        }
+    });
+}
+
+function logStaffAction(actionType, description) {
+    // Log the action with timestamp
+    const timestamp = new Date().toLocaleString();
+    const logEntry = {
+        timestamp: timestamp,
+        staff: sessionStorage.getItem('username') || 'Staff Member',
+        action: actionType,
+        description: description,
+        alertId: 'char-siew-warning'
+    };
+    
+    // Store in session storage (in a real app, this would go to a database)
+    let actionLog = JSON.parse(sessionStorage.getItem('staffActionLog') || '[]');
+    actionLog.push(logEntry);
+    sessionStorage.setItem('staffActionLog', JSON.stringify(actionLog));
+    
+    console.log('Staff Action Logged:', logEntry);
+}

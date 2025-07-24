@@ -400,16 +400,22 @@ function switchEntryType(type) {
     document.querySelector(`[data-type="${type}"]`).classList.add('active');
     
     // Update form elements
+    const inboundSource = document.getElementById('inboundSource');
     const outboundDestination = document.getElementById('outboundDestination');
+    const sourceOutletSelect = document.getElementById('sourceOutlet');
     const destinationSelect = document.getElementById('destination');
     const submitBtn = document.getElementById('submitBtn');
     
     if (type === 'outbound') {
+        inboundSource.style.display = 'none';
         outboundDestination.style.display = 'grid';
+        sourceOutletSelect.required = false;
         destinationSelect.required = true;
         submitBtn.textContent = 'Record Outbound Entry';
     } else {
+        inboundSource.style.display = 'grid';
         outboundDestination.style.display = 'none';
+        sourceOutletSelect.required = true;
         destinationSelect.required = false;
         submitBtn.textContent = 'Record Inbound Entry';
     }
@@ -491,12 +497,15 @@ function handleFormSubmission() {
         unit: selectedOption.dataset.unit,
         timestamp: new Date(`${formData.get('entryDate')}T${formData.get('entryTime')}`),
         staff: currentUser.username,
-        notes: formData.get('notes') || '',
-        batchNumber: formData.get('batchNumber') || ''
+        notes: formData.get('notes') || ''
     };
     
     if (currentEntryType === 'outbound') {
         entry.destination = formData.get('destination');
+        entry.batchNumber = formData.get('batchNumber') || '';
+    } else {
+        entry.sourceOutlet = formData.get('sourceOutlet');
+        entry.batchNumber = formData.get('inboundBatchNumber') || '';
     }
     
     // Store entry for confirmation
@@ -516,11 +525,17 @@ function showConfirmationModal(entry) {
     const confirmationText = document.getElementById('confirmationText');
     const stockImpactText = document.getElementById('stockImpactText');
     
+    let locationText = '';
+    if (entry.type === 'inbound' && entry.sourceOutlet) {
+        locationText = ` from ${entry.sourceOutlet.replace(/_/g, ' ').toUpperCase()}`;
+    } else if (entry.type === 'outbound' && entry.destination) {
+        locationText = ` to ${entry.destination.replace(/_/g, ' ').toUpperCase()}`;
+    }
+    
     const entryTypeText = entry.type === 'inbound' ? 'Add to Inventory' : 'Ship to Outlet';
-    const destinationText = entry.destination ? ` to ${entry.destination.replace('_', ' ').toUpperCase()}` : '';
     
     confirmationText.innerHTML = `
-        <div style="margin-bottom: 10px;"><strong>Type:</strong> ${entryTypeText}${destinationText}</div>
+        <div style="margin-bottom: 10px;"><strong>Type:</strong> ${entryTypeText}${locationText}</div>
         <div style="margin-bottom: 10px;"><strong>Item:</strong> ${entry.itemName}</div>
         <div style="margin-bottom: 10px;"><strong>Quantity:</strong> ${entry.quantity} ${entry.unit}</div>
         <div style="margin-bottom: 10px;"><strong>Time:</strong> ${entry.timestamp.toLocaleString()}</div>
@@ -821,16 +836,21 @@ function displayProductionHistory() {
     filteredEntries.forEach(entry => {
         const row = document.createElement('tr');
         
-        const destinationText = entry.destination ? 
-            entry.destination.replace('_', ' ').toUpperCase() : 
-            (entry.type === 'inbound' ? 'Factory Production' : '-');
+        let locationText = '-';
+        if (entry.type === 'inbound' && entry.sourceOutlet) {
+            locationText = entry.sourceOutlet.replace(/_/g, ' ').toUpperCase();
+        } else if (entry.type === 'outbound' && entry.destination) {
+            locationText = entry.destination.replace(/_/g, ' ').toUpperCase();
+        } else if (entry.type === 'inbound') {
+            locationText = 'Factory Production';
+        }
         
         row.innerHTML = `
             <td class="timestamp">${entry.timestamp.toLocaleString()}</td>
             <td><span class="entry-type ${entry.type}">${entry.type}</span></td>
             <td><strong>${entry.itemName}</strong></td>
             <td class="quantity">${entry.quantity} ${entry.unit}</td>
-            <td>${destinationText}</td>
+            <td>${locationText}</td>
             <td>${entry.batchNumber || '-'}</td>
             <td>${entry.staff}</td>
             <td>${entry.notes || '-'}</td>

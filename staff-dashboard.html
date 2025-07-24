@@ -15,7 +15,7 @@
                     <span>Staff Dashboard</span>
                 </div>
                 <div class="user-info">
-                    <span class="role-badge staff">Staff</span>
+                    <p style="display: none;"><span class="role-badge staff">Staff</span></p>
                     <span id="welcomeMessage">Welcome, Staff!</span>
                     <button id="logoutBtn" class="logout-btn">Logout</button>
                 </div>
@@ -190,7 +190,7 @@
                             <p>Only 15 kg remaining. Contact supervisor to arrange immediate reorder.</p>
                             <div class="alert-actions">
                                 <button class="alert-btn primary">Notify Supervisor</button>
-                                <button class="alert-btn secondary">View Details</button>
+                                <button onclick="showAlertDetails('flour-critical')" class="alert-btn secondary">View Details</button>
                             </div>
                         </div>
                         <span class="alert-time">Just now</span>
@@ -202,8 +202,8 @@
                             <h3>Warning: Low Char Siew stock from Filling Co.</h3>
                             <p>Only 3 kg of Char Siew remaining. Contact supplier for urgent restock.</p>
                             <div class="alert-actions">
-                                <button class="alert-btn primary">Contact Filling Co.</button>
-                                <button class="alert-btn secondary">Update Production Plan</button>
+                                <button onclick="contactFillingCo()" class="alert-btn primary">Contact Filling Co.</button>
+                                <button onclick="updateProductionPlan()" class="alert-btn secondary">Update Production Plan</button>
                             </div>
                         </div>
                         <span class="alert-time">30 minutes ago</span>
@@ -277,6 +277,262 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- Alert Details Modal -->
+    <div id="alertDetailsModal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeAlertModal()"></div>
+        <div class="modal-content alert-modal">
+            <div class="modal-header">
+                <div class="alert-modal-icon">
+                    <span id="modalAlertIcon">🔴</span>
+                </div>
+                <div class="alert-modal-title">
+                    <h2 id="modalAlertTitle">Alert Details</h2>
+                    <span id="modalAlertSeverity" class="severity-badge urgent">URGENT</span>
+                </div>
+                <button onclick="closeAlertModal()" class="modal-close-btn">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="alert-details-grid">
+                    <div class="detail-section">
+                        <h3>📋 Issue Description</h3>
+                        <div class="detail-content">
+                            <p id="modalAlertDescription">Flour stock has reached critically low levels and requires immediate attention.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>📊 Current Status</h3>
+                        <div class="detail-content">
+                            <div class="status-item">
+                                <span class="status-label">Current Stock:</span>
+                                <span id="modalCurrentStock" class="status-value critical">15 kg</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">Minimum Required:</span>
+                                <span id="modalMinStock" class="status-value">50 kg</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">Shortage Amount:</span>
+                                <span id="modalShortage" class="status-value critical">35 kg (70% below minimum)</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">Supplier:</span>
+                                <span id="modalSupplier" class="status-value">Golden Wheat Co.</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>⏰ Timeline & Impact</h3>
+                        <div class="detail-content">
+                            <div class="timeline-item">
+                                <span class="timeline-dot urgent"></span>
+                                <div class="timeline-content">
+                                    <strong>Alert Triggered:</strong> Just now
+                                    <p>Stock fell below 20 kg threshold</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <span class="timeline-dot warning"></span>
+                                <div class="timeline-content">
+                                    <strong>Production Impact:</strong> High Risk
+                                    <p>Insufficient stock for today's 60 Classic Pau order</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <span class="timeline-dot info"></span>
+                                <div class="timeline-content">
+                                    <strong>Estimated Depletion:</strong> 2-3 hours
+                                    <p>At current production rate</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>🎯 Recommended Actions</h3>
+                        <div class="detail-content">
+                            <div class="action-checklist">
+                                <label class="checklist-item">
+                                    <input type="checkbox" class="action-checkbox">
+                                    <span class="checkmark"></span>
+                                    <div class="action-text">
+                                        <strong>Immediate:</strong> Contact Golden Wheat Co. for emergency delivery
+                                        <small>ETA: 2-4 hours | Cost: +$50 rush fee</small>
+                                    </div>
+                                </label>
+                                <label class="checklist-item">
+                                    <input type="checkbox" class="action-checkbox">
+                                    <span class="checkmark"></span>
+                                    <div class="action-text">
+                                        <strong>Priority:</strong> Adjust production schedule to conserve flour
+                                        <small>Postpone non-critical pau production</small>
+                                    </div>
+                                </label>
+                                <label class="checklist-item">
+                                    <input type="checkbox" class="action-checkbox">
+                                    <span class="checkmark"></span>
+                                    <div class="action-text">
+                                        <strong>Notify:</strong> Inform supervisor and update inventory system
+                                        <small>Document shortage and response actions</small>
+                                    </div>
+                                </label>
+                                <label class="checklist-item">
+                                    <input type="checkbox" class="action-checkbox">
+                                    <span class="checkmark"></span>
+                                    <div class="action-text">
+                                        <strong>Follow-up:</strong> Review reorder point settings
+                                        <small>Prevent future stockouts</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <div class="footer-actions">
+                    <button onclick="contactSupplier()" class="action-btn primary large">
+                        <span>📞</span> Contact Golden Wheat Co.
+                    </button>
+                    <button onclick="notifySupervisor()" class="action-btn secondary large">
+                        <span>👥</span> Notify Supervisor
+                    </button>
+                    <button onclick="updateProduction()" class="action-btn secondary large">
+                        <span>📋</span> Update Production Plan
+                    </button>
+                </div>
+                <div class="footer-info">
+                    <small>Alert ID: ALERT-2025-07-23-001 | Priority: Critical | Auto-refresh: 5 min</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Production Plan Modal -->
+    <div id="productionPlanModal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeProductionPlanModal()"></div>
+        <div class="modal-content production-modal">
+            <div class="modal-header">
+                <div class="production-modal-icon">
+                    <span>📋</span>
+                </div>
+                <div class="production-modal-title">
+                    <h2>Production Plan Adjustment</h2>
+                    <span class="severity-badge warning">CHAR SIEW SHORTAGE</span>
+                </div>
+                <button onclick="closeProductionPlanModal()" class="modal-close-btn">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="production-status">
+                    <h3>🥩 Current Char Siew Status</h3>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <span class="status-label">Available:</span>
+                            <span class="status-value critical">3 kg</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Required for today:</span>
+                            <span class="status-value">8 kg</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Shortage:</span>
+                            <span class="status-value critical">5 kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="production-options">
+                    <h3>🎯 Select Adjustment Option</h3>
+                    <div class="options-grid">
+                        <label class="option-card" for="option1">
+                            <input type="radio" id="option1" name="productionOption" value="reduce">
+                            <div class="option-content">
+                                <div class="option-header">
+                                    <span class="option-icon">📉</span>
+                                    <h4>Reduce Production</h4>
+                                </div>
+                                <div class="option-details">
+                                    <p><strong>Action:</strong> Reduce Char Siew Pau from 40 to 15 units</p>
+                                    <p><strong>Savings:</strong> 5 kg Char Siew</p>
+                                    <p><strong>Impact:</strong> -25 units today</p>
+                                    <div class="option-metrics">
+                                        <span class="metric good">✅ Conserves stock</span>
+                                        <span class="metric warning">⚠️ Reduced revenue</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="option-card" for="option2">
+                            <input type="radio" id="option2" name="productionOption" value="substitute">
+                            <div class="option-content">
+                                <div class="option-header">
+                                    <span class="option-icon">🔄</span>
+                                    <h4>Substitute Products</h4>
+                                </div>
+                                <div class="option-details">
+                                    <p><strong>Replace 25 Char Siew Pau with:</strong></p>
+                                    <ul>
+                                        <li>15 Red Bean Pau (high demand)</li>
+                                        <li>10 Vegetarian Bao (lower cost)</li>
+                                    </ul>
+                                    <div class="option-metrics">
+                                        <span class="metric good">✅ Maintains revenue</span>
+                                        <span class="metric good">✅ Popular alternatives</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="option-card" for="option3">
+                            <input type="radio" id="option3" name="productionOption" value="delay">
+                            <div class="option-content">
+                                <div class="option-header">
+                                    <span class="option-icon">⏰</span>
+                                    <h4>Delay Production</h4>
+                                </div>
+                                <div class="option-details">
+                                    <p><strong>Today:</strong> 20 Char Siew Pau only</p>
+                                    <p><strong>Tomorrow:</strong> +20 units added to schedule</p>
+                                    <p><strong>Emergency delivery:</strong> Expected 4:30 PM</p>
+                                    <div class="option-metrics">
+                                        <span class="metric good">✅ Full recovery tomorrow</span>
+                                        <span class="metric warning">⚠️ Customer notifications needed</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="production-preview" id="productionPreview" style="display: none;">
+                    <h3>📊 Impact Preview</h3>
+                    <div class="preview-content" id="previewContent">
+                        <!-- Dynamic content will be inserted here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <div class="footer-actions">
+                    <button onclick="closeProductionPlanModal()" class="action-btn secondary large">
+                        <span>❌</span> Cancel
+                    </button>
+                    <button onclick="applyProductionPlan()" class="action-btn primary large" id="applyBtn" disabled>
+                        <span>✅</span> Apply Changes
+                    </button>
+                </div>
+                <div class="footer-info">
+                    <small>Changes will be applied immediately and team notifications sent</small>
+                </div>
+            </div>
+        </div>
     </div>
     
     <script src="staff-dashboard.js"></script>

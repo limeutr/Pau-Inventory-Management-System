@@ -1,5 +1,6 @@
 // Ingredient Management System
 let ingredients = [];
+let filteredIngredients = [];
 let currentUser = {};
 let editingId = null;
 let deleteId = null;
@@ -39,8 +40,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update statistics
     updateStatistics();
     
-    // Setup filter functionality
-    setupFilters();
+    // Setup search and filter functionality
+    setupSearchAndFilters();
+    
+    // Setup modal form submission
+    setupModalForm();
 });
 
 function checkAuthAndRole() {
@@ -113,91 +117,160 @@ function initializeIngredientData() {
     if (savedIngredients) {
         ingredients = JSON.parse(savedIngredients);
     } else {
-        // Sample ingredient data with proper business rules
+        // Sample ingredient data that matches the HTML structure
         ingredients = [
             {
                 id: 'ING001',
                 name: 'All Purpose Flour',
-                category: 'flour_grains',
-                quantity: 500,
+                category: 'flour',
+                quantity: 15.0,
                 unit: 'kg',
-                minStock: 50,
-                maxStock: 1000,
-                supplier: 'local_mills',
-                supplierName: 'Local Mills Ltd',
-                expiryDate: '2025-08-15',
-                batchNumber: 'FL20250215',
+                minStock: 50.0,
+                supplier: 'Golden Wheat Co.',
+                supplierName: 'Golden Wheat Co.',
+                expiryDate: '2025-12-31',
                 storageLocation: 'dry_storage',
-                notes: 'Premium quality flour for bread and pastries',
                 dateAdded: '2025-06-01',
                 lastUpdated: new Date().toISOString()
             },
             {
                 id: 'ING002',
-                name: 'Granulated Sugar',
-                category: 'sweeteners',
-                quantity: 200,
+                name: 'Active Dry Yeast',
+                category: 'leavening',
+                quantity: 2.5,
                 unit: 'kg',
-                minStock: 30,
-                maxStock: 500,
-                supplier: 'sweet_supply',
-                supplierName: 'Sweet Supply Co',
-                expiryDate: '2025-12-31',
-                batchNumber: 'SG20250120',
+                minStock: 1.0,
+                supplier: 'Golden Wheat Co.',
+                supplierName: 'Golden Wheat Co.',
+                expiryDate: '2025-09-15',
                 storageLocation: 'dry_storage',
-                notes: 'Fine granulated sugar for baking',
                 dateAdded: '2025-06-01',
                 lastUpdated: new Date().toISOString()
             },
             {
                 id: 'ING003',
-                name: 'Fresh Milk',
-                category: 'dairy',
-                quantity: 25,
-                unit: 'liters',
-                minStock: 10,
-                maxStock: 100,
-                supplier: 'dairy_fresh',
-                supplierName: 'Dairy Fresh Co',
-                expiryDate: '2025-07-05',
-                batchNumber: 'MK20250630',
-                storageLocation: 'refrigerator',
-                notes: 'Fresh whole milk, keep refrigerated',
-                dateAdded: '2025-07-01',
+                name: 'Vegetable Oil',
+                category: 'oil',
+                quantity: 8.0,
+                unit: 'L',
+                minStock: 5.0,
+                supplier: 'Golden Wheat Co.',
+                supplierName: 'Golden Wheat Co.',
+                expiryDate: '2026-03-20',
+                storageLocation: 'pantry',
+                dateAdded: '2025-06-01',
                 lastUpdated: new Date().toISOString()
             },
             {
                 id: 'ING004',
-                name: 'Butter (Unsalted)',
-                category: 'dairy',
-                quantity: 15,
+                name: 'Granulated Sugar',
+                category: 'sweetener',
+                quantity: 25.0,
                 unit: 'kg',
-                minStock: 5,
-                maxStock: 50,
-                supplier: 'dairy_fresh',
-                supplierName: 'Dairy Fresh Co',
-                expiryDate: '2025-07-20',
-                batchNumber: 'BT20250610',
-                storageLocation: 'refrigerator',
-                notes: 'Premium unsalted butter for baking',
-                dateAdded: '2025-06-15',
+                minStock: 10.0,
+                supplier: 'Sweet Supply Ltd.',
+                supplierName: 'Sweet Supply Ltd.',
+                expiryDate: '2026-01-30',
+                storageLocation: 'dry_storage',
+                dateAdded: '2025-06-01',
                 lastUpdated: new Date().toISOString()
             },
             {
                 id: 'ING005',
-                name: 'Vanilla Extract',
-                category: 'flavorings',
-                quantity: 2,
-                unit: 'liters',
-                minStock: 0.5,
-                maxStock: 10,
-                supplier: 'spice_world',
-                supplierName: 'Spice World Ltd',
-                expiryDate: '2026-01-15',
-                batchNumber: 'VE20241201',
-                storageLocation: 'pantry',
-                notes: 'Pure vanilla extract, handle with care',
-                dateAdded: '2025-05-20',
+                name: 'Salt',
+                category: 'seasoning',
+                quantity: 5.0,
+                unit: 'kg',
+                minStock: 2.0,
+                supplier: 'Sweet Supply Ltd.',
+                supplierName: 'Sweet Supply Ltd.',
+                expiryDate: '2027-06-15',
+                storageLocation: 'dry_storage',
+                dateAdded: '2025-06-01',
+                lastUpdated: new Date().toISOString()
+            },
+            {
+                id: 'ING006',
+                name: 'Baking Powder',
+                category: 'leavening',
+                quantity: 3.0,
+                unit: 'kg',
+                minStock: 1.5,
+                supplier: 'Sweet Supply Ltd.',
+                supplierName: 'Sweet Supply Ltd.',
+                expiryDate: '2025-11-20',
+                storageLocation: 'dry_storage',
+                dateAdded: '2025-06-01',
+                lastUpdated: new Date().toISOString()
+            },
+            {
+                id: 'ING007',
+                name: 'Char Siew (BBQ Pork)',
+                category: 'filling',
+                quantity: 3.0,
+                unit: 'kg',
+                minStock: 8.0,
+                supplier: 'Filling Co.',
+                supplierName: 'Filling Co.',
+                expiryDate: '2025-07-30',
+                storageLocation: 'cold_storage',
+                dateAdded: '2025-06-01',
+                lastUpdated: new Date().toISOString()
+            },
+            {
+                id: 'ING008',
+                name: 'Red Bean Paste',
+                category: 'filling',
+                quantity: 5.0,
+                unit: 'kg',
+                minStock: 3.0,
+                supplier: 'Filling Co.',
+                supplierName: 'Filling Co.',
+                expiryDate: '2025-08-15',
+                storageLocation: 'cold_storage',
+                dateAdded: '2025-06-01',
+                lastUpdated: new Date().toISOString()
+            },
+            {
+                id: 'ING009',
+                name: 'Lotus Seed Paste',
+                category: 'filling',
+                quantity: 4.5,
+                unit: 'kg',
+                minStock: 2.0,
+                supplier: 'Filling Co.',
+                supplierName: 'Filling Co.',
+                expiryDate: '2025-08-10',
+                storageLocation: 'cold_storage',
+                dateAdded: '2025-06-01',
+                lastUpdated: new Date().toISOString()
+            },
+            {
+                id: 'ING010',
+                name: 'Custard Filling (Nai Wong)',
+                category: 'filling',
+                quantity: 6.0,
+                unit: 'kg',
+                minStock: 4.0,
+                supplier: 'Filling Co.',
+                supplierName: 'Filling Co.',
+                expiryDate: '2025-07-28',
+                storageLocation: 'cold_storage',
+                dateAdded: '2025-06-01',
+                lastUpdated: new Date().toISOString()
+            },
+            {
+                id: 'ING011',
+                name: 'Mixed Vegetable Filling',
+                category: 'filling',
+                quantity: 7.0,
+                unit: 'kg',
+                minStock: 3.5,
+                supplier: 'Filling Co.',
+                supplierName: 'Filling Co.',
+                expiryDate: '2025-07-26',
+                storageLocation: 'cold_storage',
+                dateAdded: '2025-06-01',
                 lastUpdated: new Date().toISOString()
             }
         ];
@@ -494,51 +567,20 @@ function closeDeleteModal() {
 }
 
 function displayIngredients() {
-    const tableBody = document.getElementById('ingredientsTableBody');
-    let filteredIngredients = [...ingredients];
+    // Initialize filtered ingredients to show all ingredients initially
+    filteredIngredients = [...ingredients];
+    displayFilteredIngredients();
+}
+
+function displayFilteredIngredients() {
+    const tableBody = document.getElementById('inventoryTableBody');
     
-    // Apply filters
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const supplierFilter = document.getElementById('supplierFilter').value;
-    const statusFilter = document.getElementById('statusFilter').value;
-    const unitFilter = document.getElementById('unitFilter').value;
-    
-    // Search filter
-    if (searchTerm) {
-        filteredIngredients = filteredIngredients.filter(ingredient =>
-            ingredient.name.toLowerCase().includes(searchTerm) ||
-            ingredient.id.toLowerCase().includes(searchTerm) ||
-            ingredient.supplierName.toLowerCase().includes(searchTerm) ||
-            ingredient.batchNumber.toLowerCase().includes(searchTerm)
-        );
+    if (!tableBody) {
+        console.error('Table body not found');
+        return;
     }
     
-    // Supplier filter
-    if (supplierFilter) {
-        filteredIngredients = filteredIngredients.filter(ingredient =>
-            ingredient.supplierName === supplierFilter
-        );
-    }
-    
-    // Unit filter
-    if (unitFilter) {
-        filteredIngredients = filteredIngredients.filter(ingredient =>
-            ingredient.unit === unitFilter
-        );
-    }
-    
-    // Status filter
-    if (statusFilter) {
-        filteredIngredients = filteredIngredients.filter(ingredient => {
-            const status = getIngredientStatus(ingredient);
-            return status === statusFilter;
-        });
-    }
-    
-    // Sort by name
-    filteredIngredients.sort((a, b) => a.name.localeCompare(b.name));
-    
-    // Populate table
+    // Clear existing content
     tableBody.innerHTML = '';
     
     if (filteredIngredients.length === 0) {
@@ -546,49 +588,40 @@ function displayIngredients() {
         return;
     }
     
+    // Sort by name
+    filteredIngredients.sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Populate table with filtered ingredients
     filteredIngredients.forEach(ingredient => {
         const row = document.createElement('tr');
         const status = getIngredientStatus(ingredient);
-        const statusClass = `status-${status}`;
         
-        // Format expiry date with warning indicators
-        const expiryDate = new Date(ingredient.expiryDate);
-        const today = new Date();
-        const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-        
-        let expiryDisplay = formatDate(ingredient.expiryDate);
-        if (daysUntilExpiry < 0) {
-            expiryDisplay += ' ⚠️';
-        } else if (daysUntilExpiry <= 7) {
-            expiryDisplay += ' ⏰';
-        }
-        
-        // Format stock levels
-        const stockDisplay = ingredient.maxStock ? 
-            `${ingredient.minStock}-${ingredient.maxStock} ${ingredient.unit}` :
-            `Min: ${ingredient.minStock} ${ingredient.unit}`;
+        row.setAttribute('data-category', ingredient.category);
+        row.setAttribute('data-supplier', ingredient.supplierName);
+        row.setAttribute('data-location', ingredient.storageLocation);
+        row.setAttribute('data-status', status);
         
         row.innerHTML = `
-            <td><strong>${ingredient.id}</strong></td>
-            <td>
-                <strong>${ingredient.name}</strong>
-                ${ingredient.batchNumber ? `<br><small>Batch: ${ingredient.batchNumber}</small>` : ''}
-            </td>
-            <td><span class="category-badge">${getCategoryName(ingredient.category)}</span></td>
-            <td><strong>${ingredient.quantity} ${ingredient.unit}</strong></td>
-            <td><small>${stockDisplay}</small></td>
+            <td>${ingredient.id}</td>
+            <td>${ingredient.name}</td>
+            <td>${getCategoryDisplayName(ingredient.category)}</td>
             <td>${ingredient.supplierName}</td>
-            <td>${expiryDisplay}</td>
-            <td><span class="status-badge ${statusClass}">${getStatusName(status)}</span></td>
-            <td>${getLocationName(ingredient.storageLocation)}</td>
+            <td>${ingredient.quantity}</td>
+            <td>${ingredient.unit}</td>
+            <td>${ingredient.minStock}</td>
+            <td>${formatDate(ingredient.expiryDate)}</td>
+            <td><span class="status-badge ${status}">${getStatusDisplayName(status)}</span></td>
             <td>
-                <button onclick="editIngredient('${ingredient.id}')" class="action-btn-small edit-btn">Edit</button>
-                <button onclick="deleteIngredient('${ingredient.id}')" class="action-btn-small delete-btn">Delete</button>
+                <button onclick="editItem('${ingredient.id}')" class="action-btn edit" title="Edit Ingredient">✏️</button>
+                <button onclick="deleteItem('${ingredient.id}')" class="action-btn delete" title="Delete Ingredient">🗑️</button>
             </td>
         `;
         
         tableBody.appendChild(row);
     });
+    
+    // Update statistics after filtering
+    updateStatistics();
 }
 
 function getIngredientStatus(ingredient) {
@@ -664,14 +697,23 @@ function clearFilters() {
 
 function updateStatistics() {
     const totalIngredients = ingredients.length;
-    const expiredIngredients = ingredients.filter(ing => getIngredientStatus(ing) === 'expired').length;
-    const lowStockIngredients = ingredients.filter(ing => getIngredientStatus(ing) === 'low').length;
+    const criticalStockIngredients = ingredients.filter(ing => {
+        const status = getIngredientStatus(ing);
+        return status === 'low' || status === 'critical';
+    }).length;
     const activeSuppliers = new Set(ingredients.map(ing => ing.supplierName)).size;
+    const coldStorageItems = ingredients.filter(ing => ing.storageLocation === 'cold_storage').length;
     
-    document.getElementById('totalIngredients').textContent = totalIngredients;
-    document.getElementById('expiredIngredients').textContent = expiredIngredients;
-    document.getElementById('lowStockIngredients').textContent = lowStockIngredients;
-    document.getElementById('activeSuppliers').textContent = activeSuppliers;
+    // Update the statistics display
+    const totalItemsElement = document.getElementById('totalItems');
+    const lowStockItemsElement = document.getElementById('lowStockItems');
+    const supplierCountElement = document.getElementById('supplierCount');
+    const coldStorageItemsElement = document.getElementById('coldStorageItems');
+    
+    if (totalItemsElement) totalItemsElement.textContent = totalIngredients;
+    if (lowStockItemsElement) lowStockItemsElement.textContent = criticalStockIngredients;
+    if (supplierCountElement) supplierCountElement.textContent = activeSuppliers;
+    if (coldStorageItemsElement) coldStorageItemsElement.textContent = coldStorageItems;
 }
 
 function exportData() {
@@ -713,22 +755,461 @@ function exportData() {
     showNotification('Ingredient data exported successfully!', 'success');
 }
 
+function setupModalForm() {
+    const modalForm = document.getElementById('itemForm');
+    if (modalForm) {
+        modalForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleModalFormSubmit(e);
+        });
+    }
+}
+
+function handleModalFormSubmit(e) {
+    const formData = new FormData(e.target);
+    const supplierValue = formData.get('supplier');
+    const itemData = {
+        name: formData.get('itemName')?.trim(),
+        category: formData.get('itemType'),
+        storageLocation: formData.get('location'),
+        quantity: parseFloat(formData.get('quantity')),
+        unit: formData.get('unit'),
+        minStock: parseFloat(formData.get('minStockLevel')),
+        supplier: supplierValue,
+        supplierName: supplierValue, // Use the same value for both fields
+        expiryDate: formData.get('expiryDate')
+    };
+    
+    // Validation
+    if (!itemData.name || !itemData.category || !itemData.storageLocation || 
+        !itemData.unit || !itemData.supplier || !itemData.expiryDate) {
+        showNotification('Please fill in all required fields.', 'error');
+        return;
+    }
+    
+    if (itemData.quantity < 0 || itemData.minStock < 0) {
+        showNotification('Quantities cannot be negative.', 'error');
+        return;
+    }
+    
+    // Check for duplicate names (case insensitive)
+    const duplicateCheck = ingredients.find(ing => 
+        ing.name.toLowerCase() === itemData.name.toLowerCase() && 
+        ing.id !== editingId
+    );
+    
+    if (duplicateCheck) {
+        showNotification('An ingredient with this name already exists.', 'error');
+        return;
+    }
+    
+    if (editingId) {
+        // Update existing ingredient
+        const index = ingredients.findIndex(ing => ing.id === editingId);
+        if (index !== -1) {
+            const updatedIngredient = {
+                ...ingredients[index],
+                ...itemData,
+                lastUpdated: new Date().toISOString()
+            };
+            ingredients[index] = updatedIngredient;
+            showNotification('Ingredient updated successfully!', 'success');
+        }
+    } else {
+        // Add new ingredient
+        const newIngredient = {
+            id: generateIngredientId(),
+            ...itemData,
+            dateAdded: new Date().toISOString().split('T')[0],
+            lastUpdated: new Date().toISOString()
+        };
+        ingredients.push(newIngredient);
+        showNotification('Ingredient added successfully!', 'success');
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('ingredients', JSON.stringify(ingredients));
+    
+    // Refresh display
+    displayIngredients();
+    updateStatistics();
+    closeModal();
+}
+
+function getSupplierName(supplierValue) {
+    const supplierNames = {
+        'Golden Wheat Co.': 'Golden Wheat Co.',
+        'Sweet Supply Ltd.': 'Sweet Supply Ltd.',
+        'Filling Co.': 'Filling Co.',
+        'Other': 'Other Supplier'
+    };
+    return supplierNames[supplierValue] || supplierValue;
+}
+
+function generateIngredientId() {
+    if (ingredients.length === 0) return 'ING001';
+    
+    const lastId = Math.max(...ingredients.map(ing => {
+        const numPart = ing.id.replace('ING', '');
+        return parseInt(numPart) || 0;
+    }));
+    
+    return 'ING' + String(lastId + 1).padStart(3, '0');
+}
+function openAddItemModal() {
+    if (currentUser.role !== 'supervisor' && currentUser.role !== 'admin') {
+        showNotification('Only supervisors and admins can add ingredients.', 'error');
+        return;
+    }
+    
+    editingId = null;
+    const modal = document.getElementById('itemModal');
+    const modalTitle = document.getElementById('modalTitle');
+    
+    modalTitle.textContent = 'Add New Ingredient';
+    resetItemForm();
+    modal.style.display = 'flex';
+}
+
+function editItem(itemId) {
+    if (currentUser.role !== 'supervisor' && currentUser.role !== 'admin') {
+        showNotification('Only supervisors and admins can edit ingredients.', 'error');
+        return;
+    }
+    
+    const ingredient = ingredients.find(ing => ing.id === itemId);
+    if (!ingredient) {
+        showNotification('Ingredient not found.', 'error');
+        return;
+    }
+    
+    editingId = itemId;
+    const modal = document.getElementById('itemModal');
+    const modalTitle = document.getElementById('modalTitle');
+    
+    modalTitle.textContent = 'Edit Ingredient';
+    populateItemForm(ingredient);
+    modal.style.display = 'flex';
+}
+
+function deleteItem(itemId) {
+    if (currentUser.role !== 'supervisor' && currentUser.role !== 'admin') {
+        showNotification('Only supervisors and admins can delete ingredients.', 'error');
+        return;
+    }
+    
+    const ingredient = ingredients.find(ing => ing.id === itemId);
+    if (!ingredient) {
+        showNotification('Ingredient not found.', 'error');
+        return;
+    }
+    
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmMessage = document.getElementById('confirmMessage');
+    const confirmBtn = document.getElementById('confirmBtn');
+    
+    confirmMessage.textContent = `Are you sure you want to delete "${ingredient.name}"? This action cannot be undone.`;
+    confirmBtn.onclick = () => {
+        performDelete(itemId);
+        closeConfirmModal();
+    };
+    
+    confirmModal.style.display = 'flex';
+}
+
+function performDelete(itemId) {
+    const index = ingredients.findIndex(ing => ing.id === itemId);
+    if (index !== -1) {
+        const deletedIngredient = ingredients[index];
+        ingredients.splice(index, 1);
+        
+        // Save to localStorage
+        localStorage.setItem('ingredients', JSON.stringify(ingredients));
+        
+        showNotification(`Ingredient "${deletedIngredient.name}" deleted successfully.`, 'success');
+        displayIngredients();
+        updateStatistics();
+    }
+}
+
+function closeModal() {
+    const modal = document.getElementById('itemModal');
+    modal.style.display = 'none';
+    editingId = null;
+    resetItemForm();
+}
+
+function closeConfirmModal() {
+    const confirmModal = document.getElementById('confirmModal');
+    confirmModal.style.display = 'none';
+}
+
+function resetItemForm() {
+    const form = document.getElementById('itemForm');
+    if (form) {
+        form.reset();
+        const today = new Date().toISOString().split('T')[0];
+        const expiryDate = document.getElementById('expiryDate');
+        if (expiryDate) {
+            expiryDate.min = today;
+        }
+    }
+}
+
+function populateItemForm(ingredient) {
+    // Populate form fields with ingredient data
+    const fields = {
+        'itemName': ingredient.name,
+        'itemType': ingredient.category,
+        'location': ingredient.storageLocation,
+        'quantity': ingredient.quantity,
+        'unit': ingredient.unit,
+        'minStockLevel': ingredient.minStock,
+        'supplier': ingredient.supplierName, // Use supplierName for the dropdown
+        'expiryDate': ingredient.expiryDate
+    };
+    
+    Object.keys(fields).forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.value = fields[fieldId];
+        }
+    });
+}
+function searchItems() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    filteredIngredients = ingredients.filter(ingredient =>
+        ingredient.name.toLowerCase().includes(searchTerm) ||
+        ingredient.id.toLowerCase().includes(searchTerm) ||
+        ingredient.supplierName.toLowerCase().includes(searchTerm) ||
+        ingredient.category.toLowerCase().includes(searchTerm)
+    );
+    displayIngredients();
+}
+
+function filterItems() {
+    const supplierFilter = document.getElementById('filterSupplier').value;
+    const locationFilter = document.getElementById('filterLocation').value;
+    const statusFilter = document.getElementById('filterStatus').value;
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    
+    filteredIngredients = ingredients.filter(ingredient => {
+        const matchesSupplier = !supplierFilter || ingredient.supplierName === supplierFilter;
+        const matchesLocation = !locationFilter || ingredient.storageLocation === locationFilter;
+        const matchesStatus = !statusFilter || getIngredientStatus(ingredient) === statusFilter;
+        const matchesSearch = !searchTerm || 
+            ingredient.name.toLowerCase().includes(searchTerm) ||
+            ingredient.id.toLowerCase().includes(searchTerm) ||
+            ingredient.supplierName.toLowerCase().includes(searchTerm) ||
+            ingredient.category.toLowerCase().includes(searchTerm);
+        
+        return matchesSupplier && matchesLocation && matchesStatus && matchesSearch;
+    });
+    
+    displayFilteredIngredients();
+}
+
+function setupSearchAndFilters() {
+    // Initialize filtered ingredients
+    filteredIngredients = [...ingredients];
+    
+    // Setup search input with debouncing
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                filterItems();
+            } else {
+                // Debounced search
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(filterItems, 300);
+            }
+        });
+    }
+    
+    // Setup filter dropdowns
+    const filterSupplier = document.getElementById('filterSupplier');
+    const filterLocation = document.getElementById('filterLocation');
+    const filterStatus = document.getElementById('filterStatus');
+    
+    if (filterSupplier) {
+        filterSupplier.addEventListener('change', filterItems);
+    }
+    if (filterLocation) {
+        filterLocation.addEventListener('change', filterItems);
+    }
+    if (filterStatus) {
+        filterStatus.addEventListener('change', filterItems);
+    }
+}
+
+function displayFilteredIngredients() {
+    const tableBody = document.getElementById('inventoryTableBody');
+    
+    if (!tableBody) {
+        console.error('Table body not found');
+        return;
+    }
+    
+    // Clear existing content
+    tableBody.innerHTML = '';
+    
+    if (filteredIngredients.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: #666; padding: 2rem;">No ingredients found</td></tr>';
+        return;
+    }
+    
+    // Sort by name
+    filteredIngredients.sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Populate table with filtered ingredients
+    filteredIngredients.forEach(ingredient => {
+        const row = document.createElement('tr');
+        const status = getIngredientStatus(ingredient);
+        
+        row.setAttribute('data-category', ingredient.category);
+        row.setAttribute('data-supplier', ingredient.supplierName);
+        row.setAttribute('data-location', ingredient.storageLocation);
+        row.setAttribute('data-status', status);
+        
+        row.innerHTML = `
+            <td>${ingredient.id}</td>
+            <td>${ingredient.name}</td>
+            <td>${getCategoryDisplayName(ingredient.category)}</td>
+            <td>${ingredient.supplierName}</td>
+            <td>${ingredient.quantity}</td>
+            <td>${ingredient.unit}</td>
+            <td>${ingredient.minStock}</td>
+            <td>${formatDate(ingredient.expiryDate)}</td>
+            <td><span class="status-badge ${status}">${getStatusDisplayName(status)}</span></td>
+            <td>
+                <button onclick="editItem('${ingredient.id}')" class="action-btn edit" title="Edit Ingredient">✏️</button>
+                <button onclick="deleteItem('${ingredient.id}')" class="action-btn delete" title="Delete Ingredient">🗑️</button>
+            </td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
+    
+    // Update statistics after filtering
+    updateStatistics();
+}
+
+function getIngredientStatus(ingredient) {
+    const today = new Date();
+    const expiryDate = new Date(ingredient.expiryDate);
+    const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+    
+    if (daysUntilExpiry < 0) {
+        return 'expired';
+    } else if (daysUntilExpiry <= 7) {
+        return 'expiring';
+    } else if (ingredient.quantity <= ingredient.minStock) {
+        return 'low';
+    } else {
+        return 'good';
+    }
+}
+
+function getCategoryDisplayName(category) {
+    const categories = {
+        'flour_grains': 'Flour & Grains',
+        'sweeteners': 'Sweeteners',
+        'dairy': 'Dairy',
+        'flavorings': 'Flavorings',
+        'leavening': 'Leavening Agents',
+        'oil': 'Oils & Fats',
+        'seasoning': 'Seasonings',
+        'filling': 'Fillings',
+        'flour': 'Flour & Grains',
+        'other': 'Other'
+    };
+    return categories[category] || category;
+}
+
+function getStatusDisplayName(status) {
+    const statusNames = {
+        'good': 'Good',
+        'low': 'Low Stock',
+        'expired': 'Expired',
+        'expiring': 'Expiring Soon',
+        'critical': 'Critical'
+    };
+    return statusNames[status] || status;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
 function showNotification(message, type) {
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 4px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        animation: slideInRight 0.3s ease-out;
+    `;
+    
+    if (type === 'success') {
+        notification.style.backgroundColor = '#4CAF50';
+    } else if (type === 'error') {
+        notification.style.backgroundColor = '#f44336';
+    } else if (type === 'warning') {
+        notification.style.backgroundColor = '#ff9800';
+    }
     
     document.body.appendChild(notification);
     
     setTimeout(() => {
-        notification.remove();
+        notification.style.animation = 'slideOutRight 0.3s ease-in';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
     }, 4000);
 }
 
-// Close modal when clicking outside
+// Close modal when clicking outside and setup additional event listeners
 window.onclick = function(event) {
-    const modal = document.getElementById('deleteModal');
-    if (event.target === modal) {
-        closeDeleteModal();
+    const itemModal = document.getElementById('itemModal');
+    const confirmModal = document.getElementById('confirmModal');
+    
+    if (event.target === itemModal) {
+        closeModal();
+    }
+    
+    if (event.target === confirmModal) {
+        closeConfirmModal();
     }
 }
+
+// Additional search setup for real-time functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                filterItems();
+            } else {
+                // Debounced search
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(filterItems, 300);
+            }
+        });
+    }
+});

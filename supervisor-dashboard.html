@@ -15,7 +15,7 @@
                     <span>Supervisor Dashboard</span>
                 </div>
                 <div class="user-info">
-                    <span class="role-badge supervisor">Supervisor</span>
+                    <p style="display: none;"><span class="role-badge supervisor">Supervisor</span></p>
                     <span id="welcomeMessage">Welcome, Admin!</span>
                     <button id="logoutBtn" class="logout-btn">Logout</button>
                 </div>
@@ -28,7 +28,7 @@
                 <section class="kpi-section">
                     <h2>Key Performance Indicators</h2>
                     <div class="kpi-grid">
-                        <div class="kpi-card revenue">
+                        <div class="kpi-card revenue" onclick="showKpiModal('revenue')" style="cursor: pointer;">
                             <div class="kpi-icon">💰</div>
                             <div class="kpi-info">
                                 <h3>Total Revenue</h3>
@@ -37,7 +37,7 @@
                             </div>
                         </div>
                         
-                        <div class="kpi-card profit">
+                        <div class="kpi-card profit" onclick="showKpiModal('profit')" style="cursor: pointer;">
                             <div class="kpi-icon">📈</div>
                             <div class="kpi-info">
                                 <h3>Net Profit</h3>
@@ -46,7 +46,7 @@
                             </div>
                         </div>
                         
-                        <div class="kpi-card wastage">
+                        <div class="kpi-card wastage" onclick="showKpiModal('wastage')" style="cursor: pointer;">
                             <div class="kpi-icon">🗑️</div>
                             <div class="kpi-info">
                                 <h3>Wastage Cost</h3>
@@ -55,7 +55,7 @@
                             </div>
                         </div>
                         
-                        <div class="kpi-card efficiency">
+                        <div class="kpi-card efficiency" onclick="showKpiModal('efficiency')" style="cursor: pointer;">
                             <div class="kpi-icon">⚡</div>
                             <div class="kpi-info">
                                 <h3>Efficiency</h3>
@@ -88,8 +88,8 @@
                         </div>
                         
                         <div class="stock-alerts">
-                            <h3>Stock Alerts</h3>
-                            <div class="alert-list">
+                            <h3>Stock Alerts <button onclick="showStockAlertsModal()" class="expand-btn" title="View Details">🔍</button></h3>
+                            <div class="alert-list" onclick="showStockAlertsModal()" style="cursor: pointer;">
                                 <div class="alert-item critical">
                                     <span class="alert-icon">🔴</span>
                                     <div class="alert-info">
@@ -127,12 +127,12 @@
                             <h3>Monthly Sales Trend</h3>
                             <div class="chart-placeholder">
                                 <div class="chart-bars">
-                                    <div class="bar" style="height: 60%;" data-value="$18.5k"></div>
-                                    <div class="bar" style="height: 75%;" data-value="$22.3k"></div>
-                                    <div class="bar" style="height: 85%;" data-value="$28.1k"></div>
-                                    <div class="bar" style="height: 90%;" data-value="$31.2k"></div>
-                                    <div class="bar" style="height: 100%;" data-value="$35.8k"></div>
-                                    <div class="bar" style="height: 95%;" data-value="$33.1k"></div>
+                                    <div class="bar clickable-bar" style="height: 60%;" data-value="$18.5k" data-month="January" data-growth="+5.2%" onclick="showChartDetails(this)"></div>
+                                    <div class="bar clickable-bar" style="height: 75%;" data-value="$22.3k" data-month="February" data-growth="+8.1%" onclick="showChartDetails(this)"></div>
+                                    <div class="bar clickable-bar" style="height: 85%;" data-value="$28.1k" data-month="March" data-growth="+12.4%" onclick="showChartDetails(this)"></div>
+                                    <div class="bar clickable-bar" style="height: 90%;" data-value="$31.2k" data-month="April" data-growth="+15.2%" onclick="showChartDetails(this)"></div>
+                                    <div class="bar clickable-bar" style="height: 100%;" data-value="$35.8k" data-month="May" data-growth="+18.7%" onclick="showChartDetails(this)"></div>
+                                    <div class="bar clickable-bar" style="height: 95%;" data-value="$33.1k" data-month="June" data-growth="+16.3%" onclick="showChartDetails(this)"></div>
                                 </div>
                                 <div class="chart-labels">
                                     <span>Jan</span>
@@ -146,8 +146,8 @@
                         </div>
                         
                         <div class="top-products">
-                            <h3>Top Selling Products</h3>
-                            <div class="product-list">
+                            <h3>Top Selling Products <button onclick="showTopProductsModal()" class="expand-btn" title="View Details">🔍</button></h3>
+                            <div class="product-list" onclick="showTopProductsModal()" style="cursor: pointer;">
                                 <div class="product-item">
                                     <span class="product-rank">1</span>
                                     <div class="product-info">
@@ -248,6 +248,173 @@
                 </section>
             </div>
         </main>
+    </div>
+    
+    <!-- Chart Details Popup Modal -->
+    <div id="chartModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Sales Details</h3>
+                <button onclick="closeChartModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="chart-details">
+                    <div class="detail-item">
+                        <label>Month:</label>
+                        <span id="modalMonth">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Sales Amount:</label>
+                        <span id="modalAmount">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Growth:</label>
+                        <span id="modalGrowth">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Top Products:</label>
+                        <span id="modalProducts">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Revenue Source:</label>
+                        <span id="modalSource">-</span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button onclick="viewDetailedReport()" class="detail-btn">View Detailed Report</button>
+                    <button onclick="closeChartModal()" class="close-detail-btn">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Alerts Details Modal -->
+    <div id="stockAlertsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header alert-modal-header">
+                <h3>🚨 Stock Alerts Details</h3>
+                <button onclick="closeStockAlertsModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert-details">
+                    <div class="alert-section critical-section">
+                        <h4>🔴 Critical Stock Levels</h4>
+                        <div class="detailed-alert-item">
+                            <div class="item-info">
+                                <strong>All Purpose Flour</strong>
+                                <p>Current Stock: 12 kg | Minimum Required: 50 kg</p>
+                                <p>Location: Factory Storage A | Supplier: Golden Wheat Co.</p>
+                                <p class="urgency">⚠️ URGENT: Restock needed immediately</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert-section warning-section">
+                        <h4>🟡 Low Stock Warnings</h4>
+                        <div class="detailed-alert-item">
+                            <div class="item-info">
+                                <strong>Instant Dry Yeast</strong>
+                                <p>Current Stock: 3.2 kg | Minimum Required: 3 kg</p>
+                                <p>Location: Factory Storage B | Supplier: Sweet Supply Ltd.</p>
+                                <p class="notice">📅 Consider restocking within 2-3 days</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert-section expiring-section">
+                        <h4>⏰ Expiring Items</h4>
+                        <div class="detailed-alert-item">
+                            <div class="item-info">
+                                <strong>Char Siew (Fresh)</strong>
+                                <p>Expires: Tomorrow (July 25, 2025)</p>
+                                <p>Current Stock: 2.5 kg | Location: Outlet Refrigerator</p>
+                                <p class="action">🍽️ Priority use in today's production</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button onclick="openInventoryManagement()" class="action-btn">Manage Inventory</button>
+                    <button onclick="closeStockAlertsModal()" class="close-btn-modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products Details Modal -->
+    <div id="topProductsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header products-modal-header">
+                <h3>🏆 Top Selling Products Details</h3>
+                <button onclick="closeTopProductsModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="products-details">
+                    <div class="product-detail-section">
+                        <div class="product-detail-item rank-1">
+                            <div class="rank-badge">1st</div>
+                            <div class="product-detail-info">
+                                <h4>🥟 Classic Pau</h4>
+                                <div class="product-stats">
+                                    <p><strong>Units Sold:</strong> 1,450 pieces</p>
+                                    <p><strong>Revenue Generated:</strong> $5,075</p>
+                                    <p><strong>Average Price:</strong> $3.50 per piece</p>
+                                    <p><strong>Growth:</strong> +15.2% vs last month</p>
+                                    <p><strong>Profit Margin:</strong> 65%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="product-detail-item rank-2">
+                            <div class="rank-badge">2nd</div>
+                            <div class="product-detail-info">
+                                <h4>🥩 Char Siew Pau</h4>
+                                <div class="product-stats">
+                                    <p><strong>Units Sold:</strong> 980 pieces</p>
+                                    <p><strong>Revenue Generated:</strong> $4,410</p>
+                                    <p><strong>Average Price:</strong> $4.50 per piece</p>
+                                    <p><strong>Growth:</strong> +12.8% vs last month</p>
+                                    <p><strong>Profit Margin:</strong> 68%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="product-detail-item rank-3">
+                            <div class="rank-badge">3rd</div>
+                            <div class="product-detail-info">
+                                <h4>🌸 Lotus Bao</h4>
+                                <div class="product-stats">
+                                    <p><strong>Units Sold:</strong> 720 pieces</p>
+                                    <p><strong>Revenue Generated:</strong> $3,600</p>
+                                    <p><strong>Average Price:</strong> $5.00 per piece</p>
+                                    <p><strong>Growth:</strong> +8.9% vs last month</p>
+                                    <p><strong>Profit Margin:</strong> 72%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button onclick="openSalesAnalytics()" class="action-btn">View Full Analytics</button>
+                    <button onclick="closeTopProductsModal()" class="close-btn-modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Details Modal -->
+    <div id="kpiModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header kpi-modal-header">
+                <h3 id="kpiModalTitle">📊 Performance Details</h3>
+                <button onclick="closeKpiModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="kpi-details" id="kpiDetailsContent">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+                <div class="modal-actions">
+                    <button onclick="generateReport()" class="action-btn">Generate Full Report</button>
+                    <button onclick="closeKpiModal()" class="close-btn-modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
     
     <script src="supervisor-dashboard.js"></script>

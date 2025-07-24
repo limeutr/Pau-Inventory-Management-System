@@ -27,7 +27,7 @@
                     <span>Report Generation</span>
                 </div>
                 <div class="user-info">
-                    <span class="role-badge" id="userRoleBadge">Admin</span>
+                    <p style="display: none;"><span class="role-badge" id="userRoleBadge">Admin</span></p>
                     <span id="welcomeMessage">Welcome, Admin!</span>
                     <button onclick="goBackToDashboard()" class="back-btn">Back to Dashboard</button>
                     <button id="logoutBtn" class="logout-btn">Logout</button>
@@ -41,24 +41,28 @@
                 <div class="controls-header">
                     <h2>📊 Report Generation</h2>
                     <div class="controls-actions">
-                        <div class="search-box">
-                            <input type="text" id="searchReports" placeholder="Search reports..." class="search-input">
-                            <button onclick="searchReports()" class="search-btn">�</button>
+                        <div class="controls-left">
+                            <select id="filterCategory" class="filter-select" onchange="filterReports()">
+                                <option value="">All Categories</option>
+                                <option value="sales">PAU Sales Reports</option>
+                                <option value="inventory">Ingredient Reports</option>
+                                <option value="financial">Supplier & Cost Reports</option>
+                                <option value="operational">Production Reports</option>
+                            </select>
+                            <select id="filterStatus" class="filter-select" onchange="filterReports()">
+                                <option value="">All Status</option>
+                                <option value="completed">Completed</option>
+                                <option value="pending">Pending</option>
+                                <option value="failed">Failed</option>
+                            </select>
+                            <div class="search-box">
+                                <input type="text" id="searchReports" placeholder="Search reports..." class="search-input">
+                                <button onclick="searchReports()" class="search-btn">🔍</button>
+                            </div>
                         </div>
-                        <select id="filterCategory" class="filter-select" onchange="filterReports()">
-                            <option value="">All Categories</option>
-                            <option value="sales">PAU Sales Reports</option>
-                            <option value="inventory">Ingredient Reports</option>
-                            <option value="financial">Supplier & Cost Reports</option>
-                            <option value="operational">Production Reports</option>
-                        </select>
-                        <select id="filterStatus" class="filter-select" onchange="filterReports()">
-                            <option value="">All Status</option>
-                            <option value="completed">Completed</option>
-                            <option value="pending">Pending</option>
-                            <option value="failed">Failed</option>
-                        </select>
-                        <button onclick="showQuickReportModal()" class="add-btn">+ Quick Report</button>
+                        <div class="controls-right">
+                            <button onclick="showQuickReportModal()" class="add-btn">+ Quick Report</button>
+                        </div>
                     </div>
                 </div>
             </section>

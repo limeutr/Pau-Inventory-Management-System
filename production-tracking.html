@@ -15,7 +15,6 @@
                     <span>Production Tracking</span>
                 </div>
                 <div class="user-info">
-                    <span class="role-badge" id="userRoleBadge">Admin</span>
                     <span id="welcomeMessage">Welcome, Admin!</span>
                     <button onclick="goBackToDashboard()" class="back-btn">Back to Dashboard</button>
                     <button id="logoutBtn" class="logout-btn">Logout</button>
@@ -99,6 +98,26 @@
                             <div class="form-group">
                                 <label for="entryTime">Time *</label>
                                 <input type="time" id="entryTime" name="entryTime" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row" id="inboundSource" style="display: grid;">
+                            <div class="form-group">
+                                <label for="sourceOutlet">Source Outlet *</label>
+                                <select id="sourceOutlet" name="sourceOutlet" required>
+                                    <option value="">Select source...</option>
+                                    <option value="main_production_kitchen">Main Production Kitchen</option>
+                                    <option value="pau_central_outlet">PAU Central Outlet</option>
+                                    <option value="downtown_pau_branch">Downtown PAU Branch</option>
+                                    <option value="shopping_mall_kiosk">Shopping Mall Kiosk</option>
+                                    <option value="airport_food_court">Airport Food Court</option>
+                                    <option value="university_campus_branch">University Campus Branch</option>
+                                    <option value="external_supplier">External Supplier</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="inboundBatchNumber">Batch Number</label>
+                                <input type="text" id="inboundBatchNumber" name="inboundBatchNumber" placeholder="Optional batch reference">
                             </div>
                         </div>
                         
