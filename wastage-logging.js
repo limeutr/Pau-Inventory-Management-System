@@ -1006,7 +1006,6 @@ function displayWastageHistory() {
                 'mall_kiosk': 'Mall Kiosk',
                 'airport_branch': 'Airport Branch'
             };
-            locationDisplay += `<br><small>${outletNames[entry.outletLocation]}</small>`;
         }
         
         // Format reason

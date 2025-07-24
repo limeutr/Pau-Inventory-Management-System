@@ -117,6 +117,7 @@
                                 <th>Requested By</th>
                                 <th>Date</th>
                                 <th>Actions</th>
+                                <th id="approvalHeader" style="display: none;">Approval</th>
                             </tr>
                         </thead>
                         <tbody id="requestsTableBody">
@@ -220,7 +221,7 @@
             <div class="modal-actions">
                 <button onclick="closeViewModal()" class="cancel-btn">Close</button>
                 <div id="adminActions" style="display: none;">
-                    <button onclick="approveRequest()" class="approve-btn">Approve</button>
+                    <button onclick="approveRequest()" class="approve-btn" style="margin-right: 10px;">Approve</button>
                     <button onclick="rejectRequest()" class="reject-btn">Reject</button>
                 </div>
             </div>

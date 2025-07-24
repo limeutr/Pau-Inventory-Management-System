@@ -271,9 +271,14 @@ function displayIssues() {
                         Edit
                     </button>
                 ` : ''}
-                ${(currentUser.role === 'supervisor' || currentUser.role === 'admin') && issue.status !== 'closed' ? `
+                ${(currentUser.role === 'supervisor' || currentUser.role === 'admin') && issue.status === 'open' ? `
                     <button onclick="updateIssueStatusQuick('${issue.id}', 'in_progress')" class="action-btn progress-btn">
                         Progress
+                    </button>
+                ` : ''}
+                ${(currentUser.role === 'supervisor' || currentUser.role === 'admin') && issue.status === 'in_progress' ? `
+                    <button onclick="updateIssueStatusQuick('${issue.id}', 'resolved')" class="action-btn resolve-btn">
+                        Mark as Resolved
                     </button>
                 ` : ''}
             </td>

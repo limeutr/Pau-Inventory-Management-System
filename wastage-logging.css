@@ -32,21 +32,19 @@ body {
 .header-content {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .logo h1 {
-    color: #667eea;
     font-size: 1.8rem;
     font-weight: 700;
-    margin-bottom: 0.25rem;
+    margin-bottom: 2px;
 }
 
 .logo span {
-    color: #666;
     font-size: 0.9rem;
     font-weight: 500;
     opacity: 0.9;
@@ -597,6 +595,15 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 1rem;
+}
+
+/* Modal form actions styling */
+.modal .form-actions {
+    padding: 1.5rem 2rem 2rem 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 0;
 }
 
 .cancel-btn {

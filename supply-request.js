@@ -68,6 +68,7 @@ function updateUserInfo() {
     const welcomeMessage = document.getElementById('welcomeMessage');
     const roleBadge = document.getElementById('userRoleBadge');
     const viewAllBtn = document.getElementById('viewAllBtn');
+    const approvalHeader = document.getElementById('approvalHeader');
     
     const displayName = currentUser.username.charAt(0).toUpperCase() + currentUser.username.slice(1);
     welcomeMessage.textContent = `Welcome, ${displayName}!`;
@@ -79,12 +80,20 @@ function updateUserInfo() {
         if (viewAllBtn) {
             viewAllBtn.style.display = 'flex';
         }
+        // Show approval column for supervisors and admins
+        if (approvalHeader) {
+            approvalHeader.style.display = 'table-cell';
+        }
     } else {
         roleBadge.textContent = 'Staff';
         roleBadge.className = 'role-badge staff';
         // Hide "View All Requests" button for staff
         if (viewAllBtn) {
             viewAllBtn.style.display = 'none';
+        }
+        // Hide approval column for staff
+        if (approvalHeader) {
+            approvalHeader.style.display = 'none';
         }
     }
 }
@@ -258,9 +267,10 @@ function displayRequests() {
     tableBody.innerHTML = '';
     
     if (filteredRequests.length === 0) {
+        const colspan = (currentUser.role === 'supervisor' || currentUser.role === 'admin') ? '9' : '8';
         tableBody.innerHTML = `
             <tr>
-                <td colspan="8" style="text-align: center; padding: 40px; color: #666;">
+                <td colspan="${colspan}" style="text-align: center; padding: 40px; color: #666;">
                     No supply requests found
                 </td>
             </tr>
@@ -297,12 +307,16 @@ function displayRequests() {
                         Edit
                     </button>
                 ` : ''}
-                ${(currentUser.role === 'supervisor' || currentUser.role === 'admin') && request.status === 'pending' ? `
+            </td>
+            ${(currentUser.role === 'supervisor' || currentUser.role === 'admin') ? `
+            <td class="approval-section">
+                ${request.status === 'pending' ? `
                     <button onclick="approveRequestQuick('${request.id}')" class="action-btn approve-btn">
                         Approve
                     </button>
                 ` : ''}
             </td>
+            ` : ''}
         `;
         
         tableBody.appendChild(row);

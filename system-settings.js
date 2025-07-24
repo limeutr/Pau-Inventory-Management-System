@@ -318,13 +318,8 @@ function handleSettingChange(event) {
     settingsState.hasUnsavedChanges = true;
     updateAutoSaveStatus();
     
-    // Auto-save after 2 seconds of inactivity
-    clearTimeout(settingsState.autoSaveTimer);
-    if (settingsState.autoSaveEnabled) {
-        settingsState.autoSaveTimer = setTimeout(() => {
-            saveSettings(true); // Auto-save
-        }, 2000);
-    }
+    // Schedule auto-save after inactivity
+    scheduleAutoSave();
 }
 
 function startAutoSave() {
@@ -334,6 +329,16 @@ function startAutoSave() {
             saveSettings(true);
         }
     }, 30000);
+}
+
+function scheduleAutoSave() {
+    // Auto-save after 2 seconds of inactivity
+    clearTimeout(settingsState.autoSaveTimer);
+    if (settingsState.autoSaveEnabled) {
+        settingsState.autoSaveTimer = setTimeout(() => {
+            saveSettings(true); // Auto-save
+        }, 2000);
+    }
 }
 
 // Category Management
@@ -579,13 +584,63 @@ function updateLastSavedDisplay() {
 
 function updateAutoSaveStatus() {
     const statusElement = document.getElementById('autoSaveStatus');
-    if (settingsState.hasUnsavedChanges) {
+    const toggleButton = document.getElementById('autoSaveToggle');
+    
+    if (!settingsState.autoSaveEnabled) {
+        statusElement.textContent = 'Auto-save: Off';
+        statusElement.style.color = '#d32f2f';
+        statusElement.className = 'auto-save disabled';
+        if (toggleButton) {
+            toggleButton.className = 'auto-save-toggle disabled';
+            toggleButton.innerHTML = '⏸️';
+            toggleButton.title = 'Auto Save is OFF - Click to enable';
+        }
+    } else if (settingsState.hasUnsavedChanges) {
         statusElement.textContent = 'Auto-save: Pending';
         statusElement.style.color = '#ff9800';
+        statusElement.className = 'auto-save enabled';
+        if (toggleButton) {
+            toggleButton.className = 'auto-save-toggle enabled';
+            toggleButton.innerHTML = '🔄';
+            toggleButton.title = 'Auto Save is ON - Click to disable';
+        }
     } else {
         statusElement.textContent = 'Auto-save: On';
         statusElement.style.color = '#4CAF50';
+        statusElement.className = 'auto-save enabled';
+        if (toggleButton) {
+            toggleButton.className = 'auto-save-toggle enabled';
+            toggleButton.innerHTML = '🔄';
+            toggleButton.title = 'Auto Save is ON - Click to disable';
+        }
     }
+}
+
+// Auto Save Toggle Function
+function toggleAutoSave() {
+    const wasEnabled = settingsState.autoSaveEnabled;
+    settingsState.autoSaveEnabled = !settingsState.autoSaveEnabled;
+    
+    // Clear any existing auto save timer
+    if (settingsState.autoSaveTimer) {
+        clearTimeout(settingsState.autoSaveTimer);
+        settingsState.autoSaveTimer = null;
+    }
+    
+    // Update the status display
+    updateAutoSaveStatus();
+    
+    // Show notification
+    const statusMessage = settingsState.autoSaveEnabled ? 'enabled' : 'disabled';
+    showNotification(`Auto-save has been ${statusMessage}`, 'info');
+    
+    // If we're enabling auto save and there are unsaved changes, start the timer
+    if (settingsState.autoSaveEnabled && settingsState.hasUnsavedChanges) {
+        scheduleAutoSave();
+    }
+    
+    // Log the change
+    console.log(`Auto-save ${statusMessage} by user`);
 }
 
 // Export/Import Functions
@@ -987,3 +1042,144 @@ style.textContent = `
 document.head.appendChild(style);
 
 console.log('PAU Inventory System Settings module loaded successfully');
+
+// Supplier Details Data
+const supplierData = {
+    'golden-wheat': {
+        name: 'Golden Wheat Co.',
+        email: 'orders@goldenwheat.com',
+        phone: '+1 (555) 234-5678',
+        address: '123 Wheat Street, Grain City, GC 12345',
+        website: 'https://www.goldenwheat.com',
+        contact: 'Sarah Johnson',
+        deliveryTime: '2-3 days',
+        reliabilityScore: '98%',
+        totalOrders: '234',
+        lastOrder: 'Dec 18, 2024',
+        products: [
+            { name: 'All Purpose Flour', price: '$2.50', unit: 'kg', lastUpdated: 'Dec 15, 2024' },
+            { name: 'Instant Dry Yeast', price: '$10.00', unit: 'kg', lastUpdated: 'Dec 10, 2024' },
+            { name: 'Cooking Oil', price: '$4.50', unit: 'L', lastUpdated: 'Dec 12, 2024' }
+        ]
+    },
+    'sweet-supply': {
+        name: 'Sweet Supply Ltd.',
+        email: 'contact@sweetsupply.com',
+        phone: '+1 (555) 345-6789',
+        address: '456 Sugar Avenue, Sweet Town, ST 23456',
+        website: 'https://www.sweetsupply.com',
+        contact: 'Michael Chen',
+        deliveryTime: '1-2 days',
+        reliabilityScore: '95%',
+        totalOrders: '187',
+        lastOrder: 'Dec 20, 2024',
+        products: [
+            { name: 'Sugar', price: '$1.80', unit: 'kg', lastUpdated: 'Dec 18, 2024' },
+            { name: 'Salt', price: '$1.20', unit: 'kg', lastUpdated: 'Dec 16, 2024' },
+            { name: 'Baking Powder', price: '$1.20', unit: 'kg', lastUpdated: 'Dec 14, 2024' }
+        ]
+    },
+    'filling-co': {
+        name: 'Filling Co.',
+        email: 'sales@fillingco.com',
+        phone: '+1 (555) 456-7890',
+        address: '789 Filling Road, Flavor City, FC 34567',
+        website: 'https://www.fillingco.com',
+        contact: 'Emma Rodriguez',
+        deliveryTime: '3-4 days',
+        reliabilityScore: '92%',
+        totalOrders: '156',
+        lastOrder: 'Dec 16, 2024',
+        products: [
+            { name: 'Char Siew', price: '$12.00', unit: 'kg', lastUpdated: 'Dec 15, 2024' },
+            { name: 'Red Bean Paste', price: '$6.00', unit: 'kg', lastUpdated: 'Dec 13, 2024' },
+            { name: 'Lotus Seed Paste', price: '$8.00', unit: 'kg', lastUpdated: 'Dec 11, 2024' },
+            { name: 'Custard Filling', price: '$7.50', unit: 'kg', lastUpdated: 'Dec 14, 2024' },
+            { name: 'Mushroom & Veg Mix', price: '$6.00', unit: 'kg', lastUpdated: 'Dec 12, 2024' }
+        ]
+    }
+};
+
+// Supplier Modal Functions
+function showSupplierDetails(supplierId) {
+    const supplier = supplierData[supplierId];
+    if (!supplier) return;
+
+    // Populate modal with supplier data
+    document.getElementById('supplierName').textContent = supplier.name;
+    document.getElementById('supplierEmail').textContent = supplier.email;
+    document.getElementById('supplierPhone').textContent = supplier.phone;
+    document.getElementById('supplierAddress').textContent = supplier.address;
+    document.getElementById('supplierWebsite').textContent = supplier.website;
+    document.getElementById('supplierWebsite').href = supplier.website;
+    document.getElementById('supplierContact').textContent = supplier.contact;
+    
+    // Populate performance metrics
+    document.getElementById('deliveryTime').textContent = supplier.deliveryTime;
+    document.getElementById('reliabilityScore').textContent = supplier.reliabilityScore;
+    document.getElementById('totalOrders').textContent = supplier.totalOrders;
+    document.getElementById('lastOrder').textContent = supplier.lastOrder;
+    
+    // Populate products table
+    const tableBody = document.getElementById('supplierProductsTable');
+    tableBody.innerHTML = '';
+    
+    supplier.products.forEach(product => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${product.name}</td>
+            <td>${product.price}</td>
+            <td>${product.unit}</td>
+            <td>${product.lastUpdated}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+    
+    // Show modal
+    const modal = document.getElementById('supplierModal');
+    modal.style.display = 'flex';
+    
+    // Add animation
+    setTimeout(() => {
+        modal.querySelector('.modal-container').classList.add('fade-in');
+    }, 10);
+}
+
+function closeSupplierModal() {
+    const modal = document.getElementById('supplierModal');
+    modal.style.display = 'none';
+    modal.querySelector('.modal-container').classList.remove('fade-in');
+}
+
+function editSupplier() {
+    showNotification('Edit Supplier functionality coming soon!', 'info');
+    // Future implementation: Open supplier edit form
+}
+
+function contactSupplier() {
+    const supplierEmail = document.getElementById('supplierEmail').textContent;
+    const supplierName = document.getElementById('supplierName').textContent;
+    const subject = `Inquiry from PAU Inventory - ${supplierName}`;
+    const body = `Dear ${document.getElementById('supplierContact').textContent},\n\nWe would like to inquire about...\n\nBest regards,\nPAU Inventory Team`;
+    
+    const mailtoLink = `mailto:${supplierEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(mailtoLink);
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    const supplierModal = document.getElementById('supplierModal');
+    if (e.target === supplierModal) {
+        closeSupplierModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const supplierModal = document.getElementById('supplierModal');
+        if (supplierModal && supplierModal.style.display === 'flex') {
+            closeSupplierModal();
+        }
+    }
+});

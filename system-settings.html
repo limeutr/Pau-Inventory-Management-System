@@ -219,16 +219,16 @@
                                 <div class="form-group">
                                     <label>Primary Suppliers:</label>
                                     <div class="supplier-list">
-                                        <div class="supplier-item">
-                                            <strong>Golden Wheat Co.</strong>
+                                        <div class="supplier-item" onclick="showSupplierDetails('golden-wheat')">
+                                            <strong class="supplier-name">Golden Wheat Co.</strong>
                                             <small>All Purpose Flour ($2.50), Instant Dry Yeast ($10.00), Cooking Oil ($4.50)</small>
                                         </div>
-                                        <div class="supplier-item">
-                                            <strong>Sweet Supply Ltd.</strong>
+                                        <div class="supplier-item" onclick="showSupplierDetails('sweet-supply')">
+                                            <strong class="supplier-name">Sweet Supply Ltd.</strong>
                                             <small>Sugar ($1.80), Salt ($1.20), Baking Powder ($1.20)</small>
                                         </div>
-                                        <div class="supplier-item">
-                                            <strong>Filling Co.</strong>
+                                        <div class="supplier-item" onclick="showSupplierDetails('filling-co')">
+                                            <strong class="supplier-name">Filling Co.</strong>
                                             <small>Char Siew ($12.00), Red Bean Paste ($6.00), Lotus Seed Paste ($8.00), Custard Filling ($7.50), Mushroom & Veg Mix ($6.00)</small>
                                         </div>
                                     </div>
@@ -597,7 +597,12 @@
                 <div class="actions-container">
                     <div class="actions-left">
                         <span class="last-saved">Last saved: <span id="lastSavedTime">Never</span></span>
-                        <span class="auto-save" id="autoSaveStatus">Auto-save: On</span>
+                        <div class="auto-save-container">
+                            <span class="auto-save" id="autoSaveStatus">Auto-save: On</span>
+                            <button onclick="toggleAutoSave()" class="auto-save-toggle" id="autoSaveToggle" title="Toggle Auto Save">
+                                🔄
+                            </button>
+                        </div>
                     </div>
                     <div class="actions-right">
                         <button onclick="discardChanges()" class="discard-btn">Discard Changes</button>
@@ -606,6 +611,74 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- Supplier Details Modal -->
+    <div id="supplierModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="supplierModalTitle">📦 Supplier Details</h3>
+                <button class="modal-close" onclick="closeSupplierModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="supplier-details">
+                    <div class="supplier-info">
+                        <h4 id="supplierName">Supplier Name</h4>
+                        <div class="contact-info">
+                            <p><strong>📧 Email:</strong> <span id="supplierEmail">contact@supplier.com</span></p>
+                            <p><strong>📞 Phone:</strong> <span id="supplierPhone">+1 (555) 123-4567</span></p>
+                            <p><strong>📍 Address:</strong> <span id="supplierAddress">123 Business St, City, State</span></p>
+                            <p><strong>🌐 Website:</strong> <a href="#" id="supplierWebsite" target="_blank">www.supplier.com</a></p>
+                            <p><strong>👤 Contact Person:</strong> <span id="supplierContact">John Doe</span></p>
+                        </div>
+                    </div>
+                    <div class="supplier-products">
+                        <h4>📋 Products & Pricing</h4>
+                        <div class="products-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Unit</th>
+                                        <th>Last Updated</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="supplierProductsTable">
+                                    <!-- Products will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="supplier-stats">
+                        <h4>📊 Performance Metrics</h4>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">Delivery Time</span>
+                                <span class="stat-value" id="deliveryTime">2-3 days</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Reliability Score</span>
+                                <span class="stat-value" id="reliabilityScore">95%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Total Orders</span>
+                                <span class="stat-value" id="totalOrders">156</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Last Order</span>
+                                <span class="stat-value" id="lastOrder">Dec 15, 2024</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeSupplierModal()">Close</button>
+                <button class="btn-primary" onclick="editSupplier()">✏️ Edit Supplier</button>
+                <button class="btn-success" onclick="contactSupplier()">📞 Contact</button>
+            </div>
+        </div>
     </div>
 
     <!-- Settings Import Modal -->

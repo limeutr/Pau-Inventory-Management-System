@@ -418,6 +418,33 @@ body {
 }
 
 /* Insights */
+.insights-container {
+    max-height: 400px;
+    overflow-y: auto;
+    background: #fafafa;
+    border-radius: 8px;
+    margin: 0;
+}
+
+/* Custom scrollbar for insights container */
+.insights-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.insights-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.insights-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.insights-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
 .insights-list {
     padding: 20px 25px;
 }
