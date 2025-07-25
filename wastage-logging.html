@@ -31,7 +31,7 @@
                         <div class="stat-icon">🗑️</div>
                         <div class="stat-info">
                             <h3>Today's Wastage</h3>
-                            <p class="stat-number" id="todayWastage">0</p>
+                            <p class="stat-number" id="todayWastage">18.5</p>
                             <span class="stat-label">items</span>
                         </div>
                     </div>
@@ -39,7 +39,7 @@
                         <div class="stat-icon">🏭</div>
                         <div class="stat-info">
                             <h3>Factory Wastage</h3>
-                            <p class="stat-number" id="factoryWastage">0</p>
+                            <p class="stat-number" id="factoryWastage">10.5</p>
                             <span class="stat-label">today</span>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
                         <div class="stat-icon">🏪</div>
                         <div class="stat-info">
                             <h3>Outlet Wastage</h3>
-                            <p class="stat-number" id="outletWastage">0</p>
+                            <p class="stat-number" id="outletWastage">5</p>
                             <span class="stat-label">today</span>
                         </div>
                     </div>
@@ -55,7 +55,7 @@
                         <div class="stat-icon">💰</div>
                         <div class="stat-info">
                             <h3>Total Value Lost</h3>
-                            <p class="stat-number" id="totalValueLost">$0</p>
+                            <p class="stat-number" id="totalValueLost">$30.75</p>
                             <span class="stat-label">today</span>
                         </div>
                     </div>
@@ -83,6 +83,23 @@
                                 <label for="itemSelect">Select Item *</label>
                                 <select id="itemSelect" name="itemSelect" required>
                                     <option value="">Choose an inventory item...</option>
+                                    <option value="INV001">All Purpose Flour (15 kg available)</option>
+                                    <option value="INV002">Sugar (22 kg available)</option>
+                                    <option value="INV003">Instant Dry Yeast (3.2 kg available)</option>
+                                    <option value="INV004">Cooking Oil (8 L available)</option>
+                                    <option value="INV005">Salt (10 kg available)</option>
+                                    <option value="INV006">Baking Powder (2.5 kg available)</option>
+                                    <option value="INV007">Char Siew (3 kg available)</option>
+                                    <option value="INV008">Red Bean Paste (5 kg available)</option>
+                                    <option value="INV009">Lotus Seed Paste (6 kg available)</option>
+                                    <option value="INV010">Custard Filling (4 kg available)</option>
+                                    <option value="INV011">Mushroom & Veg Mix (7 kg available)</option>
+                                    <option value="INV012">Classic Pau (45 pcs available)</option>
+                                    <option value="INV013">Char Siew Pau (32 pcs available)</option>
+                                    <option value="INV014">Nai Wong Bao (20 pcs available)</option>
+                                    <option value="INV015">Red Bean Pau (22 pcs available)</option>
+                                    <option value="INV016">Lotus Bao (20 pcs available)</option>
+                                    <option value="INV017">Vegetarian Bao (35 pcs available)</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -222,7 +239,106 @@
                             </tr>
                         </thead>
                         <tbody id="historyTableBody">
-                            <!-- Dynamic content will be inserted here -->
+                            <tr class="history-row factory">
+                                <td>2025-07-25 09:30:15</td>
+                                <td><span class="location-badge factory">🏭 Factory</span></td>
+                                <td>Classic Pau</td>
+                                <td>8 pcs</td>
+                                <td><span class="reason-badge expired">Expired</span></td>
+                                <td><span class="value-lost">$12.00</span></td>
+                                <td>Sarah Chen</td>
+                                <td>Left overnight, past optimal freshness for sale</td>
+                            </tr>
+                            <tr class="history-row outlet">
+                                <td>2025-07-25 08:45:22</td>
+                                <td><span class="location-badge outlet">🏪 Shopping Mall Kiosk</span></td>
+                                <td>Char Siew Pau</td>
+                                <td>5 pcs</td>
+                                <td><span class="reason-badge damaged">Damaged</span></td>
+                                <td><span class="value-lost">$10.00</span></td>
+                                <td>Mike Rodriguez</td>
+                                <td>Filling leaked during transport - customer complaint</td>
+                            </tr>
+                            <tr class="history-row factory">
+                                <td>2025-07-25 07:15:33</td>
+                                <td><span class="location-badge factory">🏭 Factory</span></td>
+                                <td>All Purpose Flour</td>
+                                <td>2.5 kg</td>
+                                <td><span class="reason-badge contaminated">Contaminated</span></td>
+                                <td><span class="value-lost">$8.75</span></td>
+                                <td>James Liu</td>
+                                <td>Small insects found in storage bag - entire bag discarded</td>
+                            </tr>
+                            <tr class="history-row outlet">
+                                <td>2025-07-24 19:20:45</td>
+                                <td><span class="location-badge outlet">🏪 PAU Central Outlet</span></td>
+                                <td>Nai Wong Bao</td>
+                                <td>12 pcs</td>
+                                <td><span class="reason-badge overproduction">Overproduction</span></td>
+                                <td><span class="value-lost">$18.00</span></td>
+                                <td>Lisa Wang</td>
+                                <td>End of day surplus - unable to sell before closing</td>
+                            </tr>
+                            <tr class="history-row factory">
+                                <td>2025-07-24 16:55:18</td>
+                                <td><span class="location-badge factory">🏭 Factory</span></td>
+                                <td>Red Bean Paste</td>
+                                <td>1.2 kg</td>
+                                <td><span class="reason-badge production_error">Production Error</span></td>
+                                <td><span class="value-lost">$7.20</span></td>
+                                <td>David Kim</td>
+                                <td>Oversweetened batch - texture not meeting quality standards</td>
+                            </tr>
+                            <tr class="history-row outlet">
+                                <td>2025-07-24 15:30:42</td>
+                                <td><span class="location-badge outlet">🏪 Airport Food Court</span></td>
+                                <td>Lotus Bao</td>
+                                <td>6 pcs</td>
+                                <td><span class="reason-badge quality_issues">Quality Issues</span></td>
+                                <td><span class="value-lost">$12.00</span></td>
+                                <td>Emily Zhang</td>
+                                <td>Filling too dry - customer returned after purchase</td>
+                            </tr>
+                            <tr class="history-row factory">
+                                <td>2025-07-24 14:10:55</td>
+                                <td><span class="location-badge factory">🏭 Factory</span></td>
+                                <td>Char Siew</td>
+                                <td>0.8 kg</td>
+                                <td><span class="reason-badge spoiled">Spoiled</span></td>
+                                <td><span class="value-lost">$9.60</span></td>
+                                <td>Tom Foster</td>
+                                <td>Off smell detected during quality check - safety disposal</td>
+                            </tr>
+                            <tr class="history-row outlet">
+                                <td>2025-07-24 13:25:33</td>
+                                <td><span class="location-badge outlet">🏪 University Campus Branch</span></td>
+                                <td>Vegetarian Bao</td>
+                                <td>4 pcs</td>
+                                <td><span class="reason-badge filling_leak">Filling Leakage</span></td>
+                                <td><span class="value-lost">$6.00</span></td>
+                                <td>Alex Thompson</td>
+                                <td>Wrapping issue during steaming - filling leaked out</td>
+                            </tr>
+                            <tr class="history-row factory">
+                                <td>2025-07-24 11:40:12</td>
+                                <td><span class="location-badge factory">🏭 Factory</span></td>
+                                <td>Sugar</td>
+                                <td>1.5 kg</td>
+                                <td><span class="reason-badge equipment_failure">Equipment Failure</span></td>
+                                <td><span class="value-lost">$4.50</span></td>
+                                <td>Maria Santos</td>
+                                <td>Mixer malfunction caused sugar to clump and burn</td>
+                            </tr>
+                            <tr class="history-row outlet">
+                                <td>2025-07-23 18:45:28</td>
+                                <td><span class="location-badge outlet">🏪 Downtown PAU Branch</span></td>
+                                <td>Classic Pau</td>
+                                <td>15 pcs</td>
+                                <td><span class="reason-badge expired">Expired</span></td>
+                                <td><span class="value-lost">$22.50</span></td>
+                                <td>Robert Lee</td>
+                                <td>End of shelf life - standard disposal protocol</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

@@ -30,7 +30,7 @@
                         <div class="stat-icon">📥</div>
                         <div class="stat-info">
                             <h3>Today's Inbound</h3>
-                            <p class="stat-number" id="todayInbound">0</p>
+                            <p class="stat-number" id="todayInbound">4</p>
                             <span class="stat-label">entries</span>
                         </div>
                     </div>
@@ -38,7 +38,7 @@
                         <div class="stat-icon">📤</div>
                         <div class="stat-info">
                             <h3>Today's Outbound</h3>
-                            <p class="stat-number" id="todayOutbound">0</p>
+                            <p class="stat-number" id="todayOutbound">1</p>
                             <span class="stat-label">entries</span>
                         </div>
                     </div>
@@ -46,7 +46,7 @@
                         <div class="stat-icon">📊</div>
                         <div class="stat-info">
                             <h3>Total Production</h3>
-                            <p class="stat-number" id="totalProduction">0</p>
+                            <p class="stat-number" id="totalProduction">125</p>
                             <span class="stat-label">items today</span>
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                         <div class="stat-icon">🚛</div>
                         <div class="stat-info">
                             <h3>Items Shipped</h3>
-                            <p class="stat-number" id="itemsShipped">0</p>
+                            <p class="stat-number" id="itemsShipped">35</p>
                             <span class="stat-label">to outlets</span>
                         </div>
                     </div>
@@ -222,7 +222,106 @@
                             </tr>
                         </thead>
                         <tbody id="historyTableBody">
-                            <!-- Dynamic content will be inserted here -->
+                            <tr class="history-row inbound">
+                                <td>2025-07-25 08:15:23</td>
+                                <td><span class="type-badge inbound">📥 Inbound</span></td>
+                                <td>Classic Pau</td>
+                                <td>60 pcs</td>
+                                <td>Main Production Kitchen</td>
+                                <td>BATCH-CP-2025-001</td>
+                                <td>Sarah Chen</td>
+                                <td>Morning production batch - fresh from steamer</td>
+                            </tr>
+                            <tr class="history-row inbound">
+                                <td>2025-07-25 07:45:12</td>
+                                <td><span class="type-badge inbound">📥 Inbound</span></td>
+                                <td>All Purpose Flour</td>
+                                <td>25 kg</td>
+                                <td>External Supplier</td>
+                                <td>GLW-FL-789456</td>
+                                <td>Mike Rodriguez</td>
+                                <td>Emergency delivery from Golden Wheat Co.</td>
+                            </tr>
+                            <tr class="history-row outbound">
+                                <td>2025-07-25 07:30:45</td>
+                                <td><span class="type-badge outbound">📤 Outbound</span></td>
+                                <td>Char Siew Pau</td>
+                                <td>35 pcs</td>
+                                <td>PAU Central Outlet</td>
+                                <td>BATCH-CSP-2025-002</td>
+                                <td>Lisa Wang</td>
+                                <td>Morning delivery for peak hours</td>
+                            </tr>
+                            <tr class="history-row inbound">
+                                <td>2025-07-25 06:50:33</td>
+                                <td><span class="type-badge inbound">📥 Inbound</span></td>
+                                <td>Nai Wong Bao</td>
+                                <td>40 pcs</td>
+                                <td>Main Production Kitchen</td>
+                                <td>BATCH-NWB-2025-003</td>
+                                <td>James Liu</td>
+                                <td>Early morning custard bao production</td>
+                            </tr>
+                            <tr class="history-row outbound">
+                                <td>2025-07-24 18:45:21</td>
+                                <td><span class="type-badge outbound">📤 Outbound</span></td>
+                                <td>Red Bean Pau</td>
+                                <td>25 pcs</td>
+                                <td>Shopping Mall Kiosk</td>
+                                <td>BATCH-RBP-2025-004</td>
+                                <td>David Kim</td>
+                                <td>End of day delivery for evening sales</td>
+                            </tr>
+                            <tr class="history-row inbound">
+                                <td>2025-07-24 16:30:15</td>
+                                <td><span class="type-badge inbound">📥 Inbound</span></td>
+                                <td>Lotus Bao</td>
+                                <td>30 pcs</td>
+                                <td>Main Production Kitchen</td>
+                                <td>BATCH-LB-2025-005</td>
+                                <td>Emily Zhang</td>
+                                <td>Afternoon specialty bao batch</td>
+                            </tr>
+                            <tr class="history-row outbound">
+                                <td>2025-07-24 15:20:08</td>
+                                <td><span class="type-badge outbound">📤 Outbound</span></td>
+                                <td>Vegetarian Bao</td>
+                                <td>20 pcs</td>
+                                <td>University Campus Branch</td>
+                                <td>BATCH-VB-2025-006</td>
+                                <td>Tom Foster</td>
+                                <td>Special order for campus vegetarian week</td>
+                            </tr>
+                            <tr class="history-row inbound">
+                                <td>2025-07-24 14:10:42</td>
+                                <td><span class="type-badge inbound">📥 Inbound</span></td>
+                                <td>Char Siew</td>
+                                <td>8 kg</td>
+                                <td>External Supplier</td>
+                                <td>FC-CS-445789</td>
+                                <td>Alex Thompson</td>
+                                <td>Fresh char siew delivery from Filling Co.</td>
+                            </tr>
+                            <tr class="history-row outbound">
+                                <td>2025-07-24 13:55:30</td>
+                                <td><span class="type-badge outbound">📤 Outbound</span></td>
+                                <td>Classic Pau</td>
+                                <td>50 pcs</td>
+                                <td>Airport Food Court</td>
+                                <td>BATCH-CP-2025-007</td>
+                                <td>Maria Santos</td>
+                                <td>Lunch rush delivery for airport outlet</td>
+                            </tr>
+                            <tr class="history-row inbound">
+                                <td>2025-07-24 11:25:18</td>
+                                <td><span class="type-badge inbound">📥 Inbound</span></td>
+                                <td>Sugar</td>
+                                <td>15 kg</td>
+                                <td>External Supplier</td>
+                                <td>SW-SUG-223344</td>
+                                <td>Robert Lee</td>
+                                <td>Weekly sugar stock replenishment</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

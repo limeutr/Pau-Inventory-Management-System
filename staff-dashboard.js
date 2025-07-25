@@ -471,7 +471,7 @@ function showStockDetails(itemName) {
         
         // Show modal with animation
         const modal = document.getElementById('stockDetailsModal');
-        modal.style.display = 'block';
+        modal.style.display = 'flex';
         
         // Trigger animation
         setTimeout(() => {
@@ -496,6 +496,11 @@ document.addEventListener('keydown', function(e) {
         const stockModal = document.getElementById('stockDetailsModal');
         if (stockModal && stockModal.classList.contains('show')) {
             closeStockDetailsModal();
+        }
+        
+        const addTaskModal = document.getElementById('addTaskModal');
+        if (addTaskModal && addTaskModal.classList.contains('show')) {
+            closeAddTaskModal();
         }
     }
 });
@@ -664,14 +669,24 @@ function showAlertDetails(alertType) {
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden'; // Prevent background scrolling
     
+    // Trigger animation
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+    
     // Add event listener for ESC key
     document.addEventListener('keydown', handleModalEscKey);
 }
 
 function closeAlertModal() {
     const modal = document.getElementById('alertDetailsModal');
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto'; // Restore scrolling
+    modal.classList.remove('show');
+    
+    // Wait for animation to complete before hiding
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+    }, 300);
     
     // Remove ESC key listener
     document.removeEventListener('keydown', handleModalEscKey);
@@ -679,7 +694,10 @@ function closeAlertModal() {
 
 function handleModalEscKey(event) {
     if (event.key === 'Escape') {
-        closeAlertModal();
+        const modal = document.getElementById('alertDetailsModal');
+        if (modal && modal.classList.contains('show')) {
+            closeAlertModal();
+        }
     }
 }
 
@@ -692,10 +710,77 @@ function contactSupplier() {
 }
 
 function notifySupervisor() {
-    alert('Supervisor notification sent!\n\nMessage: Critical flour shortage detected\nAction required: Approve emergency supplier contact\nStatus: Pending supervisor response');
+    // Show detailed notification information
+    const notificationInfo = `
+👥 SUPERVISOR NOTIFICATION - URGENT
+
+📧 ALERT DETAILS:
+• Issue: Critical Flour Stock Shortage
+• Current Level: 15 kg (70% below minimum)
+• Minimum Required: 50 kg
+• Production Impact: Immediate halt in 2-3 hours
+
+📞 SUPERVISOR CONTACTS:
+• Primary: Supervisor Lee (+65-9123-4567)
+• Secondary: Manager Wong (+65-9876-5432)
+• Email: supervisor@pausupply.com
+
+⚠️ NOTIFICATION SENT:
+• SMS Alert: Delivered ✅
+• Email Report: Sent ✅
+• System Alert: Active ✅
+• WhatsApp: Delivered ✅
+
+📋 SUPERVISOR ACTIONS REQUIRED:
+1. Approve emergency supplier contact
+2. Authorize rush delivery order
+3. Review production schedule adjustments
+4. Approve additional budget if needed
+
+🕐 RESPONSE TIMELINE:
+• Expected response: Within 30 minutes
+• Escalation if no response: 1 hour
+• Emergency protocol: Contact manager
+
+📊 NEXT STEPS:
+✓ Supervisor notified across all channels
+✓ Alert logged in management system
+✓ Production team informed of potential delays
+✓ Alternative supplier options prepared
+    `;
     
-    // Mark action as completed
-    markActionCompleted('notify-supervisor');
+    if (confirm(notificationInfo + "\n\nSupervisor has been notified. Click OK to acknowledge, or Cancel to view more options.")) {
+        // Show the notification status below the buttons
+        const notificationStatus = document.getElementById('supervisorNotificationStatus');
+        if (notificationStatus) {
+            notificationStatus.style.display = 'block';
+        }
+        
+        // Simulate successful notification
+        alert("✅ NOTIFICATION CONFIRMED!\n\n📱 Supervisor Lee responded:\n'Received alert. Approving emergency flour order. Will contact Golden Wheat Co. immediately. Production adjustments approved.'\n\n🔔 Status: ACKNOWLEDGED\n⏰ Action taken: 2 minutes ago\n📋 Incident logged: #FL-2025-001");
+        
+        // Update the alert to show it's been handled
+        updateAlertStatus('flour-critical', 'supervisor-notified');
+        
+        // Mark action as completed
+        markActionCompleted('notify-supervisor');
+        
+        // Log the action
+        logStaffAction('Supervisor Notification', 'Critical flour shortage - Emergency notification sent and acknowledged');
+    } else {
+        // Show additional options
+        const additionalOptions = confirm("Additional options:\n\n📞 Call supervisor directly\n📧 Send follow-up email\n📋 Create incident report\n⚠️ Escalate to manager\n\nClick OK to call supervisor now, or Cancel to return.");
+        
+        if (additionalOptions) {
+            alert("📞 Calling Supervisor Lee...\n\n✅ Call connected!\n👥 'Thanks for the call. I'll handle the flour situation immediately. Keep production running with current stock while I arrange emergency delivery.'\n\n📋 Call logged and supervisor is taking action.");
+            
+            // Show the notification status even for the call option
+            const notificationStatus = document.getElementById('supervisorNotificationStatus');
+            if (notificationStatus) {
+                notificationStatus.style.display = 'block';
+            }
+        }
+    }
 }
 
 function updateProduction() {
@@ -770,6 +855,11 @@ function updateProductionPlan() {
     const modal = document.getElementById('productionPlanModal');
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    
+    // Trigger animation
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
     
     // Setup option selection listeners
     setupProductionOptionListeners();
@@ -964,8 +1054,13 @@ function applyProductionPlan() {
 
 function closeProductionPlanModal() {
     const modal = document.getElementById('productionPlanModal');
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
+    modal.classList.remove('show');
+    
+    // Wait for animation to complete before hiding
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }, 300);
     
     // Reset form
     const radioButtons = document.querySelectorAll('input[name="productionOption"]');
@@ -983,7 +1078,10 @@ function closeProductionPlanModal() {
 
 function handleProductionModalEscKey(event) {
     if (event.key === 'Escape') {
-        closeProductionPlanModal();
+        const modal = document.getElementById('productionPlanModal');
+        if (modal && modal.classList.contains('show')) {
+            closeProductionPlanModal();
+        }
     }
 }
 
@@ -1036,6 +1134,11 @@ function openAddTaskModal() {
     const modal = document.getElementById('addTaskModal');
     modal.style.display = 'flex';
     
+    // Add show class for proper CSS animation and visibility
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+    
     // Set default due time to current time + 4 hours
     const now = new Date();
     now.setHours(now.getHours() + 4);
@@ -1045,7 +1148,12 @@ function openAddTaskModal() {
 
 function closeAddTaskModal() {
     const modal = document.getElementById('addTaskModal');
-    modal.style.display = 'none';
+    modal.classList.remove('show');
+    
+    // Hide modal after animation completes
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
     
     // Reset form
     document.getElementById('addTaskForm').reset();

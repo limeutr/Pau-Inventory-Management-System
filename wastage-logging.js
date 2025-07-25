@@ -334,100 +334,97 @@ function populateItemSelect() {
 }
 
 function initializeWastageData() {
-    // Load from localStorage if available, otherwise initialize empty
-    const savedWastage = localStorage.getItem('wastageEntries');
-    if (savedWastage) {
-        wastageEntries = JSON.parse(savedWastage);
-    } else {
-        // Sample PAU wastage data for demonstration
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        wastageEntries = [
-            {
-                id: 'WASTE001',
-                itemId: 'INV013',
-                itemName: 'Char Siew Pau',
-                quantity: 8,
-                unit: 'pcs',
-                location: 'outlet',
-                outletLocation: 'pau_central_outlet',
-                reason: 'expired',
-                customReason: null,
-                notes: 'End of day unsold PAU - passed optimal freshness for sale',
-                timestamp: yesterday.toISOString(),
-                loggedBy: currentUser.username,
-                reportedBy: 'Outlet Manager',
-                valueLost: 36.00
-            },
-            {
-                id: 'WASTE002',
-                itemId: 'INV007',
-                itemName: 'Char Siew',
-                quantity: 0.5,
-                unit: 'kg',
-                location: 'factory',
-                outletLocation: null,
-                reason: 'contaminated',
-                customReason: null,
-                notes: 'Foreign material found during inspection - discarded entire batch as precaution',
-                timestamp: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 15).toISOString(),
-                loggedBy: 'production_supervisor',
-                reportedBy: null,
-                valueLost: 6.00
-            },
-            {
-                id: 'WASTE003',
-                itemId: 'INV012',
-                itemName: 'Classic Pau',
-                quantity: 12,
-                unit: 'pcs',
-                location: 'outlet',
-                outletLocation: 'shopping_mall_kiosk',
-                reason: 'damaged',
-                customReason: null,
-                notes: 'Damaged during delivery transport - steamer container shifted',
-                timestamp: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 11, 30).toISOString(),
-                loggedBy: 'delivery_staff',
-                reportedBy: 'Mall Kiosk Staff',
-                valueLost: 42.00
-            },
-            {
-                id: 'WASTE004',
-                itemId: 'INV016',
-                itemName: 'Lotus Bao',
-                quantity: 6,
-                unit: 'pcs',
-                location: 'outlet',
-                outletLocation: 'downtown_pau_branch',
-                reason: 'quality_issues',
-                customReason: null,
-                notes: 'Filling not properly sealed - lotus paste leaking from several units',
-                timestamp: yesterday.toISOString(),
-                loggedBy: 'quality_controller',
-                reportedBy: 'Branch Staff',
-                valueLost: 30.00
-            },
-            {
-                id: 'WASTE005',
-                itemId: 'INV010',
-                itemName: 'Custard Filling',
-                quantity: 0.3,
-                unit: 'kg',
-                location: 'factory',
-                outletLocation: null,
-                reason: 'production_error',
-                customReason: null,
-                notes: 'Overcooking during preparation - texture became grainy and unusable',
-                timestamp: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 7, 45).toISOString(),
-                loggedBy: 'baker_jane',
-                reportedBy: null,
-                valueLost: 2.25
-            }
-        ];
-        localStorage.setItem('wastageEntries', JSON.stringify(wastageEntries));
-    }
+    // Clear any existing localStorage data and reset to clean sample data
+    localStorage.removeItem('wastageEntries');
+    
+    // Sample PAU wastage data for demonstration
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    wastageEntries = [
+        {
+            id: 'WASTE001',
+            itemId: 'INV013',
+            itemName: 'Char Siew Pau',
+            quantity: 8,
+            unit: 'pcs',
+            location: 'outlet',
+            outletLocation: 'pau_central_outlet',
+            reason: 'expired',
+            customReason: null,
+            notes: 'End of day unsold PAU - passed optimal freshness for sale',
+            timestamp: yesterday.toISOString(),
+            loggedBy: currentUser.username,
+            reportedBy: 'Outlet Manager',
+            valueLost: 36.00
+        },
+        {
+            id: 'WASTE002',
+            itemId: 'INV007',
+            itemName: 'Char Siew',
+            quantity: 0.5,
+            unit: 'kg',
+            location: 'factory',
+            outletLocation: null,
+            reason: 'contaminated',
+            customReason: null,
+            notes: 'Foreign material found during inspection - discarded entire batch as precaution',
+            timestamp: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 15).toISOString(),
+            loggedBy: 'production_supervisor',
+            reportedBy: null,
+            valueLost: 6.00
+        },
+        {
+            id: 'WASTE003',
+            itemId: 'INV012',
+            itemName: 'Classic Pau',
+            quantity: 12,
+            unit: 'pcs',
+            location: 'outlet',
+            outletLocation: 'shopping_mall_kiosk',
+            reason: 'damaged',
+            customReason: null,
+            notes: 'Damaged during delivery transport - steamer container shifted',
+            timestamp: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 11, 30).toISOString(),
+            loggedBy: 'delivery_staff',
+            reportedBy: 'Mall Kiosk Staff',
+            valueLost: 42.00
+        },
+        {
+            id: 'WASTE004',
+            itemId: 'INV016',
+            itemName: 'Lotus Bao',
+            quantity: 6,
+            unit: 'pcs',
+            location: 'outlet',
+            outletLocation: 'downtown_pau_branch',
+            reason: 'quality_issues',
+            customReason: null,
+            notes: 'Filling not properly sealed - lotus paste leaking from several units',
+            timestamp: yesterday.toISOString(),
+            loggedBy: 'quality_controller',
+            reportedBy: 'Branch Staff',
+            valueLost: 30.00
+        },
+        {
+            id: 'WASTE005',
+            itemId: 'INV010',
+            itemName: 'Custard Filling',
+            quantity: 0.3,
+            unit: 'kg',
+            location: 'factory',
+            outletLocation: null,
+            reason: 'production_error',
+            customReason: null,
+            notes: 'Overcooking during preparation - texture became grainy and unusable',
+            timestamp: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 7, 45).toISOString(),
+            loggedBy: 'baker_jane',
+            reportedBy: null,
+            valueLost: 2.25
+        }
+    ];
+    localStorage.setItem('wastageEntries', JSON.stringify(wastageEntries));
 }
 
 function setupForm() {
