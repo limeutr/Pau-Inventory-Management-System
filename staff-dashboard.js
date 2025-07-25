@@ -12,6 +12,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize dashboard functionality
     initializeTaskManagement();
     initializeAlertSystem();
+    initializeStockCards();
+    
+    // Load saved tasks
+    loadSavedTasks();
 });
 
 function checkAuthAndRole() {
@@ -87,8 +91,28 @@ function initializeTaskManagement() {
                 showTaskCompletionMessage(taskInfo.textContent);
             } else {
                 taskItem.classList.remove('completed');
-                // Reset progress to original values
-                resetTaskProgress(taskItem);
+                // Reset progress to 0% for all tasks when unchecked
+                progressFill.style.transition = 'width 0.5s ease-out';
+                progressFill.style.width = '0%';
+                
+                // Reset progress text to 0 for existing tasks
+                const taskId = this.id;
+                const resetText = {
+                    'task1': '0/60 completed',
+                    'task2': '0/40 completed', 
+                    'task3': 'Completed ✓', // This stays completed
+                    'task4': '0/24 completed'
+                };
+                
+                if (resetText[taskId]) {
+                    progressText.textContent = resetText[taskId];
+                }
+                
+                // Ensure no strikethrough by removing completed class
+                const taskTitle = taskItem.querySelector('.task-info h3');
+                if (taskTitle) {
+                    taskTitle.style.textDecoration = 'none';
+                }
             }
         });
     });
@@ -102,17 +126,28 @@ function resetTaskProgress(taskItem) {
     const progressFill = taskItem.querySelector('.progress-fill');
     const progressText = taskItem.querySelector('.task-progress span');
     
-    // Reset to original values based on task ID
-    const originalProgress = {
-        'task1': { width: '30%', text: '15/50 completed' },
-        'task2': { width: '0%', text: '0/30 completed' },
-        'task3': { width: '100%', text: 'Completed ✓' },
+    // Reset to 0% progress for all unchecked tasks (fresh start)
+    const resetProgress = {
+        'task1': { width: '0%', text: '0/60 completed' },
+        'task2': { width: '0%', text: '0/40 completed' },
+        'task3': { width: '100%', text: 'Completed ✓' }, // This one is already completed by default
         'task4': { width: '0%', text: '0/24 completed' }
     };
     
-    if (originalProgress[taskId]) {
-        progressFill.style.width = originalProgress[taskId].width;
-        progressText.textContent = originalProgress[taskId].text;
+    if (resetProgress[taskId]) {
+        // Smooth transition back to 0%
+        progressFill.style.transition = 'width 0.5s ease-out';
+        progressFill.style.width = resetProgress[taskId].width;
+        progressText.textContent = resetProgress[taskId].text;
+        
+        // Remove any strikethrough styling
+        const taskTitle = taskItem.querySelector('.task-info h3');
+        if (taskTitle) {
+            taskTitle.style.textDecoration = 'none';
+        }
+        
+        // Ensure the task item doesn't have completed styling
+        taskItem.classList.remove('completed');
     }
 }
 
@@ -210,6 +245,67 @@ function initializeAlertSystem() {
     });
 }
 
+function initializeStockCards() {
+    // Add click effects and accessibility to stock cards
+    const stockCards = document.querySelectorAll('.stock-card.clickable');
+    
+    stockCards.forEach(card => {
+        // Add keyboard accessibility
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('role', 'button');
+        
+        // Add keyboard event listener
+        card.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
+            }
+        });
+        
+        // Add visual feedback on focus
+        card.addEventListener('focus', function() {
+            this.style.outline = '2px solid #4CAF50';
+            this.style.outlineOffset = '2px';
+        });
+        
+        card.addEventListener('blur', function() {
+            this.style.outline = 'none';
+        });
+        
+        // Add ripple effect on click
+        card.addEventListener('click', function(e) {
+            const ripple = document.createElement('div');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(76, 175, 80, 0.3);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                pointer-events: none;
+            `;
+            
+            this.style.position = 'relative';
+            this.style.overflow = 'hidden';
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                if (ripple.parentNode) {
+                    ripple.parentNode.removeChild(ripple);
+                }
+            }, 600);
+        });
+    });
+}
+
 function handleAlertAction(alertTitle, actionType, alertElement) {
     switch(actionType) {
         case 'Notify Supervisor':
@@ -253,6 +349,165 @@ function addToTaskList(alertTitle) {
 
 function showAlertDetails(alertTitle) {
     alert(`📋 Alert Details: ${alertTitle}\n\nDetailed information about this alert would be displayed here, including:\n- Historical data\n- Recommended actions\n- Related documentation\n- Contact information`);
+}
+
+// Stock Details Function
+function showStockDetails(itemName) {
+    // Define detailed stock information
+    const stockDetails = {
+        'All Purpose Flour': {
+            icon: '🌾',
+            current: '15 kg',
+            minimum: '50 kg',
+            supplier: 'Golden Wheat Co.',
+            lastOrdered: '3 days ago',
+            location: 'Storage Room A - Shelf 2',
+            expiryDate: '6 months',
+            status: 'critical',
+            statusText: 'Critical',
+            notes: 'Critical shortage - immediate reorder required',
+            percentage: 30
+        },
+        'Nai Wong Bao': {
+            icon: '🍮',
+            current: '20 pcs',
+            minimum: '35 pcs',
+            supplier: 'Fresh Bakery Supplies',
+            lastOrdered: '1 day ago',
+            location: 'Refrigerator Unit 1',
+            expiryDate: '2 days',
+            status: 'warning',
+            statusText: 'Low Stock',
+            notes: 'Approaching expiry - use immediately',
+            percentage: 57
+        },
+        'Classic Pau': {
+            icon: '🥟',
+            current: '45 pcs',
+            minimum: '80 pcs',
+            supplier: 'In-house Production',
+            lastOrdered: 'Today',
+            location: 'Display Counter',
+            expiryDate: '1 day',
+            status: 'warning',
+            statusText: 'Below Target',
+            notes: 'Regular production schedule',
+            percentage: 56
+        },
+        'Lotus Bao': {
+            icon: '🌸',
+            current: '20 pcs',
+            minimum: '35 pcs',
+            supplier: 'In-house Production',
+            lastOrdered: 'Today',
+            location: 'Display Counter',
+            expiryDate: '1 day',
+            status: 'warning',
+            statusText: 'Below Target',
+            notes: 'Popular item - consider increasing production',
+            percentage: 57
+        },
+        'Char Siew': {
+            icon: '🥩',
+            current: '3 kg',
+            minimum: '8 kg',
+            supplier: 'Filling Co.',
+            lastOrdered: '5 days ago',
+            location: 'Refrigerator Unit 2',
+            expiryDate: '3 days',
+            status: 'critical',
+            statusText: 'Critical',
+            notes: 'Emergency reorder needed immediately',
+            percentage: 38
+        },
+        'Red Bean Paste': {
+            icon: '🫘',
+            current: '5 kg',
+            minimum: '3 kg',
+            supplier: 'Sweet Ingredients Ltd.',
+            lastOrdered: '1 week ago',
+            location: 'Storage Room B - Shelf 1',
+            expiryDate: '2 months',
+            status: 'good',
+            statusText: 'Good',
+            notes: 'Adequate stock levels',
+            percentage: 167
+        }
+    };
+    
+    const item = stockDetails[itemName];
+    if (item) {
+        // Populate modal with item details
+        document.getElementById('stockModalIcon').textContent = item.icon;
+        document.getElementById('stockModalTitle').textContent = `${itemName} Details`;
+        
+        const statusBadge = document.getElementById('stockModalStatus');
+        statusBadge.textContent = item.statusText;
+        statusBadge.className = `status-badge ${item.status}`;
+        
+        document.getElementById('stockModalCurrent').textContent = item.current;
+        document.getElementById('stockModalMinimum').textContent = item.minimum;
+        
+        const levelElement = document.getElementById('stockModalLevel');
+        levelElement.textContent = item.statusText;
+        levelElement.className = `stat-value ${item.status}`;
+        
+        document.getElementById('stockModalSupplier').textContent = item.supplier;
+        document.getElementById('stockModalLastOrdered').textContent = item.lastOrdered;
+        document.getElementById('stockModalLocation').textContent = item.location;
+        document.getElementById('stockModalExpiry').textContent = item.expiryDate;
+        document.getElementById('stockModalNotes').textContent = item.notes;
+        
+        // Update progress bar
+        const progressBar = document.getElementById('stockModalProgressBar');
+        const progressText = document.getElementById('stockModalProgressText');
+        progressBar.style.width = Math.min(item.percentage, 100) + '%';
+        progressText.textContent = `${item.percentage}% of minimum required`;
+        
+        // Update footer
+        const now = new Date().toLocaleTimeString();
+        document.getElementById('stockModalFooter').textContent = 
+            `Last updated: ${now} | Item: ${itemName}`;
+        
+        // Show modal with animation
+        const modal = document.getElementById('stockDetailsModal');
+        modal.style.display = 'block';
+        
+        // Trigger animation
+        setTimeout(() => {
+            modal.classList.add('show');
+        }, 10);
+    }
+}
+
+function closeStockDetailsModal() {
+    const modal = document.getElementById('stockDetailsModal');
+    modal.classList.remove('show');
+    
+    // Wait for animation to complete before hiding
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+
+// Add keyboard event listener for closing modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const stockModal = document.getElementById('stockDetailsModal');
+        if (stockModal && stockModal.classList.contains('show')) {
+            closeStockDetailsModal();
+        }
+    }
+});
+
+function reorderStock() {
+    const itemName = document.getElementById('stockModalTitle').textContent.replace(' Details', '');
+    alert(`📞 Contacting supplier for ${itemName} reorder...\n\nThis would normally:\n• Open supplier contact form\n• Generate purchase order\n• Send notification to supervisor`);
+}
+
+function viewFullInventory() {
+    // Redirect to full inventory management page
+    window.location.href = 'inventory-management.html';
 }
 
 // Quick Action Functions
@@ -774,4 +1029,282 @@ function logStaffAction(actionType, description) {
     sessionStorage.setItem('staffActionLog', JSON.stringify(actionLog));
     
     console.log('Staff Action Logged:', logEntry);
+}
+
+// Add Task Modal Functions
+function openAddTaskModal() {
+    const modal = document.getElementById('addTaskModal');
+    modal.style.display = 'flex';
+    
+    // Set default due time to current time + 4 hours
+    const now = new Date();
+    now.setHours(now.getHours() + 4);
+    const timeString = now.toTimeString().slice(0, 5);
+    document.getElementById('taskDueTime').value = timeString;
+}
+
+function closeAddTaskModal() {
+    const modal = document.getElementById('addTaskModal');
+    modal.style.display = 'none';
+    
+    // Reset form
+    document.getElementById('addTaskForm').reset();
+}
+
+function saveNewTask() {
+    const form = document.getElementById('addTaskForm');
+    const formData = new FormData(form);
+    
+    // Validate required fields
+    const taskName = formData.get('taskName');
+    const taskPriority = formData.get('taskPriority');
+    const taskDueTime = formData.get('taskDueTime');
+    
+    if (!taskName || !taskPriority || !taskDueTime) {
+        alert('Please fill in all required fields (marked with *)');
+        return;
+    }
+    
+    // Create new task object
+    const newTask = {
+        id: 'task' + Date.now(),
+        name: taskName,
+        priority: taskPriority,
+        dueTime: taskDueTime,
+        quantity: formData.get('taskQuantity') || '',
+        estimatedTime: formData.get('estimatedTime') || '',
+        notes: formData.get('taskNotes') || '',
+        notifyTeam: formData.get('notifyTeam') === 'on',
+        progress: 0,
+        completed: false,
+        createdAt: new Date().toISOString(),
+        createdBy: sessionStorage.getItem('username') || 'Staff Member'
+    };
+    
+    // Add task to the task list
+    addTaskToList(newTask);
+    
+    // Save to session storage (in a real app, this would go to a database)
+    saveTaskToStorage(newTask);
+    
+    // Show success message
+    showTaskAddedNotification(taskName);
+    
+    // Close modal
+    closeAddTaskModal();
+    
+    // Log the action
+    logStaffAction('Task Created', `Added new task: ${taskName}`);
+    
+    // Notify team if requested
+    if (newTask.notifyTeam) {
+        notifyTeamAboutNewTask(newTask);
+    }
+}
+
+// Convert 24-hour time format to 12-hour format with AM/PM
+function convertTo12Hour(time24) {
+    if (!time24) return '';
+    
+    const [hours, minutes] = time24.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12; // Convert 0 to 12 for midnight
+    
+    return `${hour12}:${minutes} ${ampm}`;
+}
+
+function addTaskToList(task) {
+    const taskList = document.querySelector('.task-list');
+    
+    // Create task element that matches existing structure exactly
+    const taskElement = document.createElement('div');
+    taskElement.className = `task-item priority-${task.priority}`;
+    taskElement.id = task.id;
+    
+    // Use the task name exactly as the user typed it
+    const taskTitle = task.name;
+    const progressText = task.quantity ? `0/${task.quantity} completed` : '0/1 completed';
+    
+    // Convert 24-hour time to 12-hour format with AM/PM
+    const formattedTime = convertTo12Hour(task.dueTime);
+    
+    taskElement.innerHTML = `
+        <div class="task-status">
+            <input type="checkbox" id="${task.id}" class="task-checkbox">
+            <label for="${task.id}"></label>
+        </div>
+        <div class="task-info">
+            <h3>${taskTitle}</h3>
+            <p>Priority: ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} | Due: ${formattedTime}</p>
+            <div class="task-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+                <span>${progressText}</span>
+            </div>
+        </div>
+        <span class="task-time">${task.estimatedTime || 'TBD'}</span>
+    `;
+    
+    // Insert task based on priority (high priority first)
+    const priorityOrder = { 'high': 1, 'medium': 2, 'low': 3 };
+    const existingTasks = Array.from(taskList.children);
+    let inserted = false;
+    
+    for (let existingTask of existingTasks) {
+        const existingPriority = existingTask.className.match(/priority-(\w+)/)?.[1];
+        if (existingPriority && priorityOrder[task.priority] < priorityOrder[existingPriority]) {
+            taskList.insertBefore(taskElement, existingTask);
+            inserted = true;
+            break;
+        }
+    }
+    
+    if (!inserted) {
+        taskList.appendChild(taskElement);
+    }
+    
+    // Add task completion functionality
+    const checkbox = taskElement.querySelector('.task-checkbox');
+    checkbox.addEventListener('change', function() {
+        if (this.checked) {
+            markTaskCompleted(task.id);
+        } else {
+            // Reset task when unchecked
+            resetTaskToZero(taskElement, task);
+        }
+    });
+}
+
+function resetTaskToZero(taskElement, task) {
+    const progressFill = taskElement.querySelector('.progress-fill');
+    const progressText = taskElement.querySelector('.task-progress span');
+    const taskTitle = taskElement.querySelector('.task-info h3');
+    
+    // Reset progress bar to 0%
+    progressFill.style.transition = 'width 0.5s ease-out';
+    progressFill.style.width = '0%';
+    
+    // Reset progress text based on task quantity
+    let totalQuantity = 1;
+    if (task.quantity && task.quantity > 0) {
+        totalQuantity = task.quantity;
+    } else {
+        // Try to extract quantity from task name
+        const quantityMatch = task.name.match(/(\d+)/);
+        if (quantityMatch) {
+            totalQuantity = parseInt(quantityMatch[1]);
+        }
+    }
+    
+    progressText.textContent = `0/${totalQuantity} completed`;
+    
+    // Remove strikethrough and completed styling
+    if (taskTitle) {
+        taskTitle.style.textDecoration = 'none';
+    }
+    taskElement.classList.remove('completed');
+    
+    // Update storage
+    let tasks = JSON.parse(sessionStorage.getItem('staffTasks') || '[]');
+    tasks = tasks.map(storedTask => {
+        if (storedTask.id === task.id) {
+            storedTask.completed = false;
+            storedTask.progress = 0;
+            delete storedTask.completedAt;
+        }
+        return storedTask;
+    });
+    sessionStorage.setItem('staffTasks', JSON.stringify(tasks));
+}
+
+function saveTaskToStorage(task) {
+    let tasks = JSON.parse(sessionStorage.getItem('staffTasks') || '[]');
+    tasks.push(task);
+    sessionStorage.setItem('staffTasks', JSON.stringify(tasks));
+}
+
+function showTaskAddedNotification(taskName) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'task-notification success';
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-icon">✅</span>
+            <div class="notification-text">
+                <strong>Task Added Successfully!</strong>
+                <p>"${taskName}" has been added to today's production tasks.</p>
+            </div>
+        </div>
+    `;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Show notification
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+    
+    // Remove notification after 5 seconds
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 5000);
+}
+
+function notifyTeamAboutNewTask(task) {
+    // In a real application, this would send notifications to team members
+    console.log(`Team notification sent for new task: ${task.name}`);
+    
+    // Log the notification
+    logStaffAction('Team Notification', `Sent team notification for task: ${task.name}`);
+}
+
+function markTaskCompleted(taskId) {
+    const taskElement = document.getElementById(taskId);
+    if (taskElement) {
+        taskElement.classList.add('completed');
+        
+        // Update progress bar to 100%
+        const progressFill = taskElement.querySelector('.progress-fill');
+        const progressText = taskElement.querySelector('.task-progress span');
+        
+        if (progressFill) {
+            progressFill.style.width = '100%';
+        }
+        
+        if (progressText) {
+            progressText.textContent = 'Completed ✓';
+        }
+        
+        // Update storage
+        let tasks = JSON.parse(sessionStorage.getItem('staffTasks') || '[]');
+        tasks = tasks.map(task => {
+            if (task.id === taskId) {
+                task.completed = true;
+                task.progress = 100;
+                task.completedAt = new Date().toISOString();
+            }
+            return task;
+        });
+        sessionStorage.setItem('staffTasks', JSON.stringify(tasks));
+        
+        // Log the completion
+        const taskName = taskElement.querySelector('h3').textContent;
+        logStaffAction('Task Completed', `Completed task: ${taskName}`);
+    }
+}
+
+// Load saved tasks on page load
+function loadSavedTasks() {
+    const tasks = JSON.parse(sessionStorage.getItem('staffTasks') || '[]');
+    tasks.forEach(task => {
+        if (!task.completed) {
+            addTaskToList(task);
+        }
+    });
 }

@@ -109,6 +109,50 @@ section h2 {
     gap: 10px;
 }
 
+/* Section Header with Add Task Button */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h2 {
+    margin-bottom: 0;
+}
+
+.add-task-btn {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.add-task-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
+}
+
+.add-task-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.add-icon {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
 /* Tasks Section */
 .task-list {
     display: grid;
@@ -226,12 +270,28 @@ section h2 {
     display: flex;
     align-items: center;
     gap: 15px;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .stock-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stock-card.clickable {
+    cursor: pointer;
+    user-select: none;
+    border: 2px solid transparent;
+}
+
+.stock-card.clickable:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    border: 2px solid rgba(76, 175, 80, 0.3);
+}
+
+.stock-card.clickable:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .stock-icon {
@@ -530,7 +590,7 @@ section h2 {
     100% { box-shadow: 0 2px 10px rgba(244, 67, 54, 0.1); }
 }
 
-/* Alert Details Modal */
+/* Modal System */
 .modal {
     position: fixed;
     top: 0;
@@ -541,6 +601,8 @@ section h2 {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .modal-overlay {
@@ -549,20 +611,105 @@ section h2 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1;
+}
+
+.modal-container {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    max-height: 85vh;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transform: scale(0.9);
+    opacity: 0;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-content.alert-modal {
-    position: relative;
-    background: white;
-    border-radius: 12px;
     width: 90%;
     max-width: 800px;
-    max-height: 90vh;
+}
+
+.modal-content.stock-details-modal {
+    width: 90%;
+    max-width: 700px;
+}
+
+.modal-content.add-task-modal {
+    width: 90%;
+    max-width: 600px;
+}
+
+.modal-body {
+    padding: 20px 30px;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: modalSlideIn 0.3s ease;
+    flex: 1;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(76, 175, 80, 0.3) transparent;
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(76, 175, 80, 0.3);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(76, 175, 80, 0.5);
+}
+
+/* Modal show state */
+.modal.show .modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Enhanced blur overlay */
+.modal.show .modal-overlay {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Additional container styling */
+.modal-container {
+    animation: containerFadeIn 0.3s ease;
+}
+
+@keyframes containerFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes modalSlideIn {
@@ -576,12 +723,315 @@ section h2 {
     }
 }
 
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Stock Details Modal Styles */
+.stock-details-modal {
+    max-width: 700px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(76, 175, 80, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.stock-details-modal::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #4CAF50, #45a049, #4CAF50);
+    border-radius: 18px;
+    z-index: -1;
+    opacity: 0.05;
+}
+
+.stock-details-modal::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4CAF50, #45a049);
+    border-radius: 16px 16px 0 0;
+}
+
+.stock-details-modal-icon {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6em;
+    margin-right: 15px;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.stock-details-modal-title h2 {
+    color: #333;
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+.status-badge.good {
+    background: #e8f5e8;
+    color: #4CAF50;
+}
+
+.status-badge.warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.critical {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.stock-details-grid {
+    display: grid;
+    gap: 25px;
+    padding: 5px 0;
+}
+
+.detail-section h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.detail-content {
+    background: rgba(248, 249, 250, 0.5);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.inventory-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 0;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    border-left: 4px solid #4CAF50;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.stat-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.stat-label {
+    font-weight: 500;
+    color: #666;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: #333;
+}
+
+.stat-value.critical {
+    color: #dc3545;
+}
+
+.stat-value.warning {
+    color: #ffc107;
+}
+
+.stat-value.good {
+    color: #4CAF50;
+}
+
+.stock-progress-container {
+    margin-top: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.stock-progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #e9ecef;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stock-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #4CAF50 100%);
+    transition: width 0.3s ease;
+    border-radius: 6px;
+}
+
+.progress-percentage {
+    font-size: 0.9em;
+    color: #666;
+    font-weight: 500;
+    text-align: center;
+    display: block;
+}
+
+.supplier-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.supplier-info .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.supplier-info .info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 500;
+    color: #666;
+    font-size: 0.95em;
+}
+
+.info-value {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95em;
+}
+
+.notes-section {
+    margin-bottom: 20px;
+}
+
+.stock-notes {
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+    padding: 18px;
+    border-radius: 10px;
+    border-left: 4px solid #4CAF50;
+    margin: 0;
+    font-style: italic;
+    color: #495057;
+    line-height: 1.6;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+}
+
+.quick-actions-section {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.quick-actions-section .action-btn {
+    flex: 1;
+    min-width: 150px;
+    justify-content: center;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.quick-actions-section .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive design for stock modal */
+@media (max-width: 768px) {
+    .stock-details-modal {
+        margin: 20px;
+        max-width: calc(100% - 40px);
+    }
+    
+    .inventory-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 5px;
+    }
+    
+    .supplier-info .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .quick-actions-section {
+        flex-direction: column;
+    }
+    
+    .quick-actions-section .action-btn {
+        min-width: 100%;
+    }
+}
+
 .modal-header {
     display: flex;
     align-items: center;
-    padding: 20px 30px;
-    border-bottom: 1px solid #eee;
-    background: linear-gradient(135deg, #fff5f5 0%, #ffeaea 100%);
+    justify-content: space-between;
+    padding: 25px 30px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    background: linear-gradient(135deg, #fafbfc 0%, #f8f9fa 100%);
+    flex-shrink: 0;
+}
+
+.modal-footer {
+    padding: 20px 30px 25px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    background: linear-gradient(135deg, #fafbfc 0%, #f8f9fa 100%);
+    flex-shrink: 0;
+}
+
+.modal-header .modal-title-section {
+    display: flex;
+    align-items: center;
+    flex: 1;
 }
 
 .alert-modal-icon {
@@ -628,11 +1078,14 @@ section h2 {
     justify-content: center;
     border-radius: 50%;
     transition: all 0.3s ease;
+    flex-shrink: 0;
+    margin-left: 20px;
 }
 
 .modal-close-btn:hover {
     background: #f5f5f5;
     color: #333;
+    transform: rotate(90deg);
 }
 
 .modal-body {
@@ -1097,5 +1550,176 @@ section h2 {
     .option-card input[type="radio"] {
         top: 10px;
         right: 10px;
+    }
+}
+
+/* Add Task Modal */
+.modal-content.add-task-modal {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+.add-task-modal-icon {
+    font-size: 2em;
+    margin-right: 15px;
+}
+
+.add-task-modal-title h2 {
+    font-size: 1.4em;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.info-badge {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.add-task-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9em;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.9em;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-group.half {
+    flex: 1;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: 400 !important;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #4CAF50;
+}
+
+.task-notes {
+    font-style: italic;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Task Notification */
+.task-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    padding: 15px 20px;
+    z-index: 1001;
+    min-width: 300px;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+}
+
+.task-notification.show {
+    transform: translateX(0);
+}
+
+.task-notification.success {
+    border-left: 4px solid #4CAF50;
+}
+
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.notification-icon {
+    font-size: 1.2em;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.notification-text strong {
+    color: #333;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.notification-text p {
+    color: #666;
+    font-size: 0.9em;
+    margin: 0;
+}
+
+/* Responsive Design for Add Task Modal */
+@media (max-width: 768px) {
+    .modal-content.add-task-modal {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .task-notification {
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        transform: translateY(-100px);
+    }
+    
+    .task-notification.show {
+        transform: translateY(0);
     }
 }

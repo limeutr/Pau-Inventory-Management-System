@@ -25,7 +25,13 @@
         <main class="main-content">
             <!-- Daily Tasks Section -->
             <section class="tasks-section">
-                <h2>📋 Today's Production Tasks</h2>
+                <div class="section-header">
+                    <h2>📋 Today's Production Tasks</h2>
+                    <button class="add-task-btn" onclick="openAddTaskModal()">
+                        <span class="add-icon">+</span>
+                        Add Production Task
+                    </button>
+                </div>
                 <div class="task-list">
                     <div class="task-item priority-high">
                         <div class="task-status">
@@ -105,7 +111,7 @@
             <section class="stock-section">
                 <h2>📦 Current Stock Levels</h2>
                 <div class="stock-grid">
-                    <div class="stock-card adequate">
+                    <div class="stock-card adequate clickable" onclick="showStockDetails('All Purpose Flour')" title="Click to view details">
                         <div class="stock-icon">🌾</div>
                         <div class="stock-info">
                             <h3>All Purpose Flour</h3>
@@ -117,7 +123,7 @@
                         </div>
                     </div>
                     
-                    <div class="stock-card adequate">
+                    <div class="stock-card adequate clickable" onclick="showStockDetails('Nai Wong Bao')" title="Click to view details">
                         <div class="stock-icon">🍮</div>
                         <div class="stock-info">
                             <h3>Nai Wong Bao</h3>
@@ -129,7 +135,7 @@
                         </div>
                     </div>
                     
-                    <div class="stock-card good">
+                    <div class="stock-card good clickable" onclick="showStockDetails('Classic Pau')" title="Click to view details">
                         <div class="stock-icon">🥟</div>
                         <div class="stock-info">
                             <h3>Classic Pau</h3>
@@ -141,7 +147,7 @@
                         </div>
                     </div>
                     
-                    <div class="stock-card adequate">
+                    <div class="stock-card adequate clickable" onclick="showStockDetails('Lotus Bao')" title="Click to view details">
                         <div class="stock-icon">🌸</div>
                         <div class="stock-info">
                             <h3>Lotus Bao</h3>
@@ -153,7 +159,7 @@
                         </div>
                     </div>
                     
-                    <div class="stock-card critical">
+                    <div class="stock-card critical clickable" onclick="showStockDetails('Char Siew')" title="Click to view details">
                         <div class="stock-icon">🥩</div>
                         <div class="stock-info">
                             <h3>Char Siew</h3>
@@ -161,11 +167,11 @@
                                 <span class="current">3 kg</span>
                                 <span class="minimum">Min: 8 kg</span>
                             </div>
-                            <div class="stock-status critical">Critical</div>
+                            <div class="stock-status warning">Critical</div>
                         </div>
                     </div>
                     
-                    <div class="stock-card good">
+                    <div class="stock-card good clickable" onclick="showStockDetails('Red Bean Paste')" title="Click to view details">
                         <div class="stock-icon">🫘</div>
                         <div class="stock-info">
                             <h3>Red Bean Paste</h3>
@@ -277,6 +283,90 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="addTaskModal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeAddTaskModal()"></div>
+        <div class="modal-content add-task-modal">
+            <div class="modal-header">
+                <div class="modal-title-section">
+                    <div class="add-task-modal-icon">
+                        <span>📋</span>
+                    </div>
+                    <div class="add-task-modal-title">
+                        <h2>Add New Production Task</h2>
+                        <span class="info-badge">Create Task</span>
+                    </div>
+                </div>
+                <button onclick="closeAddTaskModal()" class="modal-close-btn">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="addTaskForm" class="add-task-form">
+                    <div class="form-group">
+                        <label for="taskName">Task Name *</label>
+                        <input type="text" id="taskName" name="taskName" placeholder="e.g., Prepare 50 Classic Pau" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="taskPriority">Priority *</label>
+                            <select id="taskPriority" name="taskPriority" required>
+                                <option value="">Select Priority</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group half">
+                            <label for="taskDueTime">Due Time *</label>
+                            <input type="time" id="taskDueTime" name="taskDueTime" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="taskQuantity">Quantity</label>
+                            <input type="number" id="taskQuantity" name="taskQuantity" placeholder="50" min="1">
+                        </div>
+                        
+                        <div class="form-group half">
+                            <label for="estimatedTime">Estimated Time</label>
+                            <input type="text" id="estimatedTime" name="estimatedTime" placeholder="2h 30m">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="taskNotes">Additional Notes</label>
+                        <textarea id="taskNotes" name="taskNotes" rows="3" placeholder="Any special instructions or requirements..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="notifyTeam" name="notifyTeam">
+                            <span class="checkmark"></span>
+                            Notify team members about this task
+                        </label>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="modal-footer">
+                <div class="footer-actions">
+                    <button onclick="closeAddTaskModal()" class="action-btn secondary large">
+                        <span>❌</span> Cancel
+                    </button>
+                    <button onclick="saveNewTask()" class="action-btn primary large">
+                        <span>✅</span> Add Task
+                    </button>
+                </div>
+                <div class="footer-info">
+                    <small>Task will be added to today's production schedule</small>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Alert Details Modal -->
@@ -530,6 +620,102 @@
                 </div>
                 <div class="footer-info">
                     <small>Changes will be applied immediately and team notifications sent</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Details Modal -->
+    <div id="stockDetailsModal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeStockDetailsModal()"></div>
+        <div class="modal-container">
+            <div class="modal-content stock-details-modal">
+                <div class="modal-header">
+                    <div class="stock-details-modal-icon">
+                        <span id="stockModalIcon">📦</span>
+                    </div>
+                    <div class="stock-details-modal-title">
+                        <h2 id="stockModalTitle">Stock Details</h2>
+                        <span id="stockModalStatus" class="status-badge good">GOOD</span>
+                    </div>
+                    <button onclick="closeStockDetailsModal()" class="modal-close-btn">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="stock-details-grid">
+                        <div class="detail-section">
+                            <h3>📊 Current Inventory</h3>
+                            <div class="detail-content">
+                                <div class="inventory-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Current Stock:</span>
+                                        <span id="stockModalCurrent" class="stat-value">15 kg</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Minimum Required:</span>
+                                        <span id="stockModalMinimum" class="stat-value">50 kg</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Stock Level:</span>
+                                        <span id="stockModalLevel" class="stat-value critical">Critical</span>
+                                    </div>
+                                </div>
+                                <div class="stock-progress-container">
+                                    <div class="stock-progress-bar">
+                                        <div id="stockModalProgressBar" class="stock-progress-fill" style="width: 30%"></div>
+                                    </div>
+                                    <span id="stockModalProgressText" class="progress-percentage">30% of minimum</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h3>🏢 Supplier Information</h3>
+                            <div class="detail-content">
+                                <div class="supplier-info">
+                                    <div class="info-item">
+                                        <span class="info-label">Supplier:</span>
+                                        <span id="stockModalSupplier" class="info-value">Golden Wheat Co.</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Last Ordered:</span>
+                                        <span id="stockModalLastOrdered" class="info-value">3 days ago</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Location:</span>
+                                        <span id="stockModalLocation" class="info-value">Storage Room A - Shelf 2</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Expiry Date:</span>
+                                        <span id="stockModalExpiry" class="info-value">6 months</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h3>📝 Notes & Actions</h3>
+                            <div class="detail-content">
+                                <div class="notes-section">
+                                    <p id="stockModalNotes" class="stock-notes">Critical shortage - immediate reorder required</p>
+                                </div>
+                                <div class="quick-actions-section">
+                                    <button id="stockModalReorderBtn" class="action-btn primary" onclick="reorderStock()">
+                                        <span>📞</span> Contact Supplier
+                                    </button>
+                                    <button id="stockModalInventoryBtn" class="action-btn secondary" onclick="viewFullInventory()">
+                                        <span>📋</span> View Full Inventory
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <div class="footer-info">
+                        <small id="stockModalFooter">Last updated: Just now | Stock ID: STK-001</small>
+                    </div>
                 </div>
             </div>
         </div>
