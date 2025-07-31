@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Login</title>
+</head>
+<body>
+    <h1>Quick Login for Testing</h1>
+    
+    <div>
+        <button onclick="setSession()">Set Test Session</button>
+        <button onclick="clearSession()">Clear Session</button>
+        <button onclick="checkSession()">Check Session</button>
+    </div>
+    
+    <div id="status"></div>
+    
+    <div style="margin-top: 20px;">
+        <a href="production-tracking.html">Go to Production Tracking</a>
+    </div>
+
+    <script>
+        function setSession() {
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('userRole', 'supervisor');
+            sessionStorage.setItem('username', 'testuser');
+            document.getElementById('status').innerHTML = 'Session set! You can now access production tracking.';
+        }
+        
+        function clearSession() {
+            sessionStorage.clear();
+            document.getElementById('status').innerHTML = 'Session cleared.';
+        }
+        
+        function checkSession() {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            const userRole = sessionStorage.getItem('userRole');
+            const username = sessionStorage.getItem('username');
+            
+            document.getElementById('status').innerHTML = `
+                <strong>Session Status:</strong><br>
+                Logged In: ${isLoggedIn}<br>
+                Role: ${userRole}<br>
+                Username: ${username}
+            `;
+        }
+        
+        // Check session on load
+        checkSession();
+    </script>
+</body>
+</html>

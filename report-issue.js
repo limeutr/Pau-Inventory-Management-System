@@ -6,7 +6,7 @@ let filteredIssues = [];
 let currentIssueId = null;
 
 // Initialize the system
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Check authentication and role
     checkAuthAndRole();
     
@@ -17,16 +17,16 @@ document.addEventListener('DOMContentLoaded', function() {
     updateUserInfo();
     
     // Initialize sample data
-    initializeSampleData();
+    await initializeSampleData();
     
     // Setup form submission
     setupFormSubmission();
     
-    // Load and display issues
-    displayIssues();
+    // Load and display issues (will be called by initializeSampleData)
+    // displayIssues();
     
-    // Update statistics
-    updateStatistics();
+    // Update statistics (will be called by initializeSampleData)
+    // updateStatistics();
 });
 
 function checkAuthAndRole() {
@@ -97,7 +97,72 @@ function goBackToDashboard() {
     }
 }
 
-function initializeSampleData() {
+async function initializeSampleData() {
+    // Load issues from database instead of hardcoded data
+    await loadIssuesFromDatabase();
+}
+
+// Load issues from database via API
+async function loadIssuesFromDatabase() {
+    try {
+        console.log('🔄 Loading issues from database...');
+        
+        const response = await fetch('/api/issues');
+        console.log('📡 API Response:', response.status, response.statusText);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+        }
+        
+        const issues = await response.json();
+        console.log('📊 Loaded issues:', issues.length);
+        
+        // Transform database format to match existing code structure
+        reportedIssues = issues.map(issue => ({
+            id: issue.id,
+            title: issue.title,
+            type: issue.type,
+            priority: issue.priority,
+            status: issue.status,
+            reportedBy: issue.reported_by,
+            reportedDate: issue.reported_date,
+            location: issue.location,
+            equipment: issue.equipment,
+            description: issue.description,
+            stepsToReproduce: issue.steps_to_reproduce,
+            impact: issue.impact,
+            urgency: issue.urgency,
+            department: issue.department,
+            assignedTo: issue.assigned_to,
+            resolvedDate: issue.resolved_date,
+            resolution: issue.resolution
+        }));
+        
+        // Update next ID based on existing issues
+        if (reportedIssues.length > 0) {
+            const lastId = Math.max(...reportedIssues.map(issue => 
+                parseInt(issue.id.replace('ISS', ''))
+            ));
+            nextIssueId = lastId + 1;
+        }
+        
+        filteredIssues = [...reportedIssues];
+        displayIssues();
+        updateStatistics();
+        
+        console.log('✅ Issues loaded successfully from database');
+        showNotification('Issues loaded from database', 'success');
+        
+    } catch (error) {
+        console.error('❌ Error loading issues from database:', error);
+        showNotification(`Failed to load issues: ${error.message}. Using offline mode.`, 'error');
+        // Fallback to sample data for demo purposes
+        loadSampleDataFallback();
+    }
+}
+
+// Fallback function with sample data (for offline/error scenarios)
+function loadSampleDataFallback() {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -222,6 +287,8 @@ function initializeSampleData() {
     reportedIssues = sampleIssues;
     nextIssueId = reportedIssues.length + 1;
     filteredIssues = [...reportedIssues];
+    displayIssues();
+    updateStatistics();
 }
 
 function generateIssueId() {
@@ -304,25 +371,29 @@ function formatDate(dateString) {
 }
 
 function updateStatistics() {
-    const stats = {
-        total: reportedIssues.length,
-        open: 0,
-        inProgress: 0,
-        resolved: 0,
-        critical: 0
-    };
-    
-    reportedIssues.forEach(issue => {
-        if (issue.status === 'open') stats.open++;
-        if (issue.status === 'in_progress') stats.inProgress++;
-        if (issue.status === 'resolved') stats.resolved++;
-        if (issue.priority === 'critical') stats.critical++;
+    // Try to load from API first, fallback to local calculation
+    loadStatisticsFromAPI().catch(() => {
+        // Fallback to local calculation if API fails
+        const stats = {
+            total: reportedIssues.length,
+            open: 0,
+            inProgress: 0,
+            resolved: 0,
+            critical: 0
+        };
+        
+        reportedIssues.forEach(issue => {
+            if (issue.status === 'open') stats.open++;
+            if (issue.status === 'in_progress') stats.inProgress++;
+            if (issue.status === 'resolved') stats.resolved++;
+            if (issue.priority === 'critical') stats.critical++;
+        });
+        
+        document.getElementById('openCount').textContent = stats.open;
+        document.getElementById('inProgressCount').textContent = stats.inProgress;
+        document.getElementById('resolvedCount').textContent = stats.resolved;
+        document.getElementById('criticalCount').textContent = stats.critical;
     });
-    
-    document.getElementById('openCount').textContent = stats.open;
-    document.getElementById('inProgressCount').textContent = stats.inProgress;
-    document.getElementById('resolvedCount').textContent = stats.resolved;
-    document.getElementById('criticalCount').textContent = stats.critical;
 }
 
 function searchIssues() {
@@ -542,21 +613,29 @@ function updateIssueStatusQuick(issueId, newStatus) {
     const confirmMessage = `Are you sure you want to mark issue "${issue.title}" as ${statusText}?`;
     
     if (confirm(confirmMessage)) {
-        issue.status = newStatus;
+        let assignedTo = null;
+        let resolution = null;
+        
         if (newStatus === 'in_progress') {
-            issue.assignedTo = currentUser.username;
+            assignedTo = currentUser.username;
         } else if (newStatus === 'resolved') {
-            issue.resolvedDate = new Date().toISOString().split('T')[0];
-            const resolution = prompt('Please provide resolution details:');
-            if (resolution) {
-                issue.resolution = resolution;
+            resolution = prompt('Please provide resolution details:');
+            if (!resolution) {
+                return; // User cancelled or didn't provide resolution
             }
         }
         
-        filteredIssues = [...reportedIssues];
-        displayIssues();
-        updateStatistics();
-        showNotification(`Issue marked as ${statusText}`, 'success');
+        // Update via API
+        updateIssueStatusAPI(issueId, newStatus, assignedTo, resolution)
+            .then(() => {
+                // Reload issues from database
+                loadIssuesFromDatabase();
+                showNotification(`Issue marked as ${statusText}`, 'success');
+            })
+            .catch(error => {
+                console.error('Error updating issue status:', error);
+                showNotification('Failed to update issue status. Please try again.', 'error');
+            });
     }
 }
 
@@ -602,7 +681,7 @@ function closeConfirmModal() {
 }
 
 function setupFormSubmission() {
-    document.getElementById('issueForm').addEventListener('submit', function(e) {
+    document.getElementById('issueForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const formData = new FormData(this);
@@ -613,16 +692,11 @@ function setupFormSubmission() {
             location: formData.get('location'),
             equipment: formData.get('equipment') || 'N/A',
             description: formData.get('description'),
-            stepsToReproduce: formData.get('stepsToReproduce') || null,
+            steps_to_reproduce: formData.get('stepsToReproduce') || null,
             impact: formData.get('impact') || null,
             urgency: formData.get('urgency'),
             department: formData.get('department'),
-            status: 'open',
-            reportedBy: currentUser.username,
-            reportedDate: new Date().toISOString().split('T')[0],
-            assignedTo: null,
-            resolvedDate: null,
-            resolution: null
+            reported_by: currentUser.username
         };
         
         // Validate business rules
@@ -632,24 +706,23 @@ function setupFormSubmission() {
         
         const editingId = this.dataset.editingId;
         
-        if (editingId) {
-            // Update existing issue
-            const issueIndex = reportedIssues.findIndex(issue => issue.id === editingId);
-            if (issueIndex !== -1) {
-                reportedIssues[issueIndex] = { ...reportedIssues[issueIndex], ...issueData };
-                showNotification('Issue updated successfully', 'success');
+        try {
+            if (editingId) {
+                // Update existing issue
+                await updateIssue(editingId, issueData);
+            } else {
+                // Create new issue
+                await createIssue(issueData);
             }
-        } else {
-            // Add new issue
-            issueData.id = generateIssueId();
-            reportedIssues.push(issueData);
-            showNotification('Issue reported successfully', 'success');
+            
+            // Reload issues from database
+            await loadIssuesFromDatabase();
+            closeModal();
+            
+        } catch (error) {
+            console.error('Error saving issue:', error);
+            showNotification('Failed to save issue. Please try again.', 'error');
         }
-        
-        filteredIssues = [...reportedIssues];
-        displayIssues();
-        updateStatistics();
-        closeModal();
     });
 }
 
@@ -728,3 +801,112 @@ window.addEventListener('click', function(e) {
         closeConfirmModal();
     }
 });
+
+// API Functions for database integration
+
+// Create new issue via API
+async function createIssue(issueData) {
+    const response = await fetch('/api/issues', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(issueData)
+    });
+    
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create issue');
+    }
+    
+    const result = await response.json();
+    showNotification('Issue reported successfully', 'success');
+    return result;
+}
+
+// Update existing issue via API
+async function updateIssue(issueId, issueData) {
+    const response = await fetch(`/api/issues/${issueId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(issueData)
+    });
+    
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update issue');
+    }
+    
+    const result = await response.json();
+    showNotification('Issue updated successfully', 'success');
+    return result;
+}
+
+// Update issue status via API (for quick status changes)
+async function updateIssueStatusAPI(issueId, status, assignedTo = null, resolution = null) {
+    const updateData = { status };
+    
+    if (assignedTo) {
+        updateData.assigned_to = assignedTo;
+    }
+    
+    if (resolution) {
+        updateData.resolution = resolution;
+    }
+    
+    const response = await fetch(`/api/issues/${issueId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData)
+    });
+    
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update issue status');
+    }
+    
+    const result = await response.json();
+    return result;
+}
+
+// Delete issue via API
+async function deleteIssueAPI(issueId) {
+    const response = await fetch(`/api/issues/${issueId}`, {
+        method: 'DELETE'
+    });
+    
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete issue');
+    }
+    
+    const result = await response.json();
+    showNotification('Issue cancelled successfully', 'success');
+    return result;
+}
+
+// Get issue statistics from API
+async function loadStatisticsFromAPI() {
+    try {
+        const response = await fetch('/api/issues/stats/overview');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const stats = await response.json();
+        
+        document.getElementById('openCount').textContent = stats.open || 0;
+        document.getElementById('inProgressCount').textContent = stats.in_progress || 0;
+        document.getElementById('resolvedCount').textContent = stats.resolved || 0;
+        document.getElementById('criticalCount').textContent = stats.critical || 0;
+        
+    } catch (error) {
+        console.error('Error loading statistics from API:', error);
+        // Fallback to local calculation
+        updateStatistics();
+    }
+}

@@ -7,8 +7,22 @@ let editingStaffId = null;
 let deleteStaffId = null;
 let currentScheduleStaff = null;
 
+// React-like state management for form data
+let currentFormState = {
+    id: '',
+    name: '',
+    department: '',
+    position: '',
+    shift: '',
+    status: '',
+    phone: '',
+    email: '',
+    hire_date: '',
+    salary: ''
+};
+
 // Initialize the page
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Check authentication and role
     checkAuthAndRole();
     
@@ -19,16 +33,29 @@ document.addEventListener('DOMContentLoaded', function() {
     updateWelcomeMessage();
     
     // Initialize staff data
-    initializeStaffData();
-    loadStaffData();
-    updateStatistics();
+    await loadStaffDataFromAPI();
+    await updateStatistics();
     displayStaff();
     
     // Set up form submission
     document.getElementById('staffForm').addEventListener('submit', handleFormSubmit);
     
+    // Add React-like state management for form fields
+    const formInputs = ['staffName', 'department', 'position', 'shift', 'status', 'phone', 'email', 'hireDate', 'salary'];
+    formInputs.forEach(inputId => {
+        const element = document.getElementById(inputId);
+        if (element) {
+            element.addEventListener('input', () => {
+                // Update state on every input change (React-like)
+                if (!editingStaffId) {
+                    saveFormState();
+                }
+            });
+        }
+    });
+    
     // Generate next staff ID
-    generateNextStaffId();
+    await generateNextStaffId();
 });
 
 // Check authentication and role
@@ -93,246 +120,119 @@ function goBackToDashboard() {
     }
 }
 
-// Initialize sample staff data
-function initializeStaffData() {
-    const sampleStaff = [
-        {
-            id: 'STF001',
-            name: 'Chen Wei Ming',
-            department: 'PAU Production',
-            position: 'Head PAU Chef',
-            shift: 'Early Morning (4:00 AM - 12:00 PM)',
-            status: 'Active',
-            phone: '+65-9123-4567',
-            email: 'chen.weiming@pau.com',
-            hireDate: '2022-01-15',
-            salary: 75000,
-            schedule: {
-                monday: { start: '04:00', end: '12:00' },
-                tuesday: { start: '04:00', end: '12:00' },
-                wednesday: { start: '04:00', end: '12:00' },
-                thursday: { start: '04:00', end: '12:00' },
-                friday: { start: '04:00', end: '12:00' },
-                saturday: { start: '04:00', end: '12:00' },
-                sunday: { start: '', end: '' }
+// Load staff data from API
+async function loadStaffDataFromAPI() {
+    try {
+        const response = await fetch('/api/staff');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        staffData = await response.json();
+        filteredStaff = [...staffData];
+        console.log('Staff data loaded from API:', staffData.length, 'records');
+    } catch (error) {
+        console.error('Error loading staff data:', error);
+        showNotification('Failed to load staff data. Please refresh the page.', 'error');
+        // Fallback to empty array
+        staffData = [];
+        filteredStaff = [];
+    }
+}
+
+// Generate next staff ID from API
+async function generateNextStaffId() {
+    try {
+        const response = await fetch('/api/staff/utils/next-id');
+        if (response.ok) {
+            const data = await response.json();
+            const staffIdInput = document.getElementById('staffId');
+            if (staffIdInput) {
+                staffIdInput.value = data.nextId;
             }
-        },
-        {
-            id: 'STF002',
-            name: 'Lim Hui Ling',
-            department: 'Filling Preparation',
-            position: 'Senior Filling Specialist',
-            shift: 'Early Morning (4:00 AM - 12:00 PM)',
-            status: 'Active',
-            phone: '+65-9234-5678',
-            email: 'lim.huiling@pau.com',
-            hireDate: '2022-03-20',
-            salary: 58000,
-            specialties: 'Char Siew, Red Bean Paste, Lotus Seed Paste',
-            schedule: {
-                monday: { start: '04:00', end: '12:00' },
-                tuesday: { start: '04:00', end: '12:00' },
-                wednesday: { start: '04:00', end: '12:00' },
-                thursday: { start: '04:00', end: '12:00' },
-                friday: { start: '04:00', end: '12:00' },
-                saturday: { start: '04:00', end: '12:00' },
-                sunday: { start: '', end: '' }
-            }
-        },
-        {
-            id: 'STF003',
-            name: 'Tan Ah Huat',
-            department: 'PAU Production',
-            position: 'Steam Master',
-            shift: 'Day Shift (8:00 AM - 4:00 PM)',
-            status: 'Active',
-            phone: '+65-9345-6789',
-            email: 'tan.ahhuat@pau.com',
-            hireDate: '2021-11-10',
-            salary: 65000,
-            experience: '15 years PAU steaming experience',
-            schedule: {
-                monday: { start: '08:00', end: '16:00' },
-                tuesday: { start: '08:00', end: '16:00' },
-                wednesday: { start: '08:00', end: '16:00' },
-                thursday: { start: '08:00', end: '16:00' },
-                friday: { start: '08:00', end: '16:00' },
-                saturday: { start: '08:00', end: '14:00' },
-                sunday: { start: '', end: '' }
-            }
-        },
-        {
-            id: 'STF004',
-            name: 'Maria Santos',
-            department: 'Quality Control',
-            position: 'PAU Quality Inspector',
-            shift: 'Day Shift (8:00 AM - 4:00 PM)',
-            status: 'Active',
-            phone: '+65-9456-7890',
-            email: 'maria.santos@pau.com',
-            hireDate: '2023-02-14',
-            salary: 52000,
-            certifications: 'Food Safety, HACCP',
-            schedule: {
-                monday: { start: '08:00', end: '16:00' },
-                tuesday: { start: '08:00', end: '16:00' },
-                wednesday: { start: '08:00', end: '16:00' },
-                thursday: { start: '08:00', end: '16:00' },
-                friday: { start: '08:00', end: '16:00' },
-                saturday: { start: '', end: '' },
-                sunday: { start: '', end: '' }
-            }
-        },
-        {
-            id: 'STF005',
-            name: 'Wong Kah Wai',
-            department: 'Packaging & Distribution',
-            position: 'Packaging Supervisor',
-            shift: 'Afternoon (12:00 PM - 8:00 PM)',
-            status: 'Active',
-            phone: '+65-9567-8901',
-            email: 'wong.kahwai@pau.com',
-            hireDate: '2022-08-05',
-            salary: 55000,
-            responsibilities: 'PAU packaging, outlet deliveries',
-            schedule: {
-                monday: { start: '12:00', end: '20:00' },
-                tuesday: { start: '12:00', end: '20:00' },
-                wednesday: { start: '12:00', end: '20:00' },
-                thursday: { start: '12:00', end: '20:00' },
-                friday: { start: '12:00', end: '20:00' },
-                saturday: { start: '10:00', end: '18:00' },
-                sunday: { start: '', end: '' }
-            }
-        },
-        {
-            id: 'STF006',
-            name: 'Sarah Lee',
-            department: 'Outlet Management',
-            position: 'Central Outlet Manager',
-            shift: 'Day Shift (8:00 AM - 4:00 PM)',
-            status: 'Active',
-            phone: '+65-9678-9012',
-            email: 'sarah.lee@pau.com',
-            hireDate: '2023-01-18',
-            salary: 62000,
-            outlet: 'PAU Central Outlet',
-            schedule: {
-                monday: { start: '08:00', end: '16:00' },
-                tuesday: { start: '08:00', end: '16:00' },
-                wednesday: { start: '08:00', end: '16:00' },
-                thursday: { start: '08:00', end: '16:00' },
-                friday: { start: '08:00', end: '16:00' },
-                saturday: { start: '08:00', end: '16:00' },
-                sunday: { start: '10:00', end: '16:00' }
-            }
-        },
-        {
-            id: 'STF007',
-            name: 'Kumar Raj',
-            department: 'Inventory Management',
-            position: 'Inventory Coordinator',
-            shift: 'Day Shift (8:00 AM - 4:00 PM)',
-            status: 'Active',
-            phone: '+65-9789-0123',
-            email: 'kumar.raj@pau.com',
-            hireDate: '2022-12-03',
-            salary: 48000,
-            focus: 'Ingredient tracking, supply coordination',
-            schedule: {
-                monday: { start: '08:00', end: '16:00' },
-                tuesday: { start: '08:00', end: '16:00' },
-                wednesday: { start: '08:00', end: '16:00' },
-                thursday: { start: '08:00', end: '16:00' },
-                friday: { start: '08:00', end: '16:00' },
-                saturday: { start: '', end: '' },
-                sunday: { start: '', end: '' }
-            }
-        },
-        {
-            id: 'STF008',
-            name: 'Alice Tay',
-            department: 'Administration',
-            position: 'HR & Operations Manager',
-            shift: 'Day Shift (8:00 AM - 4:00 PM)',
-            status: 'Active',
-            phone: '+65-9890-1234',
-            email: 'alice.tay@pau.com',
-            hireDate: '2021-09-15',
-            salary: 68000,
-            responsibilities: 'Staff management, operations oversight',
-            schedule: {
-                monday: { start: '08:00', end: '16:00' },
-                tuesday: { start: '08:00', end: '16:00' },
-                wednesday: { start: '08:00', end: '16:00' },
-                thursday: { start: '08:00', end: '16:00' },
-                friday: { start: '08:00', end: '16:00' },
-                saturday: { start: '', end: '' },
-                sunday: { start: '', end: '' }
-            }
-        },
-        {
-            id: 'STF009',
-            name: 'Zhang Ming',
-            department: 'PAU Production',
-            position: 'Junior PAU Baker',
-            shift: 'Early Morning (4:00 AM - 12:00 PM)',
-            status: 'On Leave',
-            phone: '+65-9901-2345',
-            email: 'zhang.ming@pau.com',
-            hireDate: '2023-06-01',
-            salary: 38000,
-            training: 'Classic PAU, Char Siew PAU specialist',
-            schedule: {
-                monday: { start: '04:00', end: '12:00' },
-                tuesday: { start: '04:00', end: '12:00' },
-                wednesday: { start: '04:00', end: '12:00' },
-                thursday: { start: '04:00', end: '12:00' },
-                friday: { start: '04:00', end: '12:00' },
-                saturday: { start: '', end: '' },
-                sunday: { start: '', end: '' }
+        } else {
+            // Fallback to local calculation
+            const maxId = staffData.reduce((max, staff) => {
+                const num = parseInt(staff.id.replace('STF', ''));
+                return num > max ? num : max;
+            }, 0);
+            
+            const nextId = 'STF' + String(maxId + 1).padStart(3, '0');
+            const staffIdInput = document.getElementById('staffId');
+            if (staffIdInput) {
+                staffIdInput.value = nextId;
             }
         }
-    ];
-    
-    // Load existing data or initialize with sample data
-    const existingData = localStorage.getItem('staffData');
-    if (!existingData) {
-        staffData = sampleStaff;
-        saveStaffData();
+    } catch (error) {
+        console.error('Error generating next staff ID:', error);
+        // Fallback to local calculation
+        const maxId = staffData.reduce((max, staff) => {
+            const num = parseInt(staff.id.replace('STF', ''));
+            return num > max ? num : max;
+        }, 0);
+        
+        const nextId = 'STF' + String(maxId + 1).padStart(3, '0');
+        const staffIdInput = document.getElementById('staffId');
+        if (staffIdInput) {
+            staffIdInput.value = nextId;
+        }
     }
-}
-
-// Load staff data from localStorage
-function loadStaffData() {
-    const savedData = localStorage.getItem('staffData');
-    if (savedData) {
-        staffData = JSON.parse(savedData);
-    }
-    filteredStaff = [...staffData];
-}
-
-// Save staff data to localStorage
-function saveStaffData() {
-    localStorage.setItem('staffData', JSON.stringify(staffData));
-}
-
-// Generate next staff ID
-function generateNextStaffId() {
-    const maxId = staffData.reduce((max, staff) => {
-        const num = parseInt(staff.id.replace('STF', ''));
-        return num > max ? num : max;
-    }, 0);
-    
-    const nextId = 'STF' + String(maxId + 1).padStart(3, '0');
-    document.getElementById('staffId').value = nextId;
 }
 
 // Update statistics
-function updateStatistics() {
+async function updateStatistics() {
+    try {
+        const response = await fetch('/api/staff/stats/overview');
+        if (response.ok) {
+            const stats = await response.json();
+            document.getElementById('totalStaff').textContent = stats.total_staff;
+            document.getElementById('activeStaff').textContent = stats.active_staff;
+            
+            // Always calculate scheduled staff from current data since it needs schedule parsing
+            const scheduledStaffList = staffData.filter(staff => {
+                const isActive = staff.status === 'Active';
+                const hasValidSchedule = hasSchedule(staff);
+                return isActive && hasValidSchedule;
+            });
+            
+            console.log('Scheduled staff from API stats:', scheduledStaffList.length);
+            document.getElementById('scheduledStaff').textContent = scheduledStaffList.length;
+            document.getElementById('factoryStaff').textContent = stats.factory_staff;
+        } else {
+            // Fallback to local calculation
+            console.log('API stats failed, using local calculation');
+            updateStatisticsLocal();
+        }
+    } catch (error) {
+        console.error('Error fetching statistics:', error);
+        // Fallback to local calculation
+        console.log('API stats error, using local calculation');
+        updateStatisticsLocal();
+    }
+}
+
+// Local statistics calculation (fallback)
+function updateStatisticsLocal() {
+    console.log('=== Calculating Statistics Locally ===');
+    
     const totalStaff = staffData.length;
     const activeStaff = staffData.filter(staff => staff.status === 'Active').length;
-    const scheduledStaff = staffData.filter(staff => staff.status === 'Active' && hasSchedule(staff)).length;
+    
+    // Calculate scheduled staff with detailed logging
+    const scheduledStaffList = staffData.filter(staff => {
+        const isActive = staff.status === 'Active';
+        const hasValidSchedule = hasSchedule(staff);
+        const isScheduled = isActive && hasValidSchedule;
+        
+        if (isScheduled) {
+            console.log(`Scheduled staff found: ${staff.name}`);
+        }
+        
+        return isScheduled;
+    });
+    
+    const scheduledStaffCount = scheduledStaffList.length;
+    console.log(`Total scheduled staff: ${scheduledStaffCount}`);
+    
     const factoryStaff = staffData.filter(staff => 
         staff.department === 'PAU Production' || 
         staff.department === 'Filling Preparation' || 
@@ -341,18 +241,49 @@ function updateStatistics() {
         staff.department === 'Inventory Management'
     ).length;
     
+    console.log('Statistics:', {
+        totalStaff,
+        activeStaff,
+        scheduledStaff: scheduledStaffCount,
+        factoryStaff
+    });
+    
     document.getElementById('totalStaff').textContent = totalStaff;
     document.getElementById('activeStaff').textContent = activeStaff;
-    document.getElementById('scheduledStaff').textContent = scheduledStaff;
+    document.getElementById('scheduledStaff').textContent = scheduledStaffCount;
     document.getElementById('factoryStaff').textContent = factoryStaff;
 }
 
 // Check if staff has schedule
 function hasSchedule(staff) {
-    if (!staff.schedule) return false;
+    if (!staff.schedule) {
+        console.log(`hasSchedule: No schedule found for ${staff.name}`);
+        return false;
+    }
+    
+    // Handle both object and string schedule formats
+    let schedule = staff.schedule;
+    if (typeof schedule === 'string') {
+        try {
+            schedule = JSON.parse(schedule);
+        } catch (e) {
+            console.log(`hasSchedule: Failed to parse schedule string for ${staff.name}`);
+            return false;
+        }
+    }
     
     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-    return days.some(day => staff.schedule[day] && staff.schedule[day].start && staff.schedule[day].end);
+    const hasValidSchedule = days.some(day => {
+        const daySchedule = schedule[day];
+        const hasStartAndEnd = daySchedule && daySchedule.start && daySchedule.end;
+        if (hasStartAndEnd) {
+            console.log(`hasSchedule: ${staff.name} has schedule on ${day}:`, daySchedule);
+        }
+        return hasStartAndEnd;
+    });
+    
+    console.log(`hasSchedule: ${staff.name} has valid schedule:`, hasValidSchedule);
+    return hasValidSchedule;
 }
 
 // Display staff in table
@@ -448,12 +379,176 @@ function nextPage() {
     }
 }
 
+// Utility function to save current form state (React-like useState)
+function saveFormState() {
+    currentFormState = {
+        id: document.getElementById('staffId').value || '',
+        name: document.getElementById('staffName').value || '',
+        department: document.getElementById('department').value || '',
+        position: document.getElementById('position').value || '',
+        shift: document.getElementById('shift').value || '',
+        status: document.getElementById('status').value || '',
+        phone: document.getElementById('phone').value || '',
+        email: document.getElementById('email').value || '',
+        hire_date: document.getElementById('hireDate').value || '',
+        salary: document.getElementById('salary').value || ''
+    };
+}
+
+// Utility function to restore form state (React-like useState)
+function restoreFormState() {
+    const formFields = [
+        { id: 'staffId', value: currentFormState.id },
+        { id: 'staffName', value: currentFormState.name },
+        { id: 'department', value: currentFormState.department },
+        { id: 'position', value: currentFormState.position },
+        { id: 'shift', value: currentFormState.shift },
+        { id: 'status', value: currentFormState.status },
+        { id: 'phone', value: currentFormState.phone },
+        { id: 'email', value: currentFormState.email },
+        { id: 'hireDate', value: currentFormState.hire_date },
+        { id: 'salary', value: currentFormState.salary }
+    ];
+    
+    formFields.forEach(field => {
+        const element = document.getElementById(field.id);
+        if (element) {
+            element.value = field.value;
+        }
+    });
+}
+
+// Utility function to format time for HTML input (ensures HH:MM format)
+function formatTimeForInput(timeValue) {
+    if (!timeValue) {
+        console.log('formatTimeForInput: Empty or null time value');
+        return '';
+    }
+    
+    console.log('formatTimeForInput: Processing time value:', timeValue, 'Type:', typeof timeValue);
+    
+    try {
+        // If it's already in HH:MM format, return as is
+        if (typeof timeValue === 'string' && /^\d{2}:\d{2}$/.test(timeValue)) {
+            console.log('formatTimeForInput: Already in HH:MM format:', timeValue);
+            return timeValue;
+        }
+        
+        // If it's a time string like "09:00:00", extract HH:MM
+        if (typeof timeValue === 'string' && /^\d{2}:\d{2}:\d{2}$/.test(timeValue)) {
+            const result = timeValue.substring(0, 5);
+            console.log('formatTimeForInput: Extracted HH:MM from HH:MM:SS:', result);
+            return result;
+        }
+        
+        // If it's a time string like "9:00" (single digit hour), pad it
+        if (typeof timeValue === 'string' && /^\d{1}:\d{2}$/.test(timeValue)) {
+            const result = '0' + timeValue;
+            console.log('formatTimeForInput: Padded single digit hour:', result);
+            return result;
+        }
+        
+        // If it's a time string like "9:00:00" (single digit hour with seconds), process it
+        if (typeof timeValue === 'string' && /^\d{1}:\d{2}:\d{2}$/.test(timeValue)) {
+            const result = '0' + timeValue.substring(0, 4);
+            console.log('formatTimeForInput: Processed single digit hour with seconds:', result);
+            return result;
+        }
+        
+        // Try to parse as Date and format
+        const date = new Date(`1970-01-01T${timeValue}`);
+        if (!isNaN(date.getTime())) {
+            const result = date.toTimeString().substring(0, 5);
+            console.log('formatTimeForInput: Parsed as date and formatted:', result);
+            return result;
+        }
+        
+        console.warn('formatTimeForInput: Could not format time value:', timeValue);
+        return '';
+    } catch (error) {
+        console.error('formatTimeForInput: Error formatting time:', error, 'Value:', timeValue);
+        return '';
+    }
+}
+
+// Utility function to format date for HTML input (similar to React state management)
+function formatDateForInput(dateValue) {
+    if (!dateValue) return '';
+    
+    try {
+        let date;
+        if (dateValue instanceof Date) {
+            date = dateValue;
+        } else {
+            date = new Date(dateValue);
+        }
+        
+        // Check if the date is valid
+        if (isNaN(date.getTime())) {
+            return '';
+        }
+        
+        // Format as YYYY-MM-DD for HTML date input
+        return date.toISOString().split('T')[0];
+    } catch (error) {
+        console.error('Error formatting date:', error);
+        return '';
+    }
+}
+
+// Utility function to populate form with staff data (React-like state setter)
+function populateStaffForm(staff) {
+    const formFields = [
+        { id: 'staffName', value: staff.name || '' },
+        { id: 'staffId', value: staff.id || '' },
+        { id: 'department', value: staff.department || '' },
+        { id: 'position', value: staff.position || '' },
+        { id: 'shift', value: staff.shift || '' },
+        { id: 'status', value: staff.status || '' },
+        { id: 'phone', value: staff.phone || '' },
+        { id: 'email', value: staff.email || '' },
+        { id: 'hireDate', value: formatDateForInput(staff.hire_date) },
+        { id: 'salary', value: staff.salary || '' }
+    ];
+    
+    formFields.forEach(field => {
+        const element = document.getElementById(field.id);
+        if (element) {
+            element.value = field.value;
+        }
+    });
+    
+    // Update internal state to match form values (React-like state management)
+    currentFormState = {
+        id: staff.id || '',
+        name: staff.name || '',
+        department: staff.department || '',
+        position: staff.position || '',
+        shift: staff.shift || '',
+        status: staff.status || '',
+        phone: staff.phone || '',
+        email: staff.email || '',
+        hire_date: formatDateForInput(staff.hire_date),
+        salary: staff.salary || ''
+    };
+}
+
 // Show add staff form
 function showAddStaffForm() {
     editingStaffId = null;
     document.getElementById('modalTitle').textContent = 'Add New Staff';
-    document.getElementById('staffForm').reset();
-    generateNextStaffId();
+    
+    // Check if we have a previous state to restore (React-like useState behavior)
+    if (currentFormState.name || currentFormState.department || currentFormState.position) {
+        // Restore previous form state
+        restoreFormState();
+    } else {
+        // Reset form for new entry
+        document.getElementById('staffForm').reset();
+        // Generate next staff ID when showing the form
+        generateNextStaffId();
+    }
+    
     document.getElementById('staffModal').style.display = 'block';
 }
 
@@ -465,26 +560,19 @@ function editStaff(staffId) {
     editingStaffId = staffId;
     document.getElementById('modalTitle').textContent = 'Edit Staff';
     
-    // Populate form fields
-    document.getElementById('staffName').value = staff.name;
-    document.getElementById('staffId').value = staff.id;
-    document.getElementById('department').value = staff.department;
-    document.getElementById('position').value = staff.position;
-    document.getElementById('shift').value = staff.shift;
-    document.getElementById('status').value = staff.status;
-    document.getElementById('phone').value = staff.phone || '';
-    document.getElementById('email').value = staff.email || '';
-    document.getElementById('hireDate').value = staff.hireDate || '';
-    document.getElementById('salary').value = staff.salary || '';
+    // Use the utility function to populate form fields (React-like state management)
+    populateStaffForm(staff);
     
     document.getElementById('staffModal').style.display = 'block';
 }
 
 // Handle form submission
-function handleFormSubmit(e) {
+async function handleFormSubmit(e) {
     e.preventDefault();
     
     const formData = new FormData(e.target);
+    
+    // Prepare staff info with proper date handling
     const staffInfo = {
         id: formData.get('staffId'),
         name: formData.get('staffName'),
@@ -494,91 +582,256 @@ function handleFormSubmit(e) {
         status: formData.get('status'),
         phone: formData.get('phone'),
         email: formData.get('email'),
-        hireDate: formData.get('hireDate'),
+        hire_date: formData.get('hireDate') || null, // Ensure null instead of empty string for database
         salary: parseFloat(formData.get('salary')) || 0
     };
     
     // Validate required fields
     if (!staffInfo.name || !staffInfo.department || !staffInfo.position || !staffInfo.shift || !staffInfo.status) {
-        alert('Please fill in all required fields.');
+        showNotification('Please fill in all required fields.', 'error');
         return;
     }
     
-    if (editingStaffId) {
-        // Update existing staff
-        const index = staffData.findIndex(s => s.id === editingStaffId);
-        if (index !== -1) {
-            // Preserve existing schedule
-            const existingSchedule = staffData[index].schedule;
-            staffInfo.schedule = existingSchedule || {};
-            
-            staffData[index] = staffInfo;
-            showNotification('Staff updated successfully!', 'success');
+    try {
+        let response;
+        
+        if (editingStaffId) {
+            // Update existing staff
+            response = await fetch(`/api/staff/${editingStaffId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(staffInfo)
+            });
+        } else {
+            // Add new staff
+            response = await fetch('/api/staff', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(staffInfo)
+            });
         }
-    } else {
-        // Add new staff
-        staffInfo.schedule = {};
-        staffData.push(staffInfo);
-        showNotification('Staff added successfully!', 'success');
+        
+        if (response.ok) {
+            const result = await response.json();
+            showNotification(editingStaffId ? 'Staff updated successfully!' : 'Staff added successfully!', 'success');
+            
+            // Reload data and update UI
+            await loadStaffDataFromAPI();
+            await updateStatistics();
+            displayStaff();
+            closeModal();
+        } else {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to save staff data');
+        }
+    } catch (error) {
+        console.error('Error saving staff:', error);
+        showNotification('Error: ' + error.message, 'error');
     }
-    
-    saveStaffData();
-    loadStaffData();
-    updateStatistics();
-    displayStaff();
-    closeModal();
 }
 
 // Show schedule modal
-function showSchedule(staffId) {
-    const staff = staffData.find(s => s.id === staffId);
-    if (!staff) return;
-    
-    currentScheduleStaff = staff;
-    
-    document.getElementById('scheduleStaffName').textContent = staff.name;
-    document.getElementById('scheduleStaffDetails').textContent = `${staff.department} • ${staff.position}`;
-    
-    // Load existing schedule
-    const schedule = staff.schedule || {};
-    const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-    const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-    
-    days.forEach((day, index) => {
-        const daySchedule = schedule[dayNames[index]] || {};
-        document.getElementById(`${day}-start`).value = daySchedule.start || '';
-        document.getElementById(`${day}-end`).value = daySchedule.end || '';
-    });
-    
-    document.getElementById('scheduleModal').style.display = 'block';
+async function showSchedule(staffId) {
+    try {
+        // First try to get the latest staff data from API to ensure we have current schedule
+        const response = await fetch(`/api/staff/${staffId}`);
+        let staff;
+        
+        if (response.ok) {
+            staff = await response.json();
+            console.log('Retrieved staff with schedule from API:', staff);
+        } else {
+            // Fallback to local data if API fails
+            staff = staffData.find(s => s.id === staffId);
+            console.log('Using local staff data as fallback:', staff);
+        }
+        
+        if (!staff) {
+            showNotification('Staff member not found', 'error');
+            return;
+        }
+        
+        currentScheduleStaff = staff;
+        
+        // Update modal header with staff info
+        document.getElementById('scheduleStaffName').textContent = staff.name;
+        document.getElementById('scheduleStaffDetails').textContent = `${staff.department} • ${staff.position}`;
+        
+        // Load existing schedule from database
+        const schedule = staff.schedule || {};
+        const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        
+        console.log('Loading schedule data:', schedule);
+        console.log('Schedule keys:', Object.keys(schedule));
+        console.log('Full staff object:', staff);
+        
+        // Check if schedule is a string that needs parsing
+        let parsedSchedule = schedule;
+        if (typeof schedule === 'string') {
+            try {
+                parsedSchedule = JSON.parse(schedule);
+                console.log('Parsed schedule from string:', parsedSchedule);
+            } catch (e) {
+                console.error('Failed to parse schedule string:', e);
+                parsedSchedule = {};
+            }
+        }
+        
+        // Show the modal first
+        document.getElementById('scheduleModal').style.display = 'block';
+        
+        // Wait for modal to be fully rendered, then populate schedule
+        setTimeout(() => {
+            console.log('=== Populating Schedule After Modal Display ===');
+            
+            // Populate schedule inputs with database values
+            days.forEach((day, index) => {
+                const dayName = dayNames[index];
+                const daySchedule = parsedSchedule[dayName] || {};
+                const startInput = document.getElementById(`${day}-start`);
+                const endInput = document.getElementById(`${day}-end`);
+                
+                console.log(`Processing ${dayName} (${day}):`, daySchedule);
+                
+                if (startInput && endInput) {
+                    // Format time values properly (ensure HH:MM format)
+                    const formattedStart = formatTimeForInput(daySchedule.start);
+                    const formattedEnd = formatTimeForInput(daySchedule.end);
+                    
+                    console.log(`Setting ${dayName} - Start: "${formattedStart}", End: "${formattedEnd}"`);
+                    
+                    // Set values directly
+                    startInput.value = formattedStart;
+                    endInput.value = formattedEnd;
+                    
+                    // Force trigger change event to ensure UI updates
+                    startInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    endInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    
+                    // Verify the values were set
+                    console.log(`Verification - ${dayName} inputs after setting:`, {
+                        start: startInput.value,
+                        end: endInput.value,
+                        startElement: startInput,
+                        endElement: endInput
+                    });
+                } else {
+                    console.error(`Missing input elements for ${dayName}:`, {
+                        startInput: !!startInput,
+                        endInput: !!endInput,
+                        expectedStartId: `${day}-start`,
+                        expectedEndId: `${day}-end`
+                    });
+                }
+            });
+            
+            // Final verification after all inputs are set
+            setTimeout(() => {
+                console.log('=== Final Schedule Verification ===');
+                days.forEach(day => {
+                    const startInput = document.getElementById(`${day}-start`);
+                    const endInput = document.getElementById(`${day}-end`);
+                    if (startInput && endInput) {
+                        console.log(`${day}: start="${startInput.value}", end="${endInput.value}"`);
+                    }
+                });
+            }, 100);
+            
+        }, 50);
+        
+    } catch (error) {
+        console.error('Error loading staff schedule:', error);
+        showNotification('Failed to load staff schedule. Please try again.', 'error');
+    }
 }
 
 // Save schedule
-function saveSchedule() {
-    if (!currentScheduleStaff) return;
+async function saveSchedule() {
+    if (!currentScheduleStaff) {
+        showNotification('No staff member selected for schedule update', 'error');
+        return;
+    }
     
     const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
     const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     const schedule = {};
+    let hasValidSchedule = false;
     
+    // Build schedule object and validate times
     days.forEach((day, index) => {
-        const start = document.getElementById(`${day}-start`).value;
-        const end = document.getElementById(`${day}-end`).value;
+        const startInput = document.getElementById(`${day}-start`);
+        const endInput = document.getElementById(`${day}-end`);
         
-        schedule[dayNames[index]] = {
-            start: start || '',
-            end: end || ''
-        };
+        if (startInput && endInput) {
+            const start = startInput.value.trim();
+            const end = endInput.value.trim();
+            
+            // Validate that if start time is provided, end time is also provided
+            if (start && !end) {
+                showNotification(`Please provide end time for ${dayNames[index]}`, 'warning');
+                return;
+            }
+            if (!start && end) {
+                showNotification(`Please provide start time for ${dayNames[index]}`, 'warning');
+                return;
+            }
+            
+            // Validate that start time is before end time
+            if (start && end) {
+                const startTime = new Date(`1970-01-01T${start}:00`);
+                const endTime = new Date(`1970-01-01T${end}:00`);
+                
+                if (startTime >= endTime) {
+                    showNotification(`Start time must be before end time for ${dayNames[index]}`, 'error');
+                    return;
+                }
+                hasValidSchedule = true;
+            }
+            
+            schedule[dayNames[index]] = {
+                start: start || '',
+                end: end || ''
+            };
+        }
     });
     
-    // Update staff schedule
-    const staffIndex = staffData.findIndex(s => s.id === currentScheduleStaff.id);
-    if (staffIndex !== -1) {
-        staffData[staffIndex].schedule = schedule;
-        saveStaffData();
-        showNotification('Schedule saved successfully!', 'success');
-        closeScheduleModal();
-        updateStatistics();
+    console.log('Saving schedule for staff:', currentScheduleStaff.id, schedule);
+    
+    try {
+        const response = await fetch(`/api/staff/${currentScheduleStaff.id}/schedule`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ schedule })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            showNotification(
+                hasValidSchedule 
+                    ? 'Schedule saved successfully!' 
+                    : 'Schedule cleared successfully!', 
+                'success'
+            );
+            closeScheduleModal();
+            
+            // Reload data and update UI to reflect changes
+            await loadStaffDataFromAPI();
+            await updateStatistics();
+            displayStaff();
+        } else {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to save schedule');
+        }
+    } catch (error) {
+        console.error('Error saving schedule:', error);
+        showNotification('Error: ' + error.message, 'error');
     }
 }
 
@@ -593,18 +846,29 @@ function deleteStaff(staffId) {
 }
 
 // Confirm delete
-function confirmDelete() {
+async function confirmDelete() {
     if (!deleteStaffId) return;
     
-    const index = staffData.findIndex(s => s.id === deleteStaffId);
-    if (index !== -1) {
-        staffData.splice(index, 1);
-        saveStaffData();
-        loadStaffData();
-        updateStatistics();
-        displayStaff();
-        showNotification('Staff deleted successfully!', 'success');
-        closeDeleteModal();
+    try {
+        const response = await fetch(`/api/staff/${deleteStaffId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            showNotification('Staff deleted successfully!', 'success');
+            closeDeleteModal();
+            
+            // Reload data and update UI
+            await loadStaffDataFromAPI();
+            await updateStatistics();
+            displayStaff();
+        } else {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to delete staff');
+        }
+    } catch (error) {
+        console.error('Error deleting staff:', error);
+        showNotification('Error: ' + error.message, 'error');
     }
 }
 
@@ -643,7 +907,7 @@ function convertToCSV(data) {
             staff.status,
             staff.phone || '',
             staff.email || '',
-            staff.hireDate || '',
+            staff.hire_date || '',
             staff.salary || ''
         ];
         csvRows.push(row.join(','));
@@ -731,6 +995,11 @@ document.head.appendChild(style);
 
 // Modal functions
 function closeModal() {
+    // Save current form state before closing (React-like behavior)
+    if (!editingStaffId) {
+        saveFormState();
+    }
+    
     document.getElementById('staffModal').style.display = 'none';
     editingStaffId = null;
 }
@@ -738,6 +1007,15 @@ function closeModal() {
 function closeScheduleModal() {
     document.getElementById('scheduleModal').style.display = 'none';
     currentScheduleStaff = null;
+    
+    // Clear schedule form inputs
+    const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+    days.forEach(day => {
+        const startInput = document.getElementById(`${day}-start`);
+        const endInput = document.getElementById(`${day}-end`);
+        if (startInput) startInput.value = '';
+        if (endInput) endInput.value = '';
+    });
 }
 
 function closeDeleteModal() {

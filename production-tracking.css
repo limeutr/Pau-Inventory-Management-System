@@ -365,6 +365,15 @@ body {
     border-top: 1px solid #e9ecef;
 }
 
+/* Modal form actions - keep footer fixed */
+.modal-content .form-actions {
+    flex-shrink: 0; /* Prevent footer from shrinking */
+    padding: 15px 25px;
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 0 0 12px 12px;
+}
+
 .reset-btn {
     background: #e0e0e0;
     color: #333;
@@ -531,18 +540,23 @@ body {
 
 .modal-content {
     background-color: white;
-    margin: 10% auto;
+    margin: 5% auto;
     padding: 0;
     border-radius: 12px;
     width: 90%;
     max-width: 500px;
+    max-height: 80vh; /* Limit height to 80% of viewport */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     animation: slideIn 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Prevent content from overflowing */
 }
 
 .modal-header {
     padding: 20px 25px;
     border-bottom: 1px solid #e9ecef;
+    flex-shrink: 0; /* Prevent header from shrinking */
 }
 
 .modal-header h3 {
@@ -552,24 +566,163 @@ body {
 }
 
 .modal-body {
-    padding: 25px;
+    padding: 0; /* Remove padding to allow full-width sections */
+    overflow-y: auto; /* Make body scrollable */
+    flex: 1; /* Take up remaining space */
+    max-height: calc(80vh - 60px); /* Subtract header height only */
+}
+
+/* Enhanced confirmation details styling - minimal line-based design */
+.confirmation-details {
+    margin: 20px;
 }
 
 .confirmation-details h4 {
     color: #333;
-    margin-bottom: 10px;
-    font-size: 1em;
+    margin: 0 0 20px 0;
+    padding: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    text-align: left;
+    background: none;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 10px;
+}
+
+/* Entry details container - remove background */
+.entry-details-container {
+    background: transparent;
+    padding: 0;
+}
+
+/* Individual entry detail rows - clean line design */
+.entry-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #e9ecef;
+    background: transparent;
+}
+
+.entry-detail-row:last-child {
+    border-bottom: none;
+}
+
+.entry-detail-label {
+    font-weight: 600;
+    color: #555;
+    min-width: 100px;
+}
+
+.entry-detail-value {
+    color: #333;
+    text-align: right;
+    flex: 1;
+    margin-left: 20px;
+    word-wrap: break-word;
+}
+
+/* Enhanced confirmation details styling */
+.confirmation-details div {
+    margin-bottom: 8px;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+/* Style for notes in confirmation modal */
+.confirmation-details div:last-child {
+    max-height: none; /* Allow notes to expand */
+    overflow-wrap: break-word;
+    white-space: pre-wrap; /* Preserve line breaks in notes */
 }
 
 .stock-impact {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #e9ecef;
+    margin: 20px;
+    margin-top: 30px;
 }
 
 .stock-impact h4 {
     color: #333;
-    margin-bottom: 10px;
+    margin: 0 0 20px 0;
+    padding: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    text-align: left;
+    background: none;
+    border-bottom: 2px solid #ff9800;
+    padding-bottom: 10px;
+}
+
+.stock-impact-content {
+    background: transparent;
+    padding: 0;
+}
+
+.stock-impact-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #e9ecef;
+    background: transparent;
+}
+
+.stock-impact-row:last-child {
+    border-bottom: none;
+}
+
+.stock-impact-label {
+    font-weight: 600;
+    color: #555;
+}
+
+.stock-impact-value {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Action buttons inside scrollable area */
+.modal-actions {
+    padding: 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    border-radius: 0 0 12px 12px;
+}
+
+.modal-actions .cancel-btn,
+.modal-actions .confirm-btn {
+    flex: 1;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.modal-actions .cancel-btn {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.modal-actions .cancel-btn:hover {
+    background: #d0d0d0;
+    transform: translateY(-1px);
+}
+
+.modal-actions .confirm-btn {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+}
+
+.modal-actions .confirm-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
 }
 
 .cancel-btn {
@@ -623,9 +776,25 @@ body {
 }
 
 /* Responsive Design */
+@media (min-width: 1200px) {
+    /* On larger screens, position modals even higher for better accessibility */
+    .modal-content {
+        margin: 3% auto;
+        max-height: 85vh;
+    }
+}
+
 @media (max-width: 1200px) {
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1199px) {
+    /* Tablet positioning - slightly higher than default */
+    .modal-content {
+        margin: 4% auto;
+        max-height: 82vh;
     }
 }
 
@@ -680,4 +849,321 @@ body {
         margin: 5% auto;
         width: 95%;
     }
+}
+
+/* View Modal Styles */
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    float: right;
+    line-height: 1;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    color: #000;
+}
+
+.entry-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 20px;
+    padding: 0 20px;
+}
+
+.detail-section {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    border-left: none;
+}
+
+.detail-section.full-width {
+    grid-column: span 2;
+}
+
+.detail-section h4 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 1em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 10px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0;
+    padding: 15px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.detail-row:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #555;
+    flex-shrink: 0;
+    min-width: 120px;
+}
+
+.detail-value {
+    color: #333;
+    text-align: right;
+    word-break: break-word;
+}
+
+.detail-section.full-width h4 {
+    border-bottom: 2px solid #4CAF50;
+}
+
+.notes-container {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    min-height: auto;
+    border-top: 1px solid #e9ecef;
+    padding-top: 15px;
+}
+
+.notes-content {
+    color: #333;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+}
+
+.close-modal-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.close-modal-btn:hover {
+    transition: background-color 0.3s ease;
+}
+
+.close-modal-btn:hover {
+    background: #5a6268;
+}
+
+.view-btn {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s ease;
+    margin-right: 4px;
+}
+
+.view-btn:hover {
+    background: #138496;
+}
+
+.delete-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s ease;
+    margin-left: 4px;
+}
+
+.delete-btn:hover {
+    background: #c82333;
+}
+
+/* Modal footer styling */
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+}
+
+.modal-footer .delete-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.modal-footer .delete-btn:hover {
+    background: #c82333;
+}
+
+.close-modal-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.close-modal-btn:hover {
+    background: #5a6268;
+}
+
+/* Responsive adjustments for view modal */
+@media (max-width: 768px) {
+    .entry-details-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .detail-section.full-width {
+        grid-column: span 1;
+    }
+    
+    .modal-footer {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .modal-footer .delete-btn,
+    .modal-footer .close-modal-btn {
+        width: 100%;
+        margin: 0;
+    }
+    
+    /* Mobile adjustments for confirmation modal */
+    .modal-content {
+        margin: 3% auto;
+        width: 95%;
+        max-height: 92vh;
+    }
+    
+    .modal-body {
+        max-height: calc(92vh - 60px);
+    }
+    
+    .modal-header {
+        padding: 15px 20px;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px 20px;
+    }
+    
+    .modal-actions .cancel-btn,
+    .modal-actions .confirm-btn {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .entry-detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        padding: 12px 0;
+    }
+    
+    .entry-detail-label {
+        min-width: auto;
+        font-size: 14px;
+    }
+    
+    .entry-detail-value {
+        text-align: left !important;
+        margin-left: 0;
+        font-size: 14px;
+    }
+    
+    .stock-impact-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        padding: 12px 0;
+    }
+    
+    /* Mobile adjustments for view modal */
+    .entry-details-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 0 15px;
+    }
+    
+    .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        padding: 12px 0;
+    }
+    
+    .detail-label {
+        min-width: auto;
+        font-size: 14px;
+    }
+    
+    .detail-value {
+        text-align: left !important;
+        font-size: 14px;
+    }
+}
+
+/* Actions column styling */
+.history-table th:last-child,
+.history-table td:last-child {
+    text-align: center;
+    min-width: 120px;
+}
+
+/* Actions column styling */
+.history-table th:last-child,
+.history-table td:last-child {
+    text-align: center;
+    min-width: 120px;
+}
+
+.history-table td:last-child {
+    white-space: nowrap;
 }

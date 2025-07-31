@@ -195,10 +195,10 @@
                             <h3>Urgent: Flour Stock Critical</h3>
                             <p>Only 15 kg remaining. Contact supervisor to arrange immediate reorder.</p>
                             <div class="alert-actions">
-                                <button onclick="notifySupervisor()" class="alert-btn primary">Notify Supervisor</button>
+                                <button onclick="notifySupervisorFlour()" class="alert-btn primary">Notify Supervisor</button>
                                 <button onclick="showAlertDetails('flour-critical')" class="alert-btn secondary">View Details</button>
                             </div>
-                            <div id="supervisorNotificationStatus" class="notification-status" style="display: none;">
+                            <div id="flourNotificationStatus" class="notification-status" style="display: none;">
                                 <div class="notification-content">
                                     <span class="notification-icon">✅</span>
                                     <div class="notification-text">
@@ -219,6 +219,16 @@
                             <div class="alert-actions">
                                 <button onclick="contactFillingCo()" class="alert-btn primary">Contact Filling Co.</button>
                                 <button onclick="updateProductionPlan()" class="alert-btn secondary">Update Production Plan</button>
+                                <button onclick="notifySupervisorCharSiew()" class="alert-btn secondary">Notify Supervisor</button>
+                            </div>
+                            <div id="charSiewNotificationStatus" class="notification-status" style="display: none;">
+                                <div class="notification-content">
+                                    <span class="notification-icon">✅</span>
+                                    <div class="notification-text">
+                                        <strong>Supervisor Notified</strong>
+                                        <p>Char Siew shortage notification sent. Supervisor will coordinate with Filling Co.</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <span class="alert-time">30 minutes ago</span>
@@ -249,14 +259,20 @@
                             <p>Record inbound/outbound production</p>
                         </div>
                     </button>
-                    
-                    <button class="action-btn" onclick="manageIngredients()">
+                       <button class="action-btn" onclick="viewRecipes()">
+                        <span class="action-icon">📖</span>
+                        <div class="action-info">
+                            <strong>View Inventory</strong>
+                            <p>Check current stock levels</p>
+                        </div>
+                    </button>
+                    <!-- <button class="action-btn" onclick="manageIngredients()">
                         <span class="action-icon">🥄</span>
                         <div class="action-info">
                             <strong>Manage Ingredients</strong>
                             <p>Track ingredients and suppliers</p>
                         </div>
-                    </button>
+                    </button> -->
                     
                     <button class="action-btn" onclick="logWastage()">
                         <span class="action-icon">🗑️</span>
@@ -274,13 +290,7 @@
                         </div>
                     </button>
                     
-                    <button class="action-btn" onclick="viewRecipes()">
-                        <span class="action-icon">📖</span>
-                        <div class="action-info">
-                            <strong>View Inventory</strong>
-                            <p>Check current stock levels</p>
-                        </div>
-                    </button>
+                 
                     
                     <button class="action-btn" onclick="reportIssue()">
                         <span class="action-icon">🔧</span>
@@ -498,7 +508,7 @@
                     <button onclick="contactSupplier()" class="action-btn primary large">
                         <span>📞</span> Contact Golden Wheat Co.
                     </button>
-                    <button onclick="notifySupervisor()" class="action-btn secondary large">
+                    <button onclick="notifySupervisorFlour()" class="action-btn secondary large">
                         <span>👥</span> Notify Supervisor
                     </button>
                     <button onclick="updateProduction()" class="action-btn secondary large">
@@ -731,5 +741,6 @@
     </div>
     
     <script src="staff-dashboard.js"></script>
+    <script src="debug-notifications.js"></script>
 </body>
 </html>

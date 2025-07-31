@@ -5,6 +5,9 @@ let currentUser = {};
 let filteredRequests = [];
 let currentRequestId = null;
 
+// API Configuration
+const API_BASE_URL = 'http://localhost:3000/api';
+
 // Initialize the system
 document.addEventListener('DOMContentLoaded', function() {
     // Check authentication and role
@@ -16,17 +19,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update welcome message and role badge
     updateUserInfo();
     
-    // Initialize sample data
-    initializeSampleData();
+    // Load supply requests from API
+    loadSupplyRequestsFromAPI();
     
     // Setup form submission
     setupFormSubmission();
-    
-    // Load and display requests
-    displayRequests();
-    
-    // Update statistics
-    updateStatistics();
     
     // Set minimum date for needed by field
     setMinimumDates();
@@ -98,6 +95,115 @@ function updateUserInfo() {
     }
 }
 
+// Load supply requests from API
+async function loadSupplyRequestsFromAPI() {
+    try {
+        console.log('Fetching supply requests from API...');
+        const response = await fetch(`${API_BASE_URL}/supply-requests`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Received supply requests from API:', data.length, 'requests');
+        
+        // Update supply requests with data from database
+        supplyRequests = data;
+        
+        // Set filteredRequests to show all requests initially
+        filteredRequests = [...supplyRequests];
+        
+        console.log('Updated supplyRequests array:', supplyRequests.length, 'requests');
+        
+        // Update display
+        displayRequests();
+        updateStatistics();
+        
+        console.log('Supply requests loaded from database:', supplyRequests.length, 'requests');
+    } catch (error) {
+        console.error('Error loading supply requests:', error);
+        
+        // Fallback to sample data if API fails
+        initializeSampleData();
+        displayRequests();
+        updateStatistics();
+    }
+}
+
+// Add new supply request via API
+async function addSupplyRequestToAPI(requestData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/supply-requests`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                itemName: requestData.itemName,
+                quantity: requestData.quantity,
+                priority: requestData.priority,
+                status: requestData.status,
+                requestedBy: requestData.requestedBy,
+                neededBy: requestData.neededBy,
+                justification: requestData.justification,
+                preferredSupplier: requestData.preferredSupplier,
+                date: requestData.requestedDate
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const newRequest = await response.json();
+        console.log('Supply request added to database:', newRequest);
+        
+        // Reload supply requests data
+        await loadSupplyRequestsFromAPI();
+        
+        return newRequest;
+    } catch (error) {
+        console.error('Error adding supply request to database:', error);
+        throw error;
+    }
+}
+
+// Update supply request via API
+async function updateSupplyRequestInAPI(requestId, requestData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/supply-requests/${requestId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                itemName: requestData.itemName,
+                quantity: requestData.quantity,
+                priority: requestData.priority,
+                status: requestData.status,
+                requestedBy: requestData.requestedBy,
+                neededBy: requestData.neededBy,
+                justification: requestData.justification,
+                preferredSupplier: requestData.preferredSupplier,
+                date: requestData.requestedDate
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        console.log('Supply request updated in database');
+        
+        // Reload supply requests data
+        await loadSupplyRequestsFromAPI();
+        
+        return true;
+    } catch (error) {
+        console.error('Error updating supply request in database:', error);
+        throw error;
+    }
+}
+
 function goBackToDashboard() {
     const userRole = sessionStorage.getItem('userRole');
     if (userRole === 'supervisor' || userRole === 'admin') {
@@ -115,129 +221,6 @@ function initializeSampleData() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const nextWeek = new Date(today);
     nextWeek.setDate(nextWeek.getDate() + 7);
-    
-    const sampleRequests = [
-        {
-            id: 'REQ001',
-            itemName: 'All Purpose Flour',
-            category: 'raw_ingredient',
-            quantity: 100,
-            unit: 'kg',
-            priority: 'high',
-            status: 'pending',
-            requestedBy: 'john_doe',
-            requestedDate: today.toISOString().split('T')[0],
-            neededBy: tomorrow.toISOString().split('T')[0],
-            justification: 'Critical stock shortage - only 15kg remaining with minimum threshold of 50kg. Need immediate restocking for daily PAU production.',
-            preferredSupplier: 'Golden Wheat Co.',
-            approvedBy: null,
-            approvedDate: null,
-            completedDate: null
-        },
-        {
-            id: 'REQ002',
-            itemName: 'Red Bean Paste',
-            category: 'filling',
-            quantity: 20,
-            unit: 'kg',
-            priority: 'medium',
-            status: 'approved',
-            requestedBy: 'jane_smith',
-            requestedDate: '2025-07-20',
-            neededBy: '2025-07-25',
-            justification: 'Red Bean Pau is popular item. Need additional stock to meet weekend demand.',
-            preferredSupplier: 'Filling Co.',
-            approvedBy: 'admin',
-            approvedDate: '2025-07-21',
-            completedDate: null
-        },
-        {
-            id: 'REQ003',
-            itemName: 'Char Siew',
-            category: 'filling',
-            quantity: 15,
-            unit: 'kg',
-            priority: 'urgent',
-            status: 'pending',
-            requestedBy: 'baker_mike',
-            requestedDate: today.toISOString().split('T')[0],
-            neededBy: today.toISOString().split('T')[0],
-            justification: 'Urgent replacement needed - current batch expires tomorrow. Essential for Char Siew Pau production.',
-            preferredSupplier: 'Filling Co.',
-            approvedBy: null,
-            approvedDate: null,
-            completedDate: null
-        },
-        {
-            id: 'REQ004',
-            itemName: 'Instant Dry Yeast',
-            category: 'raw_ingredient',
-            quantity: 5,
-            unit: 'kg',
-            priority: 'medium',
-            status: 'completed',
-            requestedBy: 'staff_mary',
-            requestedDate: '2025-07-18',
-            neededBy: '2025-07-22',
-            justification: 'Regular inventory restocking for PAU dough preparation.',
-            preferredSupplier: 'Golden Wheat Co.',
-            approvedBy: 'admin',
-            approvedDate: '2025-07-18',
-            completedDate: '2025-07-19'
-        },
-        {
-            id: 'REQ005',
-            itemName: 'Lotus Seed Paste',
-            category: 'filling',
-            quantity: 12,
-            unit: 'kg',
-            priority: 'high',
-            status: 'approved',
-            requestedBy: 'production_team',
-            requestedDate: '2025-07-21',
-            neededBy: nextWeek.toISOString().split('T')[0],
-            justification: 'High demand for Lotus Bao. Premium filling ingredient needed for special orders.',
-            preferredSupplier: 'Filling Co.',
-            approvedBy: 'supervisor',
-            approvedDate: '2025-07-21',
-            completedDate: null
-        },
-        {
-            id: 'REQ006',
-            itemName: 'Sugar',
-            category: 'raw_ingredient',
-            quantity: 25,
-            unit: 'kg',
-            priority: 'low',
-            status: 'pending',
-            requestedBy: 'inventory_clerk',
-            requestedDate: today.toISOString().split('T')[0],
-            neededBy: nextWeek.toISOString().split('T')[0],
-            justification: 'Routine stock replenishment. Current levels adequate but approaching minimum threshold.',
-            preferredSupplier: 'Sweet Supply Ltd.',
-            approvedBy: null,
-            approvedDate: null,
-            completedDate: null
-        },
-        {
-            id: 'REQ007',
-            itemName: 'Custard Filling',
-            category: 'filling',
-            quantity: 8,
-            unit: 'kg',
-            priority: 'medium',
-            status: 'rejected',
-            requestedBy: 'staff_peter',
-            requestedDate: '2025-07-19',
-            neededBy: '2025-07-24',
-            justification: 'Additional custard filling for Nai Wong Bao production increase.',
-            preferredSupplier: 'Filling Co.',
-            approvedBy: 'admin',
-            approvedDate: '2025-07-20',
-            completedDate: null,
-            rejectionReason: 'Sufficient stock available. Request denied to control inventory costs.'
-        }
-    ];
     
     supplyRequests = sampleRequests;
     nextRequestId = supplyRequests.length + 1;
@@ -330,13 +313,24 @@ function formatUsername(username) {
 }
 
 function formatDate(dateString) {
-    const date = new Date(dateString);
+    if (!dateString) return 'Not specified';
+
+    const dateOnly = dateString.split('T')[0]; // Get just the date part
+    const [year, month, day] = dateOnly.split('-');
+    
+    // Create a Date object (Note: month is 0-indexed)
+    const date = new Date(year, month - 1, parseInt(day));
+    
+    // Add 1 day
+    date.setDate(date.getDate() + 1);
+
     return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: '2-digit'
     });
 }
+
 
 function updateStatistics() {
     const stats = {
@@ -419,8 +413,17 @@ function openNewRequestModal() {
 }
 
 function editRequest(requestId) {
-    const request = supplyRequests.find(r => r.id === requestId);
-    if (!request) return;
+    console.log('editRequest called with requestId:', requestId, 'type:', typeof requestId);
+    
+    // Convert requestId to handle both string and number types
+    const request = supplyRequests.find(r => r.id == requestId || r.id === String(requestId) || r.id === Number(requestId));
+    console.log('Found request for editing:', request);
+    
+    if (!request) {
+        console.error('Request not found for editing, ID:', requestId);
+        alert('Request not found!');
+        return;
+    }
     
     // Check if user can edit this request
     const canEdit = currentUser.role === 'supervisor' || currentUser.role === 'admin' || 
@@ -437,13 +440,13 @@ function editRequest(requestId) {
     }
     
     document.getElementById('modalTitle').textContent = 'Edit Supply Request';
-    document.getElementById('itemName').value = request.itemName;
-    document.getElementById('category').value = request.category;
-    document.getElementById('quantity').value = request.quantity;
-    document.getElementById('unit').value = request.unit;
-    document.getElementById('priority').value = request.priority;
-    document.getElementById('neededBy').value = request.neededBy;
-    document.getElementById('justification').value = request.justification;
+    document.getElementById('itemName').value = request.itemName || '';
+    document.getElementById('category').value = request.category || '';
+    document.getElementById('quantity').value = request.quantity || '';
+    document.getElementById('unit').value = request.unit || '';
+    document.getElementById('priority').value = request.priority || '';
+    document.getElementById('neededBy').value = request.neededBy || '';
+    document.getElementById('justification').value = request.justification || '';
     document.getElementById('preferredSupplier').value = request.preferredSupplier || '';
     
     // Store the request ID for updating
@@ -452,8 +455,18 @@ function editRequest(requestId) {
 }
 
 function viewRequest(requestId) {
-    const request = supplyRequests.find(r => r.id === requestId);
-    if (!request) return;
+    console.log('viewRequest called with requestId:', requestId, 'type:', typeof requestId);
+    console.log('Current supplyRequests array:', supplyRequests);
+    
+    // Convert requestId to number if it's a string, or try both string and number comparison
+    const request = supplyRequests.find(r => r.id == requestId || r.id === String(requestId) || r.id === Number(requestId));
+    console.log('Found request:', request);
+    
+    if (!request) {
+        console.error('Request not found for ID:', requestId);
+        alert('Request not found!');
+        return;
+    }
     
     currentRequestId = requestId;
     
@@ -532,14 +545,23 @@ function viewRequest(requestId) {
     document.getElementById('viewModal').style.display = 'block';
 }
 
-function approveRequestQuick(requestId) {
+async function approveRequestQuick(requestId) {
+    console.log('approveRequestQuick called with requestId:', requestId, 'type:', typeof requestId);
+    
     if (currentUser.role !== 'supervisor' && currentUser.role !== 'admin') {
         alert('⚠️ Access Denied\n\nOnly supervisors can approve requests.');
         return;
     }
     
-    const request = supplyRequests.find(r => r.id === requestId);
-    if (!request) return;
+    // Convert requestId to handle both string and number types
+    const request = supplyRequests.find(r => r.id == requestId || r.id === String(requestId) || r.id === Number(requestId));
+    console.log('Found request for approval:', request);
+    
+    if (!request) {
+        console.error('Request not found for approval, ID:', requestId);
+        alert('Request not found!');
+        return;
+    }
     
     if (request.status !== 'pending') {
         alert('⚠️ Cannot Approve\n\nOnly pending requests can be approved.');
@@ -548,53 +570,84 @@ function approveRequestQuick(requestId) {
     
     const confirmMessage = `Are you sure you want to approve the request for "${request.itemName}"?`;
     if (confirm(confirmMessage)) {
-        request.status = 'approved';
-        request.approvedBy = currentUser.username;
-        request.approvedDate = new Date().toISOString().split('T')[0];
-        
-        filteredRequests = [...supplyRequests];
-        displayRequests();
-        updateStatistics();
-        showNotification('Request approved successfully', 'success');
+        try {
+            // Update request data
+            const updatedData = {
+                ...request,
+                status: 'approved',
+                approvedBy: currentUser.username,
+                approvedDate: new Date().toISOString().split('T')[0]
+            };
+            
+            await updateSupplyRequestInAPI(requestId, updatedData);
+            showNotification('Request approved successfully', 'success');
+        } catch (error) {
+            console.error('Error approving request:', error);
+            showNotification('Error approving request. Please try again.', 'error');
+        }
     }
 }
 
-function approveRequest() {
+async function approveRequest() {
     if (!currentRequestId) return;
     
-    const request = supplyRequests.find(r => r.id === currentRequestId);
-    if (!request) return;
+    // Convert currentRequestId to handle both string and number types
+    const request = supplyRequests.find(r => r.id == currentRequestId || r.id === String(currentRequestId) || r.id === Number(currentRequestId));
+    if (!request) {
+        console.error('Request not found for approval, ID:', currentRequestId);
+        alert('Request not found!');
+        return;
+    }
     
-    request.status = 'approved';
-    request.approvedBy = currentUser.username;
-    request.approvedDate = new Date().toISOString().split('T')[0];
-    
-    filteredRequests = [...supplyRequests];
-    displayRequests();
-    updateStatistics();
-    closeViewModal();
-    showNotification('Request approved successfully', 'success');
+    try {
+        // Update request data
+        const updatedData = {
+            ...request,
+            status: 'approved',
+            approvedBy: currentUser.username,
+            approvedDate: new Date().toISOString().split('T')[0]
+        };
+        
+        await updateSupplyRequestInAPI(currentRequestId, updatedData);
+        closeViewModal();
+        showNotification('Request approved successfully', 'success');
+    } catch (error) {
+        console.error('Error approving request:', error);
+        showNotification('Error approving request. Please try again.', 'error');
+    }
 }
 
-function rejectRequest() {
+async function rejectRequest() {
     if (!currentRequestId) return;
     
-    const request = supplyRequests.find(r => r.id === currentRequestId);
-    if (!request) return;
+    // Convert currentRequestId to handle both string and number types
+    const request = supplyRequests.find(r => r.id == currentRequestId || r.id === String(currentRequestId) || r.id === Number(currentRequestId));
+    if (!request) {
+        console.error('Request not found for rejection, ID:', currentRequestId);
+        alert('Request not found!');
+        return;
+    }
     
     const reason = prompt('Please provide a reason for rejection:');
     if (reason === null) return; // User cancelled
     
-    request.status = 'rejected';
-    request.rejectedBy = currentUser.username;
-    request.rejectedDate = new Date().toISOString().split('T')[0];
-    request.rejectionReason = reason;
-    
-    filteredRequests = [...supplyRequests];
-    displayRequests();
-    updateStatistics();
-    closeViewModal();
-    showNotification('Request rejected', 'info');
+    try {
+        // Update request data
+        const updatedData = {
+            ...request,
+            status: 'rejected',
+            rejectedBy: currentUser.username,
+            rejectedDate: new Date().toISOString().split('T')[0],
+            rejectionReason: reason
+        };
+        
+        await updateSupplyRequestInAPI(currentRequestId, updatedData);
+        closeViewModal();
+        showNotification('Request rejected', 'info');
+    } catch (error) {
+        console.error('Error rejecting request:', error);
+        showNotification('Error rejecting request. Please try again.', 'error');
+    }
 }
 
 function closeModal() {
@@ -612,26 +665,45 @@ function closeConfirmModal() {
 }
 
 function setupFormSubmission() {
-    document.getElementById('requestForm').addEventListener('submit', function(e) {
+    document.getElementById('requestForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const formData = new FormData(this);
+        
+        // Get today's date in proper format (no timezone manipulation)
+        const today = new Date();
+        const todayString = today.getFullYear() + '-' + 
+                           String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                           String(today.getDate()).padStart(2, '0');
+        
+        // Get the actual neededBy value from the form
+        const formNeededBy = formData.get('neededBy');
+        
         const requestData = {
             itemName: formData.get('itemName'),
             category: formData.get('category'),
             quantity: parseFloat(formData.get('quantity')),
             unit: formData.get('unit'),
             priority: formData.get('priority'),
-            neededBy: formData.get('neededBy') || null,
+            neededBy: formNeededBy || todayString,
             justification: formData.get('justification'),
             preferredSupplier: formData.get('preferredSupplier') || null,
             status: 'pending',
             requestedBy: currentUser.username,
-            requestedDate: new Date().toISOString().split('T')[0],
+            requestedDate: todayString, // Use proper date format
             approvedBy: null,
             approvedDate: null,
             completedDate: null
         };
+        
+        console.log('Form data - neededBy:', formData.get('neededBy'));
+        console.log('Request data - neededBy:', requestData.neededBy);
+        console.log('Full request data:', requestData);
+        
+        // Additional debugging for neededBy field
+        const neededByField = document.getElementById('neededBy');
+        console.log('neededBy field element:', neededByField);
+        console.log('neededBy field value:', neededByField ? neededByField.value : 'Field not found');
         
         // Validate business rules
         if (!validateRequestData(requestData)) {
@@ -640,24 +712,22 @@ function setupFormSubmission() {
         
         const editingId = this.dataset.editingId;
         
-        if (editingId) {
-            // Update existing request
-            const requestIndex = supplyRequests.findIndex(request => request.id === editingId);
-            if (requestIndex !== -1) {
-                supplyRequests[requestIndex] = { ...supplyRequests[requestIndex], ...requestData };
+        try {
+            if (editingId) {
+                // Update existing request via API
+                await updateSupplyRequestInAPI(editingId, requestData);
                 showNotification('Request updated successfully', 'success');
+            } else {
+                // Add new request via API (ID will be auto-generated by database)
+                await addSupplyRequestToAPI(requestData);
+                showNotification('Request submitted successfully', 'success');
             }
-        } else {
-            // Add new request
-            requestData.id = generateRequestId();
-            supplyRequests.push(requestData);
-            showNotification('Request submitted successfully', 'success');
+            
+            closeModal();
+        } catch (error) {
+            console.error('Error saving request:', error);
+            showNotification('Error saving request. Please try again.', 'error');
         }
-        
-        filteredRequests = [...supplyRequests];
-        displayRequests();
-        updateStatistics();
-        closeModal();
     });
 }
 
@@ -666,19 +736,6 @@ function validateRequestData(requestData) {
     if (requestData.quantity <= 0) {
         alert('⚠️ Validation Error\n\nQuantity must be greater than zero.');
         return false;
-    }
-    
-    // Business rule: Check if needed by date is in the future
-    if (requestData.neededBy) {
-        const today = new Date();
-        const neededDate = new Date(requestData.neededBy);
-        
-        if (neededDate < today) {
-            const confirmPastDate = confirm('⚠️ Date Warning\n\nThe "needed by" date is in the past. This may cause delays in processing.\n\nDo you want to continue?');
-            if (!confirmPastDate) {
-                return false;
-            }
-        }
     }
     
     // Business rule: Justification must be meaningful
@@ -753,9 +810,12 @@ function printReport() {
     window.print();
 }
 
-function refreshData() {
-    // Placeholder for data refresh functionality
-    displayRequests();
-    updateStatistics();
-    showNotification('Data refreshed successfully', 'success');
+async function refreshData() {
+    try {
+        await loadSupplyRequestsFromAPI();
+        showNotification('Data refreshed successfully', 'success');
+    } catch (error) {
+        console.error('Error refreshing data:', error);
+        showNotification('Error refreshing data. Please try again.', 'error');
+    }
 }

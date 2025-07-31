@@ -220,14 +220,29 @@ class SearchableDropdown {
             this.originalSelect.value = '';
         }
     }
+    
+    // Public method to update value externally
+    updateValue(value) {
+        this.setValue(value);
+    }
 }
+
+// Store searchable dropdown instances
+let searchableDropdowns = {};
 
 function initializeSearchableDropdowns() {
     // Initialize searchable dropdowns for form selects
     const selectElements = document.querySelectorAll('#itemType, #location, #unit, #supplier');
     selectElements.forEach(select => {
-        new SearchableDropdown(select);
+        searchableDropdowns[select.id] = new SearchableDropdown(select);
     });
+}
+
+// Helper function to update searchable dropdown values
+function updateSearchableDropdownValue(selectId, value) {
+    if (searchableDropdowns[selectId]) {
+        searchableDropdowns[selectId].setValue(value);
+    }
 }
 
 function checkAuthAndRole() {
@@ -303,220 +318,169 @@ function goBackToDashboard() {
 }
 
 function initializeInventoryData() {
-    // Force update to PAU Bakery inventory data (override any cached data)
-    const sampleData = [
-        // Raw Ingredients
-        {
-            id: 'INV001',
-            name: 'All Purpose Flour',
-            type: 'raw_ingredient',
-            location: 'factory',
-            quantity: 15,
-            unit: 'kg',
-            expiryDate: '2025-12-31',
-            minStockLevel: 50,
-            supplier: 'Golden Wheat Co.'
-        },
-        {
-            id: 'INV002',
-            name: 'Sugar',
-            type: 'raw_ingredient',
-            location: 'factory',
-            quantity: 22,
-            unit: 'kg',
-            expiryDate: '2026-06-15',
-            minStockLevel: 20,
-            supplier: 'Sweet Supply Ltd.'
-        },
-        {
-            id: 'INV003',
-            name: 'Instant Dry Yeast',
-            type: 'raw_ingredient',
-            location: 'factory',
-            quantity: 3.2,
-            unit: 'kg',
-            expiryDate: '2025-09-30',
-            minStockLevel: 3,
-            supplier: 'Golden Wheat Co.'
-        },
-        {
-            id: 'INV004',
-            name: 'Cooking Oil',
-            type: 'raw_ingredient',
-            location: 'factory',
-            quantity: 8,
-            unit: 'L',
-            expiryDate: '2025-11-20',
-            minStockLevel: 5,
-            supplier: 'Golden Wheat Co.'
-        },
-        {
-            id: 'INV005',
-            name: 'Salt',
-            type: 'raw_ingredient',
-            location: 'factory',
-            quantity: 10,
-            unit: 'kg',
-            expiryDate: '2027-01-01',
-            minStockLevel: 5,
-            supplier: 'Sweet Supply Ltd.'
-        },
-        {
-            id: 'INV006',
-            name: 'Baking Powder',
-            type: 'raw_ingredient',
-            location: 'factory',
-            quantity: 2.5,
-            unit: 'kg',
-            expiryDate: '2025-10-15',
-            minStockLevel: 2,
-            supplier: 'Sweet Supply Ltd.'
-        },
-        {
-            id: 'INV007',
-            name: 'Char Siew',
-            type: 'raw_ingredient',
-            location: 'factory',
-            quantity: 5,
-            unit: 'kg',
-            expiryDate: '2025-07-23',
-            minStockLevel: 3,
-            supplier: 'Filling Co.'
-        },
-        {
-            id: 'INV008',
-            name: 'Red Bean Paste',
-            type: 'raw_ingredient',
-            location: 'factory',
-            quantity: 8,
-            unit: 'kg',
-            expiryDate: '2025-08-30',
-            minStockLevel: 5,
-            supplier: 'Filling Co.'
-        },
-        {
-            id: 'INV009',
-            name: 'Lotus Seed Paste',
-            type: 'raw_ingredient',
-            location: 'factory',
-            quantity: 6,
-            unit: 'kg',
-            expiryDate: '2025-08-15',
-            minStockLevel: 4,
-            supplier: 'Filling Co.'
-        },
-        {
-            id: 'INV010',
-            name: 'Custard Filling',
-            type: 'raw_ingredient',
-            location: 'factory',
-            quantity: 4,
-            unit: 'kg',
-            expiryDate: '2025-07-28',
-            minStockLevel: 3,
-            supplier: 'Filling Co.'
-        },
-        {
-            id: 'INV011',
-            name: 'Mushroom & Veg Mix',
-            type: 'raw_ingredient',
-            location: 'factory',
-            quantity: 7,
-            unit: 'kg',
-            expiryDate: '2025-07-25',
-            minStockLevel: 5,
-            supplier: 'Filling Co.'
-        },
-        // Finished Products
-        {
-            id: 'INV012',
-            name: 'Classic Pau',
-            type: 'finished_product',
-            location: 'outlet',
-            quantity: 45,
-            unit: 'pcs',
-            expiryDate: '2025-07-23',
-            minStockLevel: 20,
-            supplier: 'In-house Production'
-        },
-        {
-            id: 'INV013',
-            name: 'Char Siew Pau',
-            type: 'finished_product',
-            location: 'outlet',
-            quantity: 32,
-            unit: 'pcs',
-            expiryDate: '2025-07-23',
-            minStockLevel: 15,
-            supplier: 'In-house Production'
-        },
-        {
-            id: 'INV014',
-            name: 'Nai Wong Bao',
-            type: 'finished_product',
-            location: 'outlet',
-            quantity: 28,
-            unit: 'pcs',
-            expiryDate: '2025-07-23',
-            minStockLevel: 15,
-            supplier: 'In-house Production'
-        },
-        {
-            id: 'INV015',
-            name: 'Red Bean Pau',
-            type: 'finished_product',
-            location: 'outlet',
-            quantity: 22,
-            unit: 'pcs',
-            expiryDate: '2025-07-23',
-            minStockLevel: 12,
-            supplier: 'In-house Production'
-        },
-        {
-            id: 'INV016',
-            name: 'Lotus Bao',
-            type: 'finished_product',
-            location: 'outlet',
-            quantity: 18,
-            unit: 'pcs',
-            expiryDate: '2025-07-23',
-            minStockLevel: 10,
-            supplier: 'In-house Production'
-        },
-        {
-            id: 'INV017',
-            name: 'Vegetarian Bao',
-            type: 'finished_product',
-            location: 'outlet',
-            quantity: 35,
-            unit: 'pcs',
-            expiryDate: '2025-07-23',
-            minStockLevel: 18,
-            supplier: 'In-house Production'
+    // Load inventory data from database via API
+    loadInventoryFromAPI();
+}
+
+// API Configuration
+const API_BASE_URL = 'http://localhost:3000/api';
+
+// Load inventory data from API
+async function loadInventoryFromAPI() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/inventory`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    ];
-    
-    // Force update inventory items and save to localStorage
-    inventoryItems = sampleData;
-    localStorage.setItem('inventoryItems', JSON.stringify(inventoryItems));
-    nextItemId = inventoryItems.length + 1;
-    filteredItems = [...inventoryItems];
+        const data = await response.json();
+        
+        // Update inventory items with data from database
+        // Always recalculate status on client side for real-time accuracy
+        inventoryItems = data.map(item => ({
+            ...item,
+            status: calculateItemStatus(item) // Always recalculate for real-time status
+        }));
+        
+        // Update next item ID
+        const maxId = Math.max(...inventoryItems.map(item => parseInt(item.id.replace('INV', ''))), 0);
+        nextItemId = maxId + 1;
+        
+        // Update filtered items
+        filteredItems = [...inventoryItems];
+        
+        // Update display
+        displayInventoryItems();
+        updateStatistics();
+        
+        console.log('Inventory data loaded from database:', inventoryItems.length, 'items');
+    } catch (error) {
+        console.error('Error loading inventory data:', error);
+        
+        // Fallback to localStorage if API fails
+        const stored = localStorage.getItem('inventoryItems');
+        if (stored) {
+            inventoryItems = JSON.parse(stored).map(item => ({
+                ...item,
+                status: calculateItemStatus(item) // Recalculate status even for cached data
+            }));
+            filteredItems = [...inventoryItems];
+            displayInventoryItems();
+            updateStatistics();
+            console.log('Loaded fallback data from localStorage with updated status');
+        } else {
+            console.warn('No inventory data available');
+            inventoryItems = [];
+            filteredItems = [];
+            displayInventoryItems();
+            updateStatistics();
+        }
+    }
+}
+
+// Add new item via API
+async function addItemToAPI(itemData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/inventory`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(itemData)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const newItem = await response.json();
+        console.log('Item added to database:', newItem);
+        
+        // Reload inventory data
+        await loadInventoryFromAPI();
+        
+        return newItem;
+    } catch (error) {
+        console.error('Error adding item to database:', error);
+        throw error;
+    }
+}
+
+// Update item via API
+async function updateItemInAPI(itemId, itemData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/inventory/${itemId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(itemData)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        console.log('Item updated in database');
+        
+        // Reload inventory data
+        await loadInventoryFromAPI();
+        
+    } catch (error) {
+        console.error('Error updating item in database:', error);
+        throw error;
+    }
+}
+
+// Delete item via API
+async function deleteItemFromAPI(itemId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/inventory/${itemId}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        console.log('Item deleted from database');
+        
+        // Reload inventory data
+        await loadInventoryFromAPI();
+        
+    } catch (error) {
+        console.error('Error deleting item from database:', error);
+        throw error;
+    }
 }
 
 function generateItemId() {
     return `INV${String(nextItemId++).padStart(3, '0')}`;
 }
-
 function calculateItemStatus(item) {
     const today = new Date();
-    const expiryDate = new Date(item.expiryDate);
+    today.setHours(0, 0, 0, 0); // Start of today's date
+
+    // Fix timezone issue by parsing date without timezone conversion
+    const expiryDate = new Date(item.expiryDate + 'T00:00:00');
+    expiryDate.setDate(expiryDate.getDate() + 1); // Add 1 day to fix timezone display issue
+    expiryDate.setHours(0, 0, 0, 0);
+
     const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+    
+    // Use item's specific minStockLevel from database or default to 5
+    const minStockLevel = item.minStockLevel || 5;
+    
+    // Priority order (highest to lowest):
+    // 1. EXPIRED    → Past expiry date
+    // 2. EXPIRING   → Within 14 days of expiry
+    // 3. LOW STOCK  → Quantity ≤ Stock level
+    // 4. GOOD       → Everything else
     
     if (daysUntilExpiry < 0) {
         return 'expired';
-    } else if (daysUntilExpiry <= 3) {
+    } else if (daysUntilExpiry <= 14) { // Expiring within 14 days
         return 'expiring';
-    } else if (item.quantity <= item.minStockLevel) {
+    } else if (item.quantity <= minStockLevel) {
         return 'low';
     } else {
         return 'good';
@@ -555,8 +519,9 @@ function displayInventoryItems() {
             <td><span class="item-type ${item.type}">${item.type.replace('_', ' ')}</span></td>
             <td><span class="location-badge ${item.location}">${item.location}</span></td>
             <td><span class="quantity">${item.quantity} ${item.unit}</span></td>
-            <td>${item.unit}</td>
+            <td style="display: none;">${item.unit}</td>
             <td>${formatDate(item.expiryDate)}</td>
+            <td><span class="supplier">${item.supplier || 'In-house Production'}</span></td>
             <td><span class="status-indicator ${status}">${getStatusText(status)}</span></td>
             <td class="actions">
                 <button onclick="editItem('${item.id}')" class="action-btn edit-btn">
@@ -584,7 +549,9 @@ function getStatusText(status) {
 }
 
 function formatDate(dateString) {
-    const date = new Date(dateString);
+    // Fix timezone issue by adding 1 day for display
+    const date = new Date(dateString + 'T00:00:00');
+    date.setDate(date.getDate() ); // Add 1 day to fix timezone display issue
     return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -668,14 +635,31 @@ function editItem(itemId) {
         document.getElementById('modalTitle').textContent = 'View Item Details (Read-Only)';
     }
     
+    // Set form values
     document.getElementById('itemName').value = item.name;
     document.getElementById('itemType').value = item.type;
     document.getElementById('location').value = item.location;
     document.getElementById('quantity').value = item.quantity;
     document.getElementById('unit').value = item.unit;
-    document.getElementById('expiryDate').value = item.expiryDate;
+    
+    // Fix expiry date formatting to avoid timezone issues
+    const expiryDate = new Date(item.expiryDate );
+    expiryDate.setDate(expiryDate.getDate() ); // Add 1 day to fix timezone display issue
+    const year = expiryDate.getFullYear();
+    const month = String(expiryDate.getMonth() ).padStart(2, '0');
+    const day = String(expiryDate.getDate()).padStart(2, '0');
+    document.getElementById('expiryDate').value = `${year}-${month}-${day}`;
+    
     document.getElementById('minStockLevel').value = item.minStockLevel;
     document.getElementById('supplier').value = item.supplier;
+    
+    // Update searchable dropdowns with current values
+    setTimeout(() => {
+        updateSearchableDropdownValue('itemType', item.type);
+        updateSearchableDropdownValue('location', item.location);
+        updateSearchableDropdownValue('unit', item.unit);
+        updateSearchableDropdownValue('supplier', item.supplier);
+    }, 100); // Small delay to ensure dropdowns are initialized
     
     // Make form read-only for non-admin/supervisor users
     if (currentUser.role !== 'supervisor' && currentUser.role !== 'admin') {
@@ -734,14 +718,15 @@ function deleteItem(itemId) {
     document.getElementById('confirmModal').style.display = 'block';
 }
 
-function confirmDelete(itemId) {
-    inventoryItems = inventoryItems.filter(item => item.id !== itemId);
-    filteredItems = [...inventoryItems];
-    displayInventoryItems();
-    updateStatistics();
-    closeConfirmModal();
-    
-    showNotification('Item deleted successfully', 'success');
+async function confirmDelete(itemId) {
+    try {
+        await deleteItemFromAPI(itemId);
+        closeConfirmModal();
+        showNotification('Item deleted successfully', 'success');
+    } catch (error) {
+        console.error('Error deleting item:', error);
+        showNotification('Error deleting item. Please try again.', 'error');
+    }
 }
 
 function closeModal() {
@@ -769,7 +754,7 @@ function closeConfirmModal() {
 }
 
 function setupFormSubmission() {
-    document.getElementById('itemForm').addEventListener('submit', function(e) {
+    document.getElementById('itemForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const formData = new FormData(this);
@@ -781,8 +766,9 @@ function setupFormSubmission() {
             unit: formData.get('unit'),
             expiryDate: formData.get('expiryDate'),
             minStockLevel: parseFloat(formData.get('minStockLevel')) || 0,
-            supplier: formData.get('supplier') || 'Unknown'
+            supplier: formData.get('supplier') || 'In-house Production'
         };
+
         
         // Validate business rules
         if (!validateItemData(itemData)) {
@@ -791,24 +777,22 @@ function setupFormSubmission() {
         
         const editingId = this.dataset.editingId;
         
-        if (editingId) {
-            // Update existing item
-            const itemIndex = inventoryItems.findIndex(item => item.id === editingId);
-            if (itemIndex !== -1) {
-                inventoryItems[itemIndex] = { ...inventoryItems[itemIndex], ...itemData };
+        try {
+            if (editingId) {
+                // Update existing item via API
+                await updateItemInAPI(editingId, itemData);
                 showNotification('Item updated successfully', 'success');
+            } else {
+                // Add new item via API
+                await addItemToAPI(itemData);
+                showNotification('Item added successfully', 'success');
             }
-        } else {
-            // Add new item
-            itemData.id = generateItemId();
-            inventoryItems.push(itemData);
-            showNotification('Item added successfully', 'success');
+            
+            closeModal();
+        } catch (error) {
+            console.error('Error saving item:', error);
+            showNotification('Error saving item. Please try again.', 'error');
         }
-        
-        filteredItems = [...inventoryItems];
-        displayInventoryItems();
-        updateStatistics();
-        closeModal();
     });
 }
 
@@ -829,16 +813,16 @@ function validateItemData(itemData) {
     const today = new Date();
     const expiryDate = new Date(itemData.expiryDate);
     
-    if (expiryDate < today) {
-        const confirmPastDate = confirm('⚠️ Expiry Date Warning\n\nThe expiry date is in the past. This item will be flagged as expired and should be removed from inventory.\n\nDo you want to continue?');
-        if (!confirmPastDate) {
-            return false;
-        }
-    }
+    // if (expiryDate < today) {
+    //     const confirmPastDate = confirm('⚠️ Expiry Date Warning\n\nThe expiry date is in the past. This item will be flagged as expired and should be removed from inventory.\n\nDo you want to continue?');
+    //     if (!confirmPastDate) {
+    //         return false;
+    //     }
+    // }
     
     // Warning for items expiring soon
     const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-    if (daysUntilExpiry >= 0 && daysUntilExpiry <= 7) {
+    if (daysUntilExpiry >= 0 && daysUntilExpiry <= 14) {
         const confirmExpiringSoon = confirm(`⚠️ Expiry Warning\n\nThis item expires in ${daysUntilExpiry} day(s). Please ensure it will be used before expiration.\n\nDo you want to continue?`);
         if (!confirmExpiringSoon) {
             return false;

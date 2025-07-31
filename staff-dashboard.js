@@ -709,79 +709,44 @@ function contactSupplier() {
     markActionCompleted('contact-supplier');
 }
 
-function notifySupervisor() {
-    // Show detailed notification information
-    const notificationInfo = `
-👥 SUPERVISOR NOTIFICATION - URGENT
-
-📧 ALERT DETAILS:
-• Issue: Critical Flour Stock Shortage
-• Current Level: 15 kg (70% below minimum)
-• Minimum Required: 50 kg
-• Production Impact: Immediate halt in 2-3 hours
-
-📞 SUPERVISOR CONTACTS:
-• Primary: Supervisor Lee (+65-9123-4567)
-• Secondary: Manager Wong (+65-9876-5432)
-• Email: supervisor@pausupply.com
-
-⚠️ NOTIFICATION SENT:
-• SMS Alert: Delivered ✅
-• Email Report: Sent ✅
-• System Alert: Active ✅
-• WhatsApp: Delivered ✅
-
-📋 SUPERVISOR ACTIONS REQUIRED:
-1. Approve emergency supplier contact
-2. Authorize rush delivery order
-3. Review production schedule adjustments
-4. Approve additional budget if needed
-
-🕐 RESPONSE TIMELINE:
-• Expected response: Within 30 minutes
-• Escalation if no response: 1 hour
-• Emergency protocol: Contact manager
-
-📊 NEXT STEPS:
-✓ Supervisor notified across all channels
-✓ Alert logged in management system
-✓ Production team informed of potential delays
-✓ Alternative supplier options prepared
-    `;
+function notifySupervisorFlour() {
+    console.log('🔍 DEBUG: notifySupervisorFlour() function called');
     
-    if (confirm(notificationInfo + "\n\nSupervisor has been notified. Click OK to acknowledge, or Cancel to view more options.")) {
-        // Show the notification status below the buttons
-        const notificationStatus = document.getElementById('supervisorNotificationStatus');
-        if (notificationStatus) {
-            notificationStatus.style.display = 'block';
-        }
-        
-        // Simulate successful notification
-        alert("✅ NOTIFICATION CONFIRMED!\n\n📱 Supervisor Lee responded:\n'Received alert. Approving emergency flour order. Will contact Golden Wheat Co. immediately. Production adjustments approved.'\n\n🔔 Status: ACKNOWLEDGED\n⏰ Action taken: 2 minutes ago\n📋 Incident logged: #FL-2025-001");
-        
-        // Update the alert to show it's been handled
-        updateAlertStatus('flour-critical', 'supervisor-notified');
-        
-        // Mark action as completed
-        markActionCompleted('notify-supervisor');
-        
-        // Log the action
-        logStaffAction('Supervisor Notification', 'Critical flour shortage - Emergency notification sent and acknowledged');
-    } else {
-        // Show additional options
-        const additionalOptions = confirm("Additional options:\n\n📞 Call supervisor directly\n📧 Send follow-up email\n📋 Create incident report\n⚠️ Escalate to manager\n\nClick OK to call supervisor now, or Cancel to return.");
-        
-        if (additionalOptions) {
-            alert("📞 Calling Supervisor Lee...\n\n✅ Call connected!\n👥 'Thanks for the call. I'll handle the flour situation immediately. Keep production running with current stock while I arrange emergency delivery.'\n\n📋 Call logged and supervisor is taking action.");
-            
-            // Show the notification status even for the call option
-            const notificationStatus = document.getElementById('supervisorNotificationStatus');
-            if (notificationStatus) {
-                notificationStatus.style.display = 'block';
-            }
-        }
-    }
+    // Hide any other notifications if needed (optional)
+    document.getElementById('charSiewNotificationStatus').style.display = 'none';
+    
+    // Show only the flour notification
+    document.getElementById('flourNotificationStatus').style.display = 'block';
+    
+    // Disable the button and change text to prevent duplicate notifications
+    event.target.disabled = true;
+    event.target.textContent = "Notified";
+    event.target.style.opacity = "0.6";
+    event.target.style.cursor = "not-allowed";
+    
+    alert("✅ FLOUR NOTIFICATION SENT!\n\nSupervisor Lee has been notified about the critical flour shortage.\n\n� Response: 'Emergency flour order approved. Delivery expected in 4 hours.'\n\n🔔 Status: ACKNOWLEDGED");
 }
+
+function notifySupervisorCharSiew() {
+    console.log('🔍 DEBUG: notifySupervisorCharSiew() function called');
+    
+    // Hide any other notifications if needed (optional)
+    document.getElementById('flourNotificationStatus').style.display = 'none';
+    
+    // Show only the Char Siew notification
+    document.getElementById('charSiewNotificationStatus').style.display = 'block';
+    
+    // Disable the button and change text to prevent duplicate notifications
+    event.target.disabled = true;
+    event.target.textContent = "Notified";
+    event.target.style.opacity = "0.6";
+    event.target.style.cursor = "not-allowed";
+    
+    alert("✅ CHAR SIEW NOTIFICATION SENT!\n\nSupervisor Lee has been notified about the low Char Siew stock.\n\n� Response: 'Will contact Filling Co. immediately for emergency delivery.'\n\n🔔 Status: ACKNOWLEDGED");
+}
+
+// Removed the generic notifySupervisor() function to prevent confusion
+// Each notification now has its own dedicated function
 
 function updateProduction() {
     alert('Production schedule updated!\n\nAdjustments made:\n• Reduced Classic Pau production from 60 to 30 units\n• Prioritized high-margin items\n• Estimated flour conservation: 15kg\n\nNew production timeline available in Production Tracking.');
